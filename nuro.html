@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101010" />
+  <title>NOIR — Digital Experiences</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <style>
+    :root {
+      --bg: #101010;
+      --surface: #181818;
+      --text: #f5f2eb;
+      --muted: #9c9b96;
+      --accent: #c5ff4a;
+      --line: rgba(255,255,255,.13);
+      --header: rgba(16,16,16,.72);
+    }
+
+    body.light {
+      --bg: #f4f2ec;
+      --surface: #e9e7df;
+      --text: #171815;
+      --muted: #686962;
+      --accent: #628c00;
+      --line: rgba(0,0,0,.15);
+      --header: rgba(244,242,236,.76);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      overflow-x: hidden;
+      transition: background .4s, color .4s;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .wrap { width: min(1200px, calc(100% - 48px)); margin: 0 auto; }
+
+    /* Loader */
+    .loader {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      place-items: center;
+      background: #101010;
+      color: #f5f2eb;
+    }
+    .loader-inner { width: min(360px, 76vw); }
+    .loader-brand { font: 700 14px "Space Grotesk"; letter-spacing: .24em; }
+    .loader-track { height: 2px; margin-top: 20px; background: #343434; overflow: hidden; }
+    .loader-bar { height: 100%; width: 0; background: #c5ff4a; }
+    .loader-number { margin-top: 10px; color: #aaa; font-size: 12px; }
+
+    /* Transition overlay */
+    .transition {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      pointer-events: none;
+    }
+
+    /* Background particles */
+    #particles-js {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .38;
+    }
+    main, header, footer { position: relative; z-index: 1; }
+
+    /* Header */
+    header {
+      position: fixed;
+      z-index: 50;
+      top: 0;
+      width: 100%;
+      background: var(--header);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+    .nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font: 700 20px "Space Grotesk";
+      letter-spacing: .18em;
+    }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 34px; }
+    .nav-links a, .theme-toggle {
+      color: var(--muted);
+      font-size: 13px;
+      transition: color .2s;
+    }
+    .nav-links a:hover, .theme-toggle:hover { color: var(--text); }
+    .theme-toggle {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100svh;
+      padding: 150px 0 70px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero-canvas {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 58%;
+      height: 100%;
+      z-index: -1;
+      opacity: .82;
+    }
+    .hero-copy { max-width: 760px; position: relative; z-index: 2; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; }
+    .hero h1 {
+      margin: 24px 0;
+      max-width: 850px;
+      font-size: clamp(56px, 9.5vw, 124px);
+      line-height: .91;
+      letter-spacing: -.075em;
+    }
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero-bottom {
+      max-width: 600px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-top: 34px;
+    }
+    .hero-bottom p { max-width: 360px; color: var(--muted); line-height: 1.7; font-size: 15px; margin: 0; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      border: 0;
+      border-radius: 99px;
+      padding: 16px 21px;
+      background: var(--accent);
+      color: #111;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      will-change: transform;
+    }
+    .button .arrow { font-size: 18px; transition: transform .2s; }
+    .button:hover .arrow { transform: translate(3px, -3px); }
+    .hero-note {
+      position: absolute;
+      right: 24px;
+      bottom: 42px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .14em;
+      writing-mode: vertical-rl;
+      text-transform: uppercase;
+    }
+
+    /* Shared sections */
+    section { padding: 120px 0; }
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 30px;
+      margin-bottom: 48px;
+    }
+    .section-heading h2 {
+      margin: 14px 0 0;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: .98;
+      letter-spacing: -.065em;
+    }
+    .section-heading p { max-width: 320px; margin: 0; color: var(--muted); line-height: 1.7; }
+
+    /* Work cards */
+    .work-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .work-card {
+      min-height: 380px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      background: var(--surface);
+      transform-style: preserve-3d;
+      border: 1px solid var(--line);
+    }
+    .work-card img {
+      width: 100%; height: 100%; min-height: 380px;
+      object-fit: cover; display: block;
+      opacity: .72; transition: transform .7s, opacity .4s;
+    }
+    .work-card:hover img { transform: scale(1.05); opacity: .88; }
+    .card-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; justify-content: end;
+      padding: 28px;
+      background: linear-gradient(transparent 25%, rgba(0,0,0,.75));
+      transform: translateZ(30px);
+    }
+    .card-overlay small { color: #d0d0ca; letter-spacing: .15em; text-transform: uppercase; }
+    .card-overlay h3 { margin: 8px 0 0; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.05em; }
+
+    /* Video slider */
+    .video-section { background: var(--surface); }
+    .video-swiper { overflow: visible; }
+    .video-slide {
+      position: relative;
+      height: min(62vw, 560px);
+      min-height: 350px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #222;
+    }
+    .video-slide video {
+      width: 100%; height: 100%;
+      position: absolute; inset: 0;
+      object-fit: cover;
+      opacity: .62;
+    }
+    .video-slide::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,.68), transparent 85%);
+    }
+    .video-caption { position: absolute; z-index: 2; left: 7%; bottom: 10%; max-width: 500px; color: white; }
+    .video-caption span { color: var(--accent); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+    .video-caption h3 { font-size: clamp(38px, 7vw, 78px); letter-spacing: -.07em; line-height: .95; margin: 14px 0; }
+    .video-caption p { color: #ddd; line-height: 1.6; }
+    .slider-controls { display: flex; justify-content: end; gap: 10px; margin-top: 22px; }
+    .slider-controls button {
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 1px solid var(--line); background: transparent; color: var(--text);
+      font-size: 18px; cursor: pointer;
+    }
+
+    /* About / stats */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: start; }
+    .about-grid h2 { font-size: clamp(40px, 6vw, 76px); line-height: .98; letter-spacing: -.07em; margin: 18px 0; }
+    .about-copy { color: var(--muted); line-height: 1.8; max-width: 490px; padding-top: 15px; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 32px; }
+    .stat { border-top: 1px solid var(--line); padding-top: 18px; }
+    .stat strong { font: 600 42px "Space Grotesk"; color: var(--accent); }
+    .stat span { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+    /* CTA */
+    .cta {
+      padding: 90px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: center;
+    }
+    .cta h2 { margin: 20px auto 28px; max-width: 850px; font-size: clamp(45px, 8vw, 100px); line-height: .92; letter-spacing: -.075em; }
+    footer { padding: 28px 0; }
+    .footer-row { display: flex; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 12px; }
+    .footer-row strong { color: var(--text); letter-spacing: .17em; }
+
+    /* Cursor */
+    .cursor, .cursor-ring {
+      position: fixed; top: 0; left: 0; z-index: 1100;
+      pointer-events: none; border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .cursor { width: 6px; height: 6px; background: var(--accent); }
+    .cursor-ring {
+      width: 34px; height: 34px;
+      border: 1px solid rgba(197,255,74,.65);
+      transition: width .2s, height .2s, background .2s;
+    }
+    .cursor-ring.hover { width: 56px; height: 56px; background: rgba(197,255,74,.08); }
+    @media (pointer: coarse) { .cursor, .cursor-ring { display: none; } }
+
+    @media (max-width: 700px) {
+      .wrap { width: min(100% - 32px, 1200px); }
+      .nav { height: 66px; }
+      .nav-links { gap: 14px; }
+      .nav-links a { display: none; }
+      .hero { min-height: 840px; align-items: start; padding-top: 180px; }
+      #hero-canvas { width: 100%; height: 58%; top: auto; bottom: 0; opacity: .66; }
+      .hero-bottom { align-items: start; flex-direction: column; }
+      .hero-note { display: none; }
+      section { padding: 84px 0; }
+      .section-heading { align-items: start; flex-direction: column; }
+      .work-grid, .about-grid { grid-template-columns: 1fr; }
+      .work-card, .work-card img { min-height: 310px; }
+      .about-grid { gap: 20px; }
+      .video-slide { min-height: 380px; height: 110vw; }
+      .footer-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader" aria-label="Loading">
+    <div class="loader-inner">
+      <div class="loader-brand">NOIR® — CREATIVE STUDIO</div>
+      <div class="loader-track"><div class="loader-bar"></div></div>
+      <div class="loader-number">0%</div>
+    </div>
+  </div>
+  <div class="transition"></div>
+  <div id="particles-js"></div>
+  <div class="cursor"></div>
+  <div class="cursor-ring"></div>
+
+  <header>
+    <div class="wrap nav">
+      <a class="logo" href="#home" aria-label="NOIR home">NOIR<span>.</span></a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#work">Work</a>
+        <a href="#about">Studio</a>
+        <a href="#films">Films</a>
+        <button class="theme-toggle magnetic" type="button" aria-label="Toggle light and dark mode">☼ <span>Theme</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <canvas id="hero-canvas"></canvas>
+      <div class="wrap">
+        <div class="hero-copy">
+          <div class="eyebrow">Independent digital studio</div>
+          <h1>Make it<br />feel <em>different.</em></h1>
+          <div class="hero-bottom">
+            <p>We build expressive digital worlds for ambitious brands — blending strategy, design and technology into experiences people remember.</p>
+            <a class="button magnetic" href="#work">Explore our work <span class="arrow">↗</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-note">Scroll to explore — 2025</div>
+    </section>
+
+    <section id="work">
+      <div class="wrap">
+        <div class="section-heading reveal">
+          <div>
+            <div class="eyebrow">Selected projects</div>
+            <h2>Built to<br />stand out.</h2>
+          </div>
+          <p>Distinctive identities and digital experiences, made to move brands forward.</p>
+        </div>
+        <div class="work-grid">
+          <article class="work-card tilt reveal">
+            <img src="https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1400&q=85" alt="Colorful art installation" />
+            <div class="card-overlay"><small>Brand world · 2025</small><h3>Otherworld</h3></div>
+          </article>
+          <article class="work-card tilt reveal">
+            <img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1400&q=85" alt="Night sky over a mountain landscape" />
+            <div class="card-overlay"><small>Digital experience · 2025</small><h3>After Hours</h3></div>
+          </article>
+          <article class="work-card tilt reveal">
+            <img src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1400&q=85" alt="Minimal modern interior" />
+            <div class="card-overlay"><small>Art direction · 2024</small><h3>Form & Field</h3></div>
+          </article>
+          <article class="work-card tilt reveal">
+            <img src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1400&q=85" alt="Modern architectural building" />
+            <div class="card-overlay"><small>Strategy · Website · 2024</small><h3>Still / Moving</h3></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="video-section" id="films">
+      <div class="wrap">
+        <div class="section-heading reveal">
+          <div><div class="eyebrow">In motion</div><h2>Stories in<br />full color.</h2></div>
+          <p>A few moving pictures from the worlds we create. Swipe or use the arrows to explore.</p>
+        </div>
+
+        <div class="swiper video-swiper reveal">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide video-slide">
+              <video muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80">
+                <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+              </video>
+              <div class="video-caption"><span>Film 01 — Nature, reframed</span><h3>Find your<br />own rhythm.</h3><p>A visual study in movement, color and quiet moments.</p></div>
+            </div>
+            <div class="swiper-slide video-slide">
+              <video muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1600&q=80">
+                <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+              </video>
+              <div class="video-caption"><span>Film 02 — Living forms</span><h3>Made of<br />moments.</h3><p>Small details, considered carefully, come together as a world.</p></div>
+            </div>
+            <div class="swiper-slide video-slide">
+              <video muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1600&q=80">
+                <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+              </video>
+              <div class="video-caption"><span>Film 03 — Open horizons</span><h3>Go beyond<br />the obvious.</h3><p>Campaigns designed to invite, inspire and take you somewhere new.</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="slider-controls">
+          <button class="swiper-prev" aria-label="Previous slide">←</button>
+          <button class="swiper-next" aria-label="Next slide">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="wrap about-grid">
+        <div class="reveal">
+          <div class="eyebrow">A little about us</div>
+          <h2>Good work<br />has a point<br />of view.</h2>
+        </div>
+        <div class="about-copy reveal">
+          <p>NOIR is an independent creative studio partnering with people who want to make a mark. We bring clarity to complex ideas, then turn them into sharp identities and immersive digital experiences.</p>
+          <p>Small by design. Curious by nature. Always looking for the detail that makes the whole thing click.</p>
+          <div class="stats">
+            <div class="stat"><strong>12+</strong><span>Years of making</span></div>
+            <div class="stat"><strong>38</strong><span>Projects launched</span></div>
+            <div class="stat"><strong>09</strong><span>Countries reached</span></div>
+            <div class="stat"><strong>∞</strong><span>Ideas in progress</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="contact">
+      <div class="wrap reveal">
+        <div class="eyebrow">Have a good one in mind?</div>
+        <h2>Let’s make<br />something matter.</h2>
+        <a class="button magnetic" href="mailto:hello@noir.studio">Start a conversation <span class="arrow">↗</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <strong>NOIR®</strong>
+      <span>Independent by nature. Online everywhere.</span>
+      <span>© 2025 NOIR Studio</span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+  <script>
+    // Loader and opening animation
+    const loader = document.querySelector(".loader");
+    const loaderBar = document.querySelector(".loader-bar");
+    const loaderNumber = document.querySelector(".loader-number");
+    let progress = 0;
+    const loading = setInterval(() => {
+      progress = Math.min(progress + Math.ceil(Math.random() * 12), 100);
+      loaderBar.style.width = progress + "%";
+      loaderNumber.textContent = progress + "%";
+      if (progress === 100) {
+        clearInterval(loading);
+        gsap.to(loader, {
+          yPercent: -100,
+          duration: .8,
+          ease: "power4.inOut",
+          delay: .25,
+          onComplete: () => loader.remove()
+        });
+        gsap.from(".hero-copy > *", {
+          y: 35, opacity: 0, duration: .9, stagger: .12, delay: .5, ease: "power3.out"
+        });
+      }
+    }, 90);
+
+    // Smooth scrolling with Lenis + ScrollTrigger
+    if (window.Lenis) {
+      const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    // Scroll reveal and subtle parallax
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.utils.toArray(".reveal").forEach((el) => {
+      gsap.from(el, {
+        y: 48, opacity: 0, duration: 1, ease: "power3.out",
+        scrollTrigger: { trigger: el, start: "top 88%", once: true }
+      });
+    });
+    gsap.to(".hero-copy", {
+      y: 110, opacity: .25, ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true }
+    });
+
+    // Three.js 3D hero object
+    const canvas = document.querySelector("#hero-canvas");
+    if (window.THREE && canvas) {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, .1, 100);
+      camera.position.z = 6;
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const geometry = new THREE.IcosahedronGeometry(1.55, 2);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xc5ff4a, roughness: .28, metalness: .72,
+        wireframe: true
+      });
+      const object = new THREE.Mesh(geometry, material);
+      scene.add(object);
+
+      const inner = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(.92, 1),
+        new THREE.MeshStandardMaterial({ color: 0x9ba885, roughness: .2, metalness: .8, wireframe: true })
+      );
+      scene.add(inner);
+      scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+      const light = new THREE.PointLight(0xc5ff4a, 18);
+      light.position.set(3, 3, 4);
+      scene.add(light);
+
+      const resize = () => {
+        const rect = canvas.getBoundingClientRect();
+        renderer.setSize(rect.width, rect.height, false);
+        camera.aspect = rect.width / rect.height;
+        camera.updateProjectionMatrix();
+      };
+      window.addEventListener("resize", resize);
+      resize();
+
+      let pointerX = 0, pointerY = 0;
+      window.addEventListener("pointermove", (event) => {
+        pointerX = (event.clientX / window.innerWidth - .5) * .5;
+        pointerY = (event.clientY / window.innerHeight - .5) * .4;
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const t = clock.getElapsedTime();
+        object.rotation.y = t * .18 + pointerX;
+        object.rotation.x = t * .12 + pointerY;
+        inner.rotation.x = -t * .2;
+        inner.rotation.y = t * .26;
+        object.position.y = Math.sin(t * .7) * .12;
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    // Sparkling background
+    if (window.particlesJS) {
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 42, density: { enable: true, value_area: 950 } },
+          color: { value: "#c5ff4a" },
+          shape: { type: "circle" },
+          opacity: { value: .42, random: true },
+          size: { value: 2, random: true },
+          line_linked: { enable: true, distance: 140, color: "#c5ff4a", opacity: .12, width: 1 },
+          move: { enable: true, speed: .7, direction: "none", random: true, out_mode: "out" }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: false }, resize: true },
+          modes: { grab: { distance: 150, line_linked: { opacity: .3 } } }
+        },
+        retina_detect: true
+      });
+    }
+
+    // 3D tilt cards
+    document.querySelectorAll(".tilt").forEach((card) => {
+      card.addEventListener("pointermove", (event) => {
+        if (event.pointerType === "touch") return;
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - .5;
+        const y = (event.clientY - rect.top) / rect.height - .5;
+        card.style.transform = `perspective(900px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg)`;
+      });
+      card.addEventListener("pointerleave", () => {
+        card.style.transform = "perspective(900px) rotateY(0) rotateX(0)";
+      });
+    });
+
+    // Magnetic buttons
+    document.querySelectorAll(".magnetic").forEach((button) => {
+      button.addEventListener("pointermove", (event) => {
+        if (event.pointerType === "touch") return;
+        const rect = button.getBoundingClientRect();
+        const dx = event.clientX - rect.left - rect.width / 2;
+        const dy = event.clientY - rect.top - rect.height / 2;
+        gsap.to(button, { x: dx * .18, y: dy * .18, duration: .3, ease: "power2.out" });
+      });
+      button.addEventListener("pointerleave", () => {
+        gsap.to(button, { x: 0, y: 0, duration: .5, ease: "elastic.out(1, .35)" });
+      });
+    });
+
+    // Custom cursor
+    const cursor = document.querySelector(".cursor");
+    const ring = document.querySelector(".cursor-ring");
+    window.addEventListener("pointermove", (event) => {
+      gsap.to(cursor, { x: event.clientX, y: event.clientY, duration: .08 });
+      gsap.to(ring, { x: event.clientX, y: event.clientY, duration: .2 });
+    });
+    document.querySelectorAll("a, button, .work-card").forEach((el) => {
+      el.addEventListener("pointerenter", () => ring.classList.add("hover"));
+      el.addEventListener("pointerleave", () => ring.classList.remove("hover"));
+    });
+
+    // Swiper video slider: pause inactive slides and play the active one
+    const swiper = new Swiper(".video-swiper", {
+      loop: true,
+      speed: 750,
+      slidesPerView: 1,
+      spaceBetween: 18,
+      navigation: { nextEl: ".swiper-next", prevEl: ".swiper-prev" },
+      on: {
+        init: playActiveVideo,
+        slideChangeTransitionStart: playActiveVideo
+      }
+    });
+    function playActiveVideo() {
+      document.querySelectorAll(".video-slide video").forEach((video) => {
+        video.pause();
+        if (video.closest(".swiper-slide-active")) video.play().catch(() => {});
+      });
+    }
+
+    // Theme toggle
+    document.querySelector(".theme-toggle").addEventListener("click", () => {
+      document.body.classList.toggle("light");
+    });
+
+    // Page transition-style navigation for in-page links
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const target = document.querySelector(link.getAttribute("href"));
+        if (!target) return;
+        event.preventDefault();
+        gsap.timeline()
+          .to(".transition", { scaleY: 1, transformOrigin: "bottom", duration: .28, ease: "power2.inOut" })
+          .add(() => target.scrollIntoView({ behavior: "smooth" }))
+          .to(".transition", { scaleY: 0, transformOrigin: "top", duration: .45, ease: "power3.inOut" });
+      });
+    });
+  </script>
+</body>
+</html>

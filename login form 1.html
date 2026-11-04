@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit Login</title>
+<style>
+  :root {
+    --bg: #0b0b1a;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.14);
+    --text: #f1f2ff;
+    --muted: #9a9cc2;
+    --accent: #7c6cff;
+    --accent-2: #19d3da;
+    --danger: #ff5c7a;
+    --success: #3ddc97;
+    --orb: #6d5dfc;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    --radius: 22px;
+  }
+  [data-theme="light"] {
+    --bg: #eef0ff;
+    --card: rgba(255, 255, 255, 0.7);
+    --card-border: rgba(90, 80, 200, 0.18);
+    --text: #1b1b3a;
+    --muted: #6b6d96;
+    --input-bg: rgba(255, 255, 255, 0.85);
+    --shadow: 0 30px 80px rgba(90, 80, 200, 0.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    overflow: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  #bg {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  .glow {
+    position: fixed;
+    width: 520px; height: 520px;
+    border-radius: 50%;
+    filter: blur(110px);
+    opacity: 0.35;
+    z-index: 0;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .glow.a { background: var(--accent); top: -160px; left: -140px; }
+  .glow.b { background: var(--accent-2); bottom: -180px; right: -120px; animation-delay: -9s; }
+  @keyframes drift {
+    to { transform: translate(60px, 40px) scale(1.15); }
+  }
+
+  .scene {
+    position: relative;
+    z-index: 1;
+    perspective: 1100px;
+    width: min(420px, 92vw);
+  }
+
+  .card {
+    position: relative;
+    padding: 84px 34px 30px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow: var(--shadow);
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+  }
+  .card::before {
+    /* moving light sheen that follows pointer */
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,0.14), transparent 60%);
+    pointer-events: none;
+  }
+  .card.shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes shake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(5px); }
+    30%, 50%, 70% { transform: translateX(-9px); }
+    40%, 60% { transform: translateX(9px); }
+  }
+
+  /* ---------- Mascot ---------- */
+  .mascot {
+    position: absolute;
+    top: -52px; left: 50%;
+    width: 112px; height: 112px;
+    transform: translateX(-50%) translateZ(60px);
+    filter: drop-shadow(0 14px 22px rgba(109, 93, 252, 0.5));
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    50% { transform: translateX(-50%) translateZ(60px) translateY(-6px); }
+  }
+  .mascot .lid {
+    fill: var(--orb);
+    transform-box: fill-box;
+    transform-origin: top center;
+    transform: scaleY(0);
+    transition: transform 0.25s ease;
+  }
+  .mascot.hide .lid { transform: scaleY(1); }
+  .mascot.peek .lid { transform: scaleY(0.55); }
+  .mascot .pupil { transition: transform 0.08s linear; }
+  .mascot .mouth { transition: d 0.3s ease; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; }
+  .mascot.happy .mouth { d: path("M44 84 Q60 102 76 84"); }
+  .mascot.sad .mouth { d: path("M46 92 Q60 80 74 92"); }
+  .mascot.blink .eye-white { animation: blink 0.18s; }
+  @keyframes blink { 50% { transform: scaleY(0.1); } }
+  .eye-white { transform-box: fill-box; transform-origin: center; }
+
+  /* ---------- Header ---------- */
+  .top {
+    display: flex; justify-content: flex-end;
+    position: absolute; top: 14px; right: 16px;
+  }
+  .icon-btn {
+    background: transparent; border: 0; color: var(--muted);
+    width: 34px; height: 34px; border-radius: 50%;
+    cursor: pointer; display: grid; place-items: center;
+    transition: background .2s, color .2s, transform .3s;
+  }
+  .icon-btn:hover { background: var(--input-bg); color: var(--text); transform: rotate(20deg); }
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  h1 {
+    font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; text-align: center;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { text-align: center; color: var(--muted); font-size: .92rem; margin: 6px 0 26px; }
+
+  /* ---------- Fields ---------- */
+  .field { position: relative; margin-bottom: 18px; }
+  .field input {
+    width: 100%;
+    padding: 22px 46px 8px 16px;
+    font-size: 1rem; color: var(--text);
+    background: var(--input-bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: 14px;
+    outline: none;
+    transition: border-color .25s, box-shadow .25s, background .25s;
+  }
+  .field label {
+    position: absolute; left: 16px; top: 17px;
+    color: var(--muted); font-size: 1rem;
+    pointer-events: none;
+    transform-origin: left top;
+    transition: transform .22s ease, color .22s ease;
+  }
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label {
+    transform: translateY(-11px) scale(.74);
+  }
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(124, 108, 255, 0.2);
+  }
+  .field input:focus + label { color: var(--accent); }
+  .field.invalid input { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(255, 92, 122, 0.15); }
+  .field.valid input { border-color: var(--success); }
+  .msg { min-height: 16px; font-size: .78rem; color: var(--danger); margin: 5px 4px 0; }
+
+  .toggle-pass {
+    position: absolute; right: 8px; top: 9px;
+  }
+
+  /* strength meter */
+  .meter { display: flex; gap: 5px; margin-top: 8px; }
+  .meter span { flex: 1; height: 4px; border-radius: 4px; background: var(--card-border); transition: background .3s; }
+  .meter[data-s="1"] span:nth-child(-n+1) { background: var(--danger); }
+  .meter[data-s="2"] span:nth-child(-n+2) { background: #ffb347; }
+  .meter[data-s="3"] span:nth-child(-n+3) { background: #d7e04b; }
+  .meter[data-s="4"] span:nth-child(-n+4) { background: var(--success); }
+  .strength-label { font-size: .74rem; color: var(--muted); margin-top: 4px; display: flex; justify-content: space-between; }
+  .caps { color: #ffb347; opacity: 0; transition: opacity .2s; }
+  .caps.on { opacity: 1; }
+
+  .row { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 22px; font-size: .88rem; }
+  .check { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--muted); user-select: none; }
+  .check input { appearance: none; width: 18px; height: 18px; border: 1.5px solid var(--card-border); border-radius: 6px; display: grid; place-items: center; cursor: pointer; transition: .2s; background: var(--input-bg); }
+  .check input:checked { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
+  .check input:checked::after { content: ""; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px,-1px); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Button ---------- */
+  .btn {
+    position: relative; overflow: hidden;
+    width: 100%; padding: 15px;
+    font-size: 1rem; font-weight: 600; color: #fff;
+    border: 0; border-radius: 14px; cursor: pointer;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2), var(--accent));
+    background-size: 220% 100%;
+    transition: background-position .6s ease, transform .15s, box-shadow .3s;
+    box-shadow: 0 12px 28px rgba(124, 108, 255, 0.4);
+  }
+  .btn:hover { background-position: 100% 0; transform: translateY(-2px); }
+  .btn:active { transform: translateY(0) scale(.99); }
+  .btn:disabled { cursor: not-allowed; opacity: .85; }
+  .btn .label { transition: opacity .2s; }
+  .btn .spinner, .btn .tick {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0; transition: opacity .2s;
+  }
+  .btn .spinner {
+    width: 22px; height: 22px;
+    border: 3px solid rgba(255,255,255,.35); border-top-color: #fff;
+    border-radius: 50%; animation: spin .7s linear infinite;
+  }
+  .btn .tick { width: 26px; height: 26px; }
+  .btn .tick path { stroke: #fff; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; }
+  .btn.loading .label, .btn.done .label { opacity: 0; }
+  .btn.loading .spinner { opacity: 1; }
+  .btn.done .tick { opacity: 1; }
+  .btn.done .tick path { animation: draw .45s .1s forwards; }
+  .btn.done { background: var(--success); box-shadow: 0 12px 28px rgba(61, 220, 151, .4); }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .ripple {
+    position: absolute; border-radius: 50%; background: rgba(255,255,255,.45);
+    transform: scale(0); animation: ripple .6s ease-out forwards; pointer-events: none;
+  }
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .8rem; margin: 22px 0 16px; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--card-border); }
+  .socials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .social {
+    padding: 11px; border-radius: 12px; border: 1.5px solid var(--card-border);
+    background: var(--input-bg); color: var(--text); cursor: pointer;
+    font-size: .85rem; transition: transform .2s, border-color .2s;
+  }
+  .social:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+  .signup { text-align: center; color: var(--muted); font-size: .88rem; margin-top: 20px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translate(-50%, 120px);
+    background: var(--card); border: 1px solid var(--card-border);
+    backdrop-filter: blur(16px);
+    padding: 12px 20px; border-radius: 12px; z-index: 5;
+    transition: transform .4s cubic-bezier(.2,.9,.3,1.3);
+    font-size: .9rem;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+  .toast.error { border-color: var(--danger); }
+  .toast.ok { border-color: var(--success); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  @media (max-width: 420px) { .card { padding: 84px 22px 26px; } }
+</style>
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="glow a"></div>
+<div class="glow b"></div>
+
+<main class="scene">
+  <form class="card" id="loginForm" novalidate autocomplete="on">
+    <!-- Mascot: follows your cursor, covers eyes when you type a password -->
+    <svg class="mascot" id="mascot" viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <radialGradient id="orbG" cx="35%" cy="30%" r="80%">
+          <stop offset="0" stop-color="#a99bff"/>
+          <stop offset="0.6" stop-color="#6d5dfc"/>
+          <stop offset="1" stop-color="#3b2fb5"/>
+        </radialGradient>
+      </defs>
+      <circle cx="60" cy="60" r="54" fill="url(#orbG)"/>
+      <ellipse cx="42" cy="26" rx="18" ry="9" fill="#fff" opacity=".22" transform="rotate(-25 42 26)"/>
+      <g class="eye" data-cx="42" data-cy="56">
+        <circle class="eye-white" cx="42" cy="56" r="13" fill="#fff"/>
+        <circle class="pupil" cx="42" cy="56" r="6" fill="#1b1b3a"/>
+        <circle class="lid" cx="42" cy="56" r="13.5"/>
+      </g>
+      <g class="eye" data-cx="78" data-cy="56">
+        <circle class="eye-white" cx="78" cy="56" r="13" fill="#fff"/>
+        <circle class="pupil" cx="78" cy="56" r="6" fill="#1b1b3a"/>
+        <circle class="lid" cx="78" cy="56" r="13.5"/>
+      </g>
+      <path class="mouth" d="M46 88 Q60 94 74 88"/>
+    </svg>
+
+    <div class="top">
+      <button type="button" class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to continue your orbit</p>
+
+    <div class="field" id="emailField">
+      <input type="email" id="email" name="email" placeholder=" " autocomplete="username" required>
+      <label for="email">Email address</label>
+      <div class="msg" id="emailMsg" role="alert"></div>
+    </div>
+
+    <div class="field" id="passField">
+      <input type="password" id="password" name="password" placeholder=" " autocomplete="current-password" required minlength="8">
+      <label for="password">Password</label>
+      <button type="button" class="icon-btn toggle-pass" id="togglePass" aria-label="Show password">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <div class="meter" id="meter" data-s="0"><span></span><span></span><span></span><span></span></div>
+      <div class="strength-label"><span id="strengthText">Strength</span><span class="caps" id="caps">⇪ Caps Lock is on</span></div>
+      <div class="msg" id="passMsg" role="alert"></div>
+    </div>
+
+    <div class="row">
+      <label class="check"><input type="checkbox" id="remember"> Remember me</label>
+      <a href="#" id="forgot">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn">
+      <span class="label">Sign In</span>
+      <span class="spinner"></span>
+      <svg class="tick" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+    </button>
+
+    <div class="divider">or continue with</div>
+    <div class="socials">
+      <button type="button" class="social" data-p="Google">Google</button>
+      <button type="button" class="social" data-p="GitHub">GitHub</button>
+      <button type="button" class="social" data-p="Apple">Apple</button>
+    </div>
+
+    <p class="signup">New here? <a href="#">Create an account</a></p>
+  </form>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+'use strict';
+
+/* ============ Utilities ============ */
+const $ = (s, c = document) => c.querySelector(s);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const safeStore = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+
+/* ============ Interactive particle background ============ */
+class ParticleField {
+  constructor(canvas) {
+    this.c = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.mouse = { x: -9999, y: -9999 };
+    this.particles = [];
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.resize();
+    addEventListener('resize', () => this.resize());
+    addEventListener('pointermove', e => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; });
+    addEventListener('pointerleave', () => { this.mouse.x = this.mouse.y = -9999; });
+    if (!this.reduced) requestAnimationFrame(t => this.loop(t));
+    else this.draw();
+  }
+  resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    this.w = innerWidth; this.h = innerHeight;
+    this.c.width = this.w * dpr; this.c.height = this.h * dpr;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const count = clamp(Math.floor(this.w * this.h / 14000), 30, 110);
+    this.particles = Array.from({ length: count }, () => ({
+      x: Math.random() * this.w, y: Math.random() * this.h,
+      vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4,
+      r: Math.random() * 1.8 + .6,
+    }));
+  }
+  color() {
+    return document.documentElement.dataset.theme === 'light' ? '90,80,200' : '160,150,255';
+  }
+  step() {
+    for (const p of this.particles) {
+      const dx = p.x - this.mouse.x, dy = p.y - this.mouse.y;
+      const d = Math.hypot(dx, dy);
+      if (d < 140 && d > 0) { // repel from cursor
+        p.vx += (dx / d) * .08; p.vy += (dy / d) * .08;
+      }
+      p.vx *= .985; p.vy *= .985;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > this.w) p.vx *= -1;
+      if (p.y < 0 || p.y > this.h) p.vy *= -1;
+    }
+  }
+  draw() {
+    const { ctx, particles: P } = this;
+    const col = this.color();
+    ctx.clearRect(0, 0, this.w, this.h);
+    for (let i = 0; i < P.length; i++) {
+      ctx.beginPath();
+      ctx.arc(P[i].x, P[i].y, P[i].r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${col},.8)`;
+      ctx.fill();
+      for (let j = i + 1; j < P.length; j++) {
+        const d = Math.hypot(P[i].x - P[j].x, P[i].y - P[j].y);
+        if (d < 120) {
+          ctx.strokeStyle = `rgba(${col},${(1 - d / 120) * .35})`;
+          ctx.lineWidth = .7;
+          ctx.beginPath(); ctx.moveTo(P[i].x, P[i].y); ctx.lineTo(P[j].x, P[j].y); ctx.stroke();
+        }
+      }
+    }
+  }
+  loop() {
+    if (!document.hidden) { this.step(); this.draw(); }
+    requestAnimationFrame(() => this.loop());
+  }
+}
+
+/* ============ 3D tilt + light sheen ============ */
+class Tilt {
+  constructor(el, max = 8) {
+    this.el = el; this.max = max;
+    if (matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches) return;
+    addEventListener('pointermove', e => this.move(e));
+    document.addEventListener('pointerleave', () => this.reset());
+  }
+  move(e) {
+    const r = this.el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    const nx = clamp((e.clientX - (r.left + r.width / 2)) / innerWidth, -.5, .5);
+    const ny = clamp((e.clientY - (r.top + r.height / 2)) / innerHeight, -.5, .5);
+    this.el.style.transform = `rotateY(${nx * this.max * 2}deg) rotateX(${-ny * this.max * 2}deg)`;
+    this.el.style.setProperty('--mx', `${px * 100}%`);
+    this.el.style.setProperty('--my', `${py * 100}%`);
+  }
+  reset() { this.el.style.transform = ''; }
+}
+
+/* ============ Mascot controller ============ */
+class Mascot {
+  constructor(svg) {
+    this.svg = svg;
+    this.eyes = [...svg.querySelectorAll('.eye')].map(g => ({
+      pupil: g.querySelector('.pupil'),
+      cx: +g.dataset.cx, cy: +g.dataset.cy,
+    }));
+    addEventListener('pointermove', e => this.lookAt(e.clientX, e.clientY));
+    this.scheduleBlink();
+  }
+  lookAt(x, y) {
+    const r = this.svg.getBoundingClientRect();
+    const scale = r.width / 120;
+    for (const e of this.eyes) {
+      const ex = r.left + e.cx * scale, ey = r.top + e.cy * scale;
+      const ang = Math.atan2(y - ey, x - ex);
+      const dist = clamp(Math.hypot(x - ex, y - ey) / 40, 0, 1) * 5.5;
+      e.pupil.style.transform = `translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist}px)`;
+    }
+  }
+  lookAtField(input) { // glance toward the text caret while typing
+    const r = input.getBoundingClientRect();
+    const ratio = clamp(input.value.length / 28, 0, 1);
+    this.lookAt(r.left + 20 + ratio * (r.width - 60), r.top + r.height / 2);
+  }
+  set(state) { // 'hide' | 'peek' | 'happy' | 'sad' | ''
+    this.svg.classList.remove('hide', 'peek', 'happy', 'sad');
+    if (state) this.svg.classList.add(state);
+  }
+  scheduleBlink() {
+    setTimeout(() => {
+      this.svg.classList.add('blink');
+      setTimeout(() => this.svg.classList.remove('blink'), 200);
+      this.scheduleBlink();
+    }, 2200 + Math.random() * 3000);
+  }
+}
+
+/* ============ Validation helpers ============ */
+const Validators = {
+  email(v) {
+    if (!v) return 'Email is required';
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'Enter a valid email address';
+  },
+  password(v) {
+    if (!v) return 'Password is required';
+    return v.length >= 8 ? '' : 'Use at least 8 characters';
+  },
+  strength(v) {
+    let s = 0;
+    if (v.length >= 8) s++;
+    if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+    if (/\d/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v) && v.length >= 10) s++;
+    if (!v) s = 0;
+    return s;
+  },
+};
+
+/* ============ Toast ============ */
+const toast = (() => {
+  const el = $('#toast'); let t;
+  return (msg, type = '') => {
+    el.textContent = msg; el.className = `toast show ${type}`;
+    clearTimeout(t); t = setTimeout(() => el.classList.remove('show'), 3200);
+  };
+})();
+
+/* ============ Fake auth API (replace with your real fetch call) ============ */
+async function authenticate({ email, password }) {
+  await sleep(1400 + Math.random() * 600);
+  // DEMO ONLY: replace with: fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email,password}) })
+  if (password.toLowerCase().includes('wrong')) {
+    const err = new Error('Incorrect email or password'); err.code = 401; throw err;
+  }
+  return { token: crypto.randomUUID(), user: { email } };
+}
+
+/* ============ App ============ */
+const form = $('#loginForm');
+const emailEl = $('#email'), passEl = $('#password');
+const emailField = $('#emailField'), passField = $('#passField');
+const btn = $('#submitBtn');
+const mascot = new Mascot($('#mascot'));
+
+new ParticleField($('#bg'));
+new Tilt(form);
+
+// Theme
+const root = document.documentElement;
+const savedTheme = safeStore.get('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+root.dataset.theme = savedTheme;
+$('#themeBtn').addEventListener('click', () => {
+  root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  safeStore.set('theme', root.dataset.theme);
+});
+
+// Remember me
+const remembered = safeStore.get('remembered_email');
+if (remembered) { emailEl.value = remembered; $('#remember').checked = true; }
+
+// Field state
+function setState(field, msgEl, error) {
+  field.classList.toggle('invalid', !!error);
+  field.classList.toggle('valid', !error && field.querySelector('input').value !== '');
+  msgEl.textContent = error;
+}
+function checkEmail() { const e = Validators.email(emailEl.value.trim()); setState(emailField, $('#emailMsg'), e); return !e; }
+function checkPass() { const e = Validators.password(passEl.value); setState(passField, $('#passMsg'), e); return !e; }
+
+emailEl.addEventListener('input', () => { if (emailField.classList.contains('invalid')) checkEmail(); mascot.lookAtField(emailEl); });
+emailEl.addEventListener('blur', () => emailEl.value && checkEmail());
+emailEl.addEventListener('focus', () => mascot.set(''));
+
+// Password: strength meter, mascot, caps lock
+const labels = ['Strength', 'Weak', 'Fair', 'Good', 'Strong'];
+passEl.addEventListener('input', () => {
+  const s = Validators.strength(passEl.value);
+  $('#meter').dataset.s = s;
+  $('#strengthText').textContent = labels[s];
+  if (passField.classList.contains('invalid')) checkPass();
+});
+passEl.addEventListener('blur', () => { passEl.value && checkPass(); mascot.set(''); });
+passEl.addEventListener('focus', () => mascot.set(passEl.type === 'password' ? 'hide' : 'peek'));
+
+const capsEl = $('#caps');
+const caps = e => capsEl.classList.toggle('on', e.getModifierState && e.getModifierState('CapsLock'));
+passEl.addEventListener('keydown', caps);
+passEl.addEventListener('keyup', caps);
+
+// Show / hide password
+$('#togglePass').addEventListener('click', () => {
+  const show = passEl.type === 'password';
+  passEl.type = show ? 'text' : 'password';
+  $('#togglePass').setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  $('#eyeIcon').innerHTML = show
+    ? '<path d="M17.94 17.94A10 10 0 0 1 12 20C5 20 1 12 1 12a18 18 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-2.16 3.19M1 1l22 22"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';
+  passEl.focus();
+  mascot.set(show ? 'peek' : 'hide');
+});
+
+// Ripple effect on button
+btn.addEventListener('pointerdown', e => {
+  const r = btn.getBoundingClientRect();
+  const size = Math.max(r.width, r.height);
+  const span = document.createElement('span');
+  span.className = 'ripple';
+  Object.assign(span.style, {
+    width: size + 'px', height: size + 'px',
+    left: e.clientX - r.left - size / 2 + 'px',
+    top: e.clientY - r.top - size / 2 + 'px',
+  });
+  btn.appendChild(span);
+  span.addEventListener('animationend', () => span.remove());
+});
+
+// Submit
+let busy = false;
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (busy) return;
+
+  const okEmail = checkEmail(), okPass = checkPass();
+  if (!okEmail || !okPass) {
+    fail('Please fix the highlighted fields');
+    (okEmail ? passEl : emailEl).focus();
+    return;
+  }
+
+  busy = true;
+  btn.disabled = true;
+  btn.classList.add('loading');
+  mascot.set('');
+
+  try {
+    const session = await authenticate({ email: emailEl.value.trim(), password: passEl.value });
+
+    if ($('#remember').checked) safeStore.set('remembered_email', emailEl.value.trim());
+    else safeStore.del('remembered_email');
+    safeStore.set('session_token', session.token); // use httpOnly cookies in production
+
+    btn.classList.replace('loading', 'done');
+    mascot.set('happy');
+    toast(`Signed in as ${session.user.email}`, 'ok');
+    // location.href = '/dashboard';
+    await sleep(2200);
+    btn.classList.remove('done');
+    mascot.set('');
+  } catch (err) {
+    btn.classList.remove('loading');
+    fail(err.message || 'Something went wrong');
+  } finally {
+    busy = false;
+    btn.disabled = false;
+  }
+});
+
+function fail(message) {
+  mascot.set('sad');
+  toast(message, 'error');
+  form.classList.remove('shake');
+  void form.offsetWidth; // restart animation
+  form.classList.add('shake');
+  setTimeout(() => mascot.set(''), 1800);
+}
+
+// Social + forgot (placeholders)
+document.querySelectorAll('.social').forEach(b =>
+  b.addEventListener('click', () => toast(`${b.dataset.p} sign-in: connect your OAuth provider`)));
+$('#forgot').addEventListener('click', e => {
+  e.preventDefault();
+  const err = Validators.email(emailEl.value.trim());
+  if (err) { setState(emailField, $('#emailMsg'), 'Enter your email first'); emailEl.focus(); }
+  else toast(`Reset link sent to ${emailEl.value.trim()}`, 'ok');
+});
+</script>
+</body>
+</html>

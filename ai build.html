@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SmartMind AI — Your Ideas. Powered by AI.</title>
+  <meta name="description" content="SmartMind AI helps you work smarter, learn faster, and generate creative ideas with chat, writing, study, idea and website-copy tools." />
+  <meta name="theme-color" content="#0a1030" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2300d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<style>
+  /* ===========================================================
+   SmartMind AI — styles.css (CSS3)
+   =========================================================== */
+:root{
+  --bg:#070b22; --bg2:#0a1030; --surface:rgba(255,255,255,.05); --border:rgba(255,255,255,.12);
+  --text:#e8ecff; --muted:#9aa3c7; --purple:#8b5cf6; --blue:#00d4ff; --pink:#c084fc;
+  --grad:linear-gradient(135deg,#8b5cf6 0%,#3b82f6 55%,#00d4ff 100%);
+  --radius:18px; --shadow:0 20px 60px rgba(8,10,40,.55);
+  --font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --display:'Space Grotesk',var(--font);
+  --ease:cubic-bezier(.22,.8,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;font-family:var(--font);color:var(--text);background:radial-gradient(1200px 700px at 80% -10%,#1b1458 0%,transparent 60%),radial-gradient(900px 600px at -10% 20%,#0b2a6b 0%,transparent 55%),var(--bg);background-attachment:fixed;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.loading{overflow:hidden}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,h4,h5{font-family:var(--display);line-height:1.15;margin:0 0 .5em}
+p{margin:0 0 1em}
+.container{width:min(1180px,92%);margin-inline:auto}
+.container.narrow{width:min(820px,92%)}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.muted{color:var(--muted)} .small{font-size:.85rem}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link{position:fixed;left:12px;top:-60px;background:#fff;color:#000;padding:10px 14px;border-radius:10px;z-index:1000;transition:top .2s}
+.skip-link:focus{top:12px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:8px}
+#bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:.7}
+.glow-cursor{position:fixed;left:0;top:0;width:380px;height:380px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(139,92,246,.18),transparent 65%);transform:translate(-50%,-50%);transition:opacity .3s;opacity:0}
+
+/* ---------- LOADER ---------- */
+#loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(800px 500px at 50% 40%,#16105a,#070b22 70%);transition:opacity .7s var(--ease),visibility .7s,transform .7s var(--ease)}
+#loader.done{opacity:0;visibility:hidden;transform:scale(1.04)}
+.loader-core{text-align:center;width:min(360px,86%)}
+.orbit{position:relative;width:130px;height:130px;margin:0 auto 26px;display:grid;place-items:center}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
+.r1{border-top-color:var(--purple);border-right-color:var(--purple);animation:spin 1.4s linear infinite;filter:drop-shadow(0 0 8px var(--purple))}
+.r2{inset:14px;border-bottom-color:var(--blue);border-left-color:var(--blue);animation:spin 1.9s linear infinite reverse;filter:drop-shadow(0 0 8px var(--blue))}
+.r3{inset:28px;border-top-color:var(--pink);animation:spin 2.6s linear infinite}
+.brain{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--grad);box-shadow:0 0 40px rgba(139,92,246,.7);animation:pulse 1.6s ease-in-out infinite}
+.loader-title{font-family:var(--display);font-weight:700;font-size:1.9rem;letter-spacing:.5px;margin:0 0 18px}
+.loader-title span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.loader-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.loader-bar i{display:block;height:100%;width:0;background:var(--grad);border-radius:inherit;box-shadow:0 0 14px var(--blue);transition:width .25s ease}
+.loader-text{margin:14px 0 2px;color:var(--muted);font-size:.9rem;min-height:1.4em}
+.loader-pct{margin:0;font-family:var(--display);font-weight:600;color:var(--blue)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* ---------- BUTTONS ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 22px;border-radius:14px;border:1px solid transparent;cursor:pointer;font-weight:600;transition:transform .25s var(--ease),box-shadow .25s,background .25s,border-color .25s;position:relative;white-space:nowrap}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 8px 28px rgba(99,102,241,.45)}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 40px rgba(99,102,241,.65),0 0 24px rgba(0,212,255,.45)}
+.btn-ghost{background:var(--surface);border-color:var(--border);backdrop-filter:blur(10px)}
+.btn-ghost:hover{border-color:var(--blue);background:rgba(0,212,255,.08);transform:translateY(-2px)}
+.btn-sm{padding:8px 16px;font-size:.9rem} .btn-lg{padding:15px 30px;font-size:1.05rem}
+.btn-icon{padding:0;width:44px;height:44px;border-radius:12px;font-size:1.3rem}
+.btn.loading{pointer-events:none;color:transparent}
+.btn.loading::after{content:"";position:absolute;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.link{background:none;border:0;color:var(--blue);cursor:pointer;font-weight:600;padding:0}
+.link:hover{text-decoration:underline}
+
+/* ---------- GLASS ---------- */
+.glass{background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:var(--shadow)}
+
+/* ---------- NAV ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,box-shadow .3s,padding .3s;padding:14px 0}
+.nav.scrolled{background:rgba(7,11,34,.78);backdrop-filter:blur(16px);box-shadow:0 8px 30px rgba(0,0,0,.35);padding:8px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.progress{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--grad);box-shadow:0 0 12px var(--blue)}
+.logo{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:1.25rem}
+.logo b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-left:2px}
+.logo-mark{width:36px;height:36px;border-radius:11px;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 22px rgba(139,92,246,.6)}
+.nav-links{display:flex;gap:4px;padding:5px;border-radius:99px;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(12px)}
+.nav-links a{padding:8px 14px;border-radius:99px;color:var(--muted);font-weight:500;font-size:.92rem;transition:.25s}
+.nav-links a:hover{color:#fff}
+.nav-links a.active{background:var(--grad);color:#fff;box-shadow:0 4px 18px rgba(99,102,241,.5)}
+.nav-actions{display:flex;align-items:center;gap:12px}
+.mode-badge{font-size:.75rem;padding:5px 11px;border-radius:99px;border:1px solid var(--border);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.mode-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#888}
+.mode-badge.live{color:#6ee7b7;border-color:rgba(110,231,183,.35)} .mode-badge.live::before{background:#34d399;box-shadow:0 0 8px #34d399}
+.mode-badge.demo{color:#fcd34d;border-color:rgba(252,211,77,.35)} .mode-badge.demo::before{background:#fbbf24}
+.mode-badge.offline{color:#fca5a5;border-color:rgba(252,165,165,.35)} .mode-badge.offline::before{background:#f87171}
+.burger{display:none;width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);cursor:pointer;flex-direction:column;gap:5px;align-items:center;justify-content:center}
+.burger span{width:20px;height:2px;background:#fff;border-radius:2px;transition:.3s}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ---------- HERO ---------- */
+.hero{min-height:100vh;display:flex;align-items:center;padding:130px 0 80px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:10px;padding:7px 15px;border-radius:99px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);color:#cdd5ff;margin-bottom:22px}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 0 rgba(0,212,255,.7);animation:ping 1.8s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 10px rgba(0,212,255,0)}100%{box-shadow:0 0 0 0 rgba(0,212,255,0)}}
+.hero-title{font-size:clamp(2.6rem,6.2vw,4.6rem);letter-spacing:-1.5px;margin-bottom:.4em}
+.hero-sub{font-size:1.15rem;color:var(--muted);max-width:560px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin:30px 0 40px}
+.stats{list-style:none;display:flex;gap:34px;padding:0;margin:0;flex-wrap:wrap}
+.stats strong{display:block;font-family:var(--display);font-size:1.8rem}
+.stats span{color:var(--muted);font-size:.85rem}
+.hero-preview{position:relative}
+.chat-preview{padding:0;overflow:hidden}
+.cp-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.cp-dots{display:flex;gap:6px}.cp-dots i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.cp-dots i:nth-child(2){background:#febc2e}.cp-dots i:nth-child(3){background:#28c840}
+.cp-title{font-weight:600;font-size:.95rem;flex:1}
+.cp-live{font-size:.75rem;color:#6ee7b7;display:flex;align-items:center;gap:6px}.cp-live i{width:7px;height:7px;border-radius:50%;background:#34d399;animation:pulse 1.6s infinite}
+.cp-body{padding:18px;height:270px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.cp-chips{padding:0 18px 12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.4);padding:6px 12px;border-radius:99px;font-size:.8rem;cursor:pointer;transition:.25s}
+.chip:hover{background:rgba(139,92,246,.35);transform:translateY(-1px)}
+.cp-input{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--border)}
+.cp-input input{flex:1;min-width:0;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:12px;padding:0 14px;height:44px}
+.cp-input input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(0,212,255,.18)}
+.float{position:absolute;padding:10px 16px;font-size:.85rem;font-weight:500;border-radius:14px;animation:floaty 5s ease-in-out infinite}
+.f1{top:-18px;right:-14px}.f2{bottom:36px;left:-26px;animation-delay:-2.5s}
+@keyframes floaty{50%{transform:translateY(-12px)}}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:26px;height:42px;border:2px solid var(--border);border-radius:99px;display:grid;justify-items:center;padding-top:8px}
+.scroll-hint span{width:4px;height:8px;border-radius:4px;background:var(--blue);animation:scrollDot 1.6s infinite}
+@keyframes scrollDot{0%{transform:translateY(0);opacity:1}100%{transform:translateY(16px);opacity:0}}
+
+/* ---------- MARQUEE ---------- */
+.marquee-wrap{padding:26px 0;border-block:1px solid var(--border);background:rgba(255,255,255,.02);overflow:hidden}
+.marquee{mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.marquee-track{display:flex;gap:56px;width:max-content;animation:marquee 32s linear infinite;font-family:var(--display);font-size:1.3rem;font-weight:600;color:rgba(232,236,255,.45)}
+.marquee:hover .marquee-track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ---------- CHAT MESSAGES ---------- */
+.msg{max-width:88%;padding:11px 15px;border-radius:16px;font-size:.95rem;animation:msgIn .35s var(--ease);word-wrap:break-word}
+.msg p{margin:0 0 .6em}.msg p:last-child{margin:0}
+.msg ul,.msg ol{margin:.3em 0 .6em;padding-left:1.2em}
+.msg.bot{background:rgba(255,255,255,.07);border:1px solid var(--border);border-top-left-radius:4px;align-self:flex-start}
+.msg.user{background:var(--grad);border-top-right-radius:4px;align-self:flex-end}
+.msg.error{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.45);color:#fecaca}
+.msg.typing{display:flex;gap:5px;padding:14px 16px}
+.msg.typing i{width:8px;height:8px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+.msg.typing i:nth-child(2){animation-delay:.15s}.msg.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{40%{transform:translateY(-7px);background:var(--blue)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}}
+
+/* ---------- SECTIONS ---------- */
+.section{padding:100px 0;position:relative}
+.section-head{text-align:center;max-width:680px;margin:0 auto 54px}
+.eyebrow{display:inline-block;text-transform:uppercase;letter-spacing:.18em;font-size:.78rem;font-weight:600;color:var(--blue);margin-bottom:14px}
+.section h2{font-size:clamp(2rem,4.4vw,3rem);letter-spacing:-.8px}
+.section-head p,.lead{color:var(--muted);font-size:1.08rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:24px}
+.card{padding:30px;transition:transform .35s var(--ease),border-color .3s,box-shadow .3s;transform-style:preserve-3d;will-change:transform}
+.card:hover{border-color:rgba(0,212,255,.5);box-shadow:0 24px 70px rgba(79,70,229,.35)}
+.card .ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;margin-bottom:20px;background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(0,212,255,.2));border:1px solid var(--border)}
+.card h3{font-size:1.25rem}.card p{color:var(--muted);font-size:.97rem}
+
+/* ---------- STEPS ---------- */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.step{padding:30px;text-align:center}
+.step-n{width:54px;height:54px;border-radius:50%;background:var(--grad);display:grid;place-items:center;margin:0 auto 16px;font-family:var(--display);font-weight:700;font-size:1.3rem;box-shadow:0 0 28px rgba(139,92,246,.55)}
+.step p{color:var(--muted);margin:0}
+
+/* ---------- DASHBOARD ---------- */
+.dash{padding:0;overflow:hidden}
+.tabs{display:flex;gap:6px;padding:12px;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1 0 auto;background:none;border:1px solid transparent;border-radius:12px;padding:11px 18px;cursor:pointer;color:var(--muted);font-weight:600;transition:.25s;white-space:nowrap}
+.tabs button:hover{color:#fff;background:var(--surface)}
+.tabs button[aria-selected="true"]{color:#fff;background:linear-gradient(135deg,rgba(139,92,246,.45),rgba(0,212,255,.25));border-color:rgba(139,92,246,.6);box-shadow:0 0 22px rgba(139,92,246,.35)}
+.panel{padding:26px;animation:fadeUp .4s var(--ease)}
+.panel[hidden]{display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}}
+.chat-window{height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:6px 6px 14px;scroll-behavior:smooth}
+.chat-form{display:flex;gap:10px;align-items:flex-end;margin-top:12px}
+.chat-form textarea{flex:1;resize:none;max-height:140px}
+.field{margin-bottom:18px;display:flex;flex-direction:column;gap:7px;position:relative}
+.field label{font-size:.88rem;font-weight:600;color:#cfd6ff}
+input,select,textarea{background:rgba(0,0,0,.28);border:1px solid var(--border);border-radius:12px;padding:12px 14px;width:100%;transition:border-color .25s,box-shadow .25s}
+select option{background:#0d1340}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,212,255,.18)}
+.field.invalid input,.field.invalid textarea,.field.invalid select{border-color:#f87171}
+.err{color:#fca5a5;font-size:.8rem}
+.count{align-self:flex-end;color:var(--muted);font-size:.75rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hp{position:absolute;left:-9999px;opacity:0}
+.output{margin-top:24px}
+.output:empty{display:none}
+.result{background:rgba(0,0,0,.28);border:1px solid var(--border);border-radius:14px;padding:22px;animation:fadeUp .4s var(--ease)}
+.result-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:.8rem;color:var(--muted);gap:10px;flex-wrap:wrap}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap}
+.result h3,.result h4{margin-top:1em}.result ul,.result ol{padding-left:1.3em}.result li{margin-bottom:.4em}
+.result code,.msg code,.demo-banner code,.faq code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:6px;font-size:.88em}
+.result pre{background:rgba(0,0,0,.4);padding:14px;border-radius:12px;overflow-x:auto}
+.skeleton{display:grid;gap:12px}
+.skeleton i{height:14px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.06) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite}
+.skeleton i:nth-child(1){width:70%}.skeleton i:nth-child(2){width:95%}.skeleton i:nth-child(3){width:85%}.skeleton i:nth-child(4){width:55%}
+@keyframes shimmer{to{background-position:-200% 0}}
+.alert{padding:14px 18px;border-radius:14px;border:1px solid rgba(248,113,113,.5);background:rgba(248,113,113,.1);color:#fecaca}
+.demo-banner{margin-bottom:24px;padding:16px 20px;border-radius:14px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.45);color:#fde68a}
+.demo-banner[hidden]{display:none}
+
+/* ---------- PRICING ---------- */
+.billing{display:inline-flex;gap:4px;padding:5px;border-radius:99px;background:var(--surface);border:1px solid var(--border);margin-top:10px}
+.billing button{border:0;background:none;padding:8px 18px;border-radius:99px;cursor:pointer;font-weight:600;color:var(--muted);transition:.25s}
+.billing button.on{background:var(--grad);color:#fff}
+.billing em{font-style:normal;font-size:.75rem;color:#6ee7b7;margin-left:4px}
+.billing button.on em{color:#fff}
+.pricing{align-items:stretch}
+.price{display:flex;flex-direction:column;position:relative}
+.price .checks{flex:1;margin:10px 0 26px}
+.price.featured{border-color:rgba(139,92,246,.7);box-shadow:0 24px 80px rgba(99,102,241,.4)}
+.badge{position:absolute;top:-13px;right:22px;background:var(--grad);padding:4px 14px;border-radius:99px;font-size:.75rem;font-weight:600}
+.amount{margin:0}.amount .num{font-family:var(--display);font-size:2.6rem;font-weight:700}.amount small{color:var(--muted)}
+
+/* ---------- ABOUT / TESTIMONIALS / CONTACT ---------- */
+.about-grid,.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.checks{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px}
+.checks li{padding-left:34px;position:relative;color:#d7dcff}
+.checks li::before{content:"✓";position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.about-card{padding:32px}
+.timeline{display:grid;gap:22px;position:relative}
+.timeline::before{content:"";position:absolute;left:21px;top:10px;bottom:10px;width:2px;background:linear-gradient(var(--purple),var(--blue))}
+.timeline div{padding-left:64px;position:relative}
+.timeline b{position:absolute;left:0;top:0;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#0d1340;border:2px solid var(--purple);font-family:var(--display)}
+.timeline h4{margin:0 0 2px}.timeline p{margin:0;color:var(--muted);font-size:.93rem}
+.slider{max-width:760px;margin:0 auto;overflow:hidden;touch-action:pan-y}
+.slides{display:flex;transition:transform .6s var(--ease)}
+.slide{flex:0 0 100%;margin:0;padding:38px;min-height:210px;display:flex;flex-direction:column;justify-content:space-between;gap:22px;border-radius:var(--radius)}
+.slide blockquote{margin:0;font-family:var(--display);font-size:1.4rem}
+.slide figcaption{display:flex;align-items:center;gap:14px}.slide small{display:block;color:var(--muted)}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-weight:700}
+.slider-ctrl{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:22px}
+.dots{display:flex;gap:8px}.dots button{width:9px;height:9px;border-radius:99px;border:0;background:rgba(255,255,255,.25);cursor:pointer;padding:0;transition:.3s}
+.dots button.on{width:28px;background:var(--grad)}
+.contact-list{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:10px;color:#d7dcff}
+.contact-form{padding:32px}
+
+/* ---------- FAQ ---------- */
+.faq{display:grid;gap:14px}
+.faq details{padding:0;overflow:hidden}
+.faq summary{cursor:pointer;padding:18px 22px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:1.4rem;line-height:1;color:var(--blue);transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 22px 18px;margin:0;color:var(--muted)}
+
+/* ---------- CTA ---------- */
+.cta-section{padding:60px 0}
+.cta{padding:56px 32px;text-align:center;background:linear-gradient(145deg,rgba(139,92,246,.22),rgba(0,212,255,.1))}
+.news-form{display:flex;gap:12px;max-width:480px;margin:22px auto 8px}
+.news-form input{flex:1;min-width:0}
+
+/* ---------- FOOTER ---------- */
+.footer{border-top:1px solid var(--border);padding:60px 0 24px;background:rgba(4,6,22,.6);backdrop-filter:blur(10px)}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:34px}
+.footer h5{font-size:.95rem;margin-bottom:14px}
+.footer-grid a:not(.logo){display:block;color:var(--muted);margin-bottom:9px;transition:.2s}
+.footer-grid a:not(.logo):hover{color:var(--blue);transform:translateX(3px)}
+.footer-bottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--border);margin-top:36px;padding-top:22px;color:var(--muted);font-size:.88rem}
+
+/* ---------- MODAL / TOAST ---------- */
+.modal{position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:20px}
+.modal[hidden]{display:none}
+.modal-backdrop{position:absolute;inset:0;background:rgba(3,5,18,.7);backdrop-filter:blur(6px)}
+.modal-box{position:relative;width:min(440px,100%);padding:30px;animation:fadeUp .35s var(--ease)}
+.modal-x{position:absolute;right:14px;top:10px;background:none;border:0;font-size:1.8rem;cursor:pointer;color:var(--muted)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.toasts{position:fixed;right:18px;bottom:18px;display:grid;gap:10px;z-index:800}
+.toast{padding:12px 18px;border-radius:12px;background:#10164a;border:1px solid var(--border);box-shadow:var(--shadow);animation:toastIn .4s var(--ease);max-width:340px}
+.toast.ok{border-color:rgba(52,211,153,.6)}.toast.bad{border-color:rgba(248,113,113,.7)}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}}
+
+/* ---------- REVEAL ---------- */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .8s var(--ease) var(--d,0s),transform .8s var(--ease) var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1060px){.nav-links a{padding:8px 10px;font-size:.85rem}}
+@media (max-width:980px){
+  .hero-grid,.about-grid,.contact-grid{grid-template-columns:1fr}
+  .hero{padding-top:110px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .f1,.f2{display:none}
+}
+@media (max-width:900px){
+  .burger{display:flex}
+  .nav-links{position:fixed;top:70px;left:4%;right:4%;flex-direction:column;border-radius:20px;padding:12px;background:rgba(7,11,34,.96);transform:translateY(-14px);opacity:0;visibility:hidden;transition:.3s var(--ease)}
+  .nav-links.open{transform:none;opacity:1;visibility:visible}
+  .nav-links a{padding:13px 16px;font-size:.95rem}
+  .mode-badge{display:none}
+}
+@media (max-width:600px){
+  .section{padding:72px 0}.grid2{grid-template-columns:1fr}.panel{padding:18px}
+  .chat-form{flex-wrap:wrap}.chat-form textarea{flex-basis:100%}
+  .footer-grid{grid-template-columns:1fr}.slide{padding:26px}.slide blockquote{font-size:1.15rem}
+  .stats{gap:22px}.news-form{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+<body class="loading">
+  <noscript><p style="padding:20px;text-align:center">Please enable JavaScript to use SmartMind AI.</p></noscript>
+
+  <!-- ============ LOADER ============ -->
+  <div id="loader" role="status" aria-live="polite" aria-label="Loading SmartMind AI">
+    <div class="loader-core">
+      <div class="orbit">
+        <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+        <span class="brain">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a4 4 0 0 0-4 4 3.5 3.5 0 0 0-2.5 6A3.5 3.5 0 0 0 8 19a4 4 0 0 0 4 2V3Z"/><path d="M12 3a4 4 0 0 1 4 4 3.5 3.5 0 0 1 2.5 6A3.5 3.5 0 0 1 16 19a4 4 0 0 1-4 2"/></svg>
+        </span>
+      </div>
+      <p class="loader-title">Smart<span>Mind</span> AI</p>
+      <div class="loader-bar" aria-hidden="true"><i id="loaderFill"></i></div>
+      <p class="loader-text" id="loaderText">Initializing neural interface…</p>
+      <p class="loader-pct" id="loaderPct">0%</p>
+    </div>
+  </div>
+
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <div class="glow-cursor" id="glowCursor" aria-hidden="true"></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="#home" class="logo" aria-label="SmartMind AI home">
+        <span class="logo-mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg></span>
+        <span>SmartMind<b>AI</b></span>
+      </a>
+      <nav id="navLinks" class="nav-links" aria-label="Primary">
+        <a href="#home" class="active">Home</a>
+        <a href="#features">Features</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#about">About</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-actions">
+        <span class="mode-badge" id="modeBadge" title="Backend status">Checking…</span>
+        <button class="btn btn-ghost btn-sm" id="profileBtn" type="button">Sign in</button>
+        <button class="burger" id="burger" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+    <div class="progress" id="scrollProgress" aria-hidden="true"></div>
+  </header>
+
+  <main id="main">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <span class="pill"><i class="dot"></i> New · Five AI tools in one workspace</span>
+          <h1 class="hero-title">Your Ideas.<br /><span class="grad">Powered by AI.</span></h1>
+          <p class="hero-sub">SmartMind AI turns a blank page into finished work. Chat through problems, draft content, master tough subjects, brainstorm startups and write website copy — in seconds, not hours.</p>
+          <div class="hero-cta">
+            <a href="#dashboard" class="btn btn-primary btn-lg" id="startBtn">Start Using AI
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#features" class="btn btn-ghost btn-lg">Explore features</a>
+          </div>
+          <ul class="stats">
+            <li><strong data-count="50000" data-suffix="+">0</strong><span>Active users</span></li>
+            <li><strong data-count="1200000" data-suffix="+">0</strong><span>Tasks completed</span></li>
+            <li><strong data-count="98" data-suffix="%">0</strong><span>Satisfaction</span></li>
+          </ul>
+          <p class="muted small" style="margin-top:14px">Sample numbers for layout — replace with real stats before launch.</p>
+        </div>
+
+        <div class="hero-preview reveal" style="--d:.15s">
+          <div class="glass chat-preview" aria-label="AI assistant preview">
+            <div class="cp-head">
+              <span class="cp-dots"><i></i><i></i><i></i></span>
+              <span class="cp-title">SmartMind Assistant</span>
+              <span class="cp-live"><i></i> Live</span>
+            </div>
+            <div class="cp-body" id="previewBody" aria-live="polite">
+              <div class="msg bot"><p>Hi! I'm SmartMind. Ask me anything or try a prompt below.</p></div>
+            </div>
+            <div class="cp-chips" id="previewChips">
+              <button type="button" class="chip">Plan my study week</button>
+              <button type="button" class="chip">Write a product tagline</button>
+              <button type="button" class="chip">Explain APIs simply</button>
+            </div>
+            <form class="cp-input" id="previewForm" autocomplete="off">
+              <label for="previewInput" class="sr-only">Message</label>
+              <input id="previewInput" type="text" maxlength="500" placeholder="Ask SmartMind anything…" required />
+              <button class="btn btn-primary btn-icon" type="submit" aria-label="Send">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+              </button>
+            </form>
+          </div>
+          <div class="float f1 glass">⚡ Instant answers</div>
+          <div class="float f2 glass">🔒 Private by design</div>
+        </div>
+      </div>
+      <a href="#features" class="scroll-hint" aria-label="Scroll to features"><span></span></a>
+    </section>
+
+    <!-- ============ LOGOS / MARQUEE ============ -->
+    <section class="marquee-wrap" aria-label="Use cases">
+      <div class="marquee">
+        <div class="marquee-track">
+          <span>Students</span><span>Founders</span><span>Marketers</span><span>Writers</span><span>Freelancers</span><span>Teachers</span><span>Developers</span><span>Designers</span>
+          <span>Students</span><span>Founders</span><span>Marketers</span><span>Writers</span><span>Freelancers</span><span>Teachers</span><span>Developers</span><span>Designers</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section class="section" id="features">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Features</span>
+          <h2>Everything you need to <span class="grad">think faster</span></h2>
+          <p>Five purpose-built tools that share one clean workspace.</p>
+        </header>
+        <div class="cards">
+          <article class="glass card tilt reveal"><div class="ic">💬</div><h3>AI Chat Assistant</h3><p>Conversational answers with memory of your session — brainstorm, debug, decide.</p><a href="#dashboard" class="link" data-open="chat">Open tool →</a></article>
+          <article class="glass card tilt reveal" style="--d:.07s"><div class="ic">✍️</div><h3>AI Content Writer</h3><p>Articles, captions, emails and creative pieces in the tone you choose.</p><a href="#dashboard" class="link" data-open="writer">Open tool →</a></article>
+          <article class="glass card tilt reveal" style="--d:.14s"><div class="ic">🎓</div><h3>AI Study Assistant</h3><p>Explain tough topics, summarize notes and generate practice quizzes.</p><a href="#dashboard" class="link" data-open="study">Open tool →</a></article>
+          <article class="glass card tilt reveal" style="--d:.21s"><div class="ic">💡</div><h3>AI Idea Generator</h3><p>Business ideas, startup concepts and creative solutions on demand.</p><a href="#dashboard" class="link" data-open="ideas">Open tool →</a></article>
+          <article class="glass card tilt reveal" style="--d:.28s"><div class="ic">🌐</div><h3>Website Copy Generator</h3><p>Headlines, descriptions and conversion-ready marketing copy.</p><a href="#dashboard" class="link" data-open="copy">Open tool →</a></article>
+          <article class="glass card tilt reveal" style="--d:.35s"><div class="ic">🛡️</div><h3>Secure by Design</h3><p>API keys stay on the server. Inputs are validated and rate limited.</p><a href="#about" class="link">How it works →</a></article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section" id="how">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2>From idea to result in <span class="grad">3 steps</span></h2>
+        </header>
+        <div class="steps">
+          <div class="glass step reveal"><span class="step-n">1</span><h3>Pick a tool</h3><p>Choose chat, writer, study, ideas or web copy.</p></div>
+          <div class="glass step reveal" style="--d:.1s"><span class="step-n">2</span><h3>Describe it</h3><p>Fill a short smart form — no prompt-engineering needed.</p></div>
+          <div class="glass step reveal" style="--d:.2s"><span class="step-n">3</span><h3>Copy &amp; ship</h3><p>Copy, download or regenerate until it feels right.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="section" id="dashboard">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Dashboard</span>
+          <h2>Your AI <span class="grad">workspace</span></h2>
+          <p>Pick a tool, describe what you need, and let SmartMind do the heavy lifting.</p>
+        </header>
+
+        <div class="demo-banner" id="demoBanner" hidden role="alert">
+          <strong>Demo mode.</strong> The AI backend isn't connected, so answers come from a built-in offline demo engine. Connect an API endpoint at <code>/api/generate</code> for live AI responses.
+        </div>
+
+        <div class="glass dash reveal">
+          <div class="tabs" role="tablist" aria-label="AI tools" id="tabs">
+            <button role="tab" id="tab-chat" aria-controls="panel-chat" aria-selected="true" data-tool="chat">💬 Chat</button>
+            <button role="tab" id="tab-writer" aria-controls="panel-writer" aria-selected="false" tabindex="-1" data-tool="writer">✍️ Writer</button>
+            <button role="tab" id="tab-study" aria-controls="panel-study" aria-selected="false" tabindex="-1" data-tool="study">🎓 Study</button>
+            <button role="tab" id="tab-ideas" aria-controls="panel-ideas" aria-selected="false" tabindex="-1" data-tool="ideas">💡 Ideas</button>
+            <button role="tab" id="tab-copy" aria-controls="panel-copy" aria-selected="false" tabindex="-1" data-tool="copy">🌐 Web Copy</button>
+          </div>
+
+          <!-- Chat -->
+          <div class="panel" id="panel-chat" role="tabpanel" aria-labelledby="tab-chat">
+            <div class="chat-window" id="chatWindow" aria-live="polite">
+              <div class="msg bot"><p>Hello! I'm your SmartMind assistant. What are we working on today?</p></div>
+            </div>
+            <form class="chat-form" id="chatForm" autocomplete="off">
+              <label for="chatInput" class="sr-only">Your message</label>
+              <textarea id="chatInput" rows="1" maxlength="2000" placeholder="Type your message… (Enter to send, Shift+Enter for new line)" required></textarea>
+              <button class="btn btn-primary" type="submit">Send</button>
+              <button class="btn btn-ghost" type="button" id="chatClear">Clear</button>
+            </form>
+          </div>
+
+          <!-- Writer -->
+          <div class="panel" id="panel-writer" role="tabpanel" aria-labelledby="tab-writer" hidden>
+            <form class="tool-form" data-tool="writer" novalidate>
+              <div class="grid2">
+                <div class="field"><label for="w-type">Content type</label>
+                  <select id="w-type" name="type"><option>Article</option><option>Social media caption</option><option>Professional email</option><option>Short story</option><option>Poem</option><option>Product description</option></select></div>
+                <div class="field"><label for="w-tone">Tone</label>
+                  <select id="w-tone" name="tone"><option>Professional</option><option>Friendly</option><option>Persuasive</option><option>Witty</option><option>Inspirational</option><option>Formal</option></select></div>
+              </div>
+              <div class="field"><label for="w-topic">Topic or brief</label>
+                <textarea id="w-topic" name="topic" rows="4" maxlength="2000" placeholder="e.g. Why small teams should adopt AI tools in 2026" required></textarea><small class="count"><span>0</span>/2000</small><small class="err"></small></div>
+              <div class="field"><label for="w-len">Length</label>
+                <select id="w-len" name="length"><option>Short</option><option selected>Medium</option><option>Long</option></select></div>
+              <button class="btn btn-primary" type="submit">Generate content</button>
+            </form>
+            <div class="output" data-output="writer" aria-live="polite"></div>
+          </div>
+
+          <!-- Study -->
+          <div class="panel" id="panel-study" role="tabpanel" aria-labelledby="tab-study" hidden>
+            <form class="tool-form" data-tool="study" novalidate>
+              <div class="field"><label for="s-mode">What do you need?</label>
+                <select id="s-mode" name="mode"><option value="explain">Explain a topic</option><option value="summarize">Summarize my notes</option><option value="quiz">Create a quiz</option></select></div>
+              <div class="field"><label for="s-input">Topic or notes</label>
+                <textarea id="s-input" name="topic" rows="6" maxlength="4000" placeholder="Paste notes or type a topic such as 'Photosynthesis' or 'Newton's laws'" required></textarea><small class="count"><span>0</span>/4000</small><small class="err"></small></div>
+              <div class="grid2">
+                <div class="field"><label for="s-level">Level</label>
+                  <select id="s-level" name="level"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option></select></div>
+                <div class="field"><label for="s-q">Quiz questions</label>
+                  <input id="s-q" name="questions" type="number" min="3" max="15" value="5" /></div>
+              </div>
+              <button class="btn btn-primary" type="submit">Start learning</button>
+            </form>
+            <div class="output" data-output="study" aria-live="polite"></div>
+          </div>
+
+          <!-- Ideas -->
+          <div class="panel" id="panel-ideas" role="tabpanel" aria-labelledby="tab-ideas" hidden>
+            <form class="tool-form" data-tool="ideas" novalidate>
+              <div class="grid2">
+                <div class="field"><label for="i-kind">Idea type</label>
+                  <select id="i-kind" name="kind"><option>Business ideas</option><option>Startup concepts</option><option>Creative solutions</option><option>Side projects</option><option>Content ideas</option></select></div>
+                <div class="field"><label for="i-count">How many?</label>
+                  <input id="i-count" name="count" type="number" min="3" max="10" value="5" /></div>
+              </div>
+              <div class="field"><label for="i-topic">Industry, interest or problem</label>
+                <textarea id="i-topic" name="topic" rows="3" maxlength="1000" placeholder="e.g. sustainable fashion for students in India" required></textarea><small class="count"><span>0</span>/1000</small><small class="err"></small></div>
+              <button class="btn btn-primary" type="submit">Generate ideas</button>
+            </form>
+            <div class="output" data-output="ideas" aria-live="polite"></div>
+          </div>
+
+          <!-- Copy -->
+          <div class="panel" id="panel-copy" role="tabpanel" aria-labelledby="tab-copy" hidden>
+            <form class="tool-form" data-tool="copy" novalidate>
+              <div class="field"><label for="c-biz">Business / product name</label>
+                <input id="c-biz" name="business" type="text" maxlength="120" placeholder="e.g. BrewBox Coffee" required /><small class="err"></small></div>
+              <div class="field"><label for="c-desc">What does it do and for whom?</label>
+                <textarea id="c-desc" name="topic" rows="4" maxlength="1500" placeholder="e.g. Monthly subscription of specialty coffee for busy remote workers" required></textarea><small class="count"><span>0</span>/1500</small><small class="err"></small></div>
+              <div class="grid2">
+                <div class="field"><label for="c-type">Copy type</label>
+                  <select id="c-type" name="type"><option>Hero headline &amp; subheadline</option><option>About page</option><option>Feature descriptions</option><option>Call-to-action buttons</option><option>Full landing page copy</option><option>SEO meta title &amp; description</option></select></div>
+                <div class="field"><label for="c-tone">Brand voice</label>
+                  <select id="c-tone" name="tone"><option>Confident</option><option>Playful</option><option>Premium</option><option>Warm</option><option>Bold</option></select></div>
+              </div>
+              <button class="btn btn-primary" type="submit">Write my copy</button>
+            </form>
+            <div class="output" data-output="copy" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PRICING ============ -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2>Simple plans, <span class="grad">no surprises</span></h2>
+          <p>Sample plans for layout purposes. Update with your real pricing.</p>
+          <div class="billing" role="group" aria-label="Billing period">
+            <button type="button" class="on" data-bill="monthly">Monthly</button>
+            <button type="button" data-bill="yearly">Yearly <em>−20%</em></button>
+          </div>
+        </header>
+        <div class="cards pricing">
+          <article class="glass card price reveal">
+            <h3>Starter</h3>
+            <p class="amount"><span class="num" data-m="0" data-y="0">₹0</span><small>/mo</small></p>
+            <ul class="checks"><li>20 generations / day</li><li>Chat + Writer</li><li>Community support</li></ul>
+            <a href="#dashboard" class="btn btn-ghost">Start free</a>
+          </article>
+          <article class="glass card price featured reveal" style="--d:.1s">
+            <span class="badge">Most popular</span>
+            <h3>Pro</h3>
+            <p class="amount"><span class="num" data-m="499" data-y="399">₹499</span><small>/mo</small></p>
+            <ul class="checks"><li>Unlimited generations</li><li>All 5 AI tools</li><li>Export &amp; history</li><li>Priority support</li></ul>
+            <a href="#contact" class="btn btn-primary">Get Pro</a>
+          </article>
+          <article class="glass card price reveal" style="--d:.2s">
+            <h3>Team</h3>
+            <p class="amount"><span class="num" data-m="1499" data-y="1199">₹1,499</span><small>/mo</small></p>
+            <ul class="checks"><li>Up to 10 seats</li><li>Shared workspace</li><li>Admin controls</li></ul>
+            <a href="#contact" class="btn btn-ghost">Contact sales</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section" id="about">
+      <div class="container about-grid">
+        <div class="reveal">
+          <span class="eyebrow">About</span>
+          <h2>Built to make <span class="grad">smart people faster</span></h2>
+          <p class="lead">SmartMind AI started with a simple belief: great tools should remove friction, not add it. We combine modern language models with a focused interface so you can go from idea to result without switching apps.</p>
+          <ul class="checks">
+            <li>Server-side API calls — your keys are never exposed</li>
+            <li>Input validation, rate limiting and clear error messages</li>
+            <li>Accessible, keyboard-friendly, and mobile-first</li>
+            <li>Honest demo mode when AI isn't configured</li>
+          </ul>
+        </div>
+        <div class="glass about-card reveal" style="--d:.15s">
+          <div class="timeline">
+            <div><b>01</b><h4>You describe</h4><p>Type a prompt or fill a smart form.</p></div>
+            <div><b>02</b><h4>We validate</h4><p>Input is sanitized and rate limited.</p></div>
+            <div><b>03</b><h4>Secure backend</h4><p>The server calls the AI API with its private key.</p></div>
+            <div><b>04</b><h4>You get results</h4><p>Copy, refine, and ship.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TESTIMONIALS ============ -->
+    <section class="section" id="testimonials">
+      <div class="container">
+        <header class="section-head reveal">
+          <span class="eyebrow">Testimonials</span>
+          <h2>Loved by <span class="grad">creators &amp; learners</span></h2>
+          <p>Sample testimonials shown for layout purposes — replace with real customer quotes before launch.</p>
+        </header>
+        <div class="slider reveal" id="slider" tabindex="0" aria-roledescription="carousel" aria-label="Testimonials">
+          <div class="slides" id="slides">
+            <figure class="glass slide"><blockquote>“I draft client emails in half the time. The tone controls are spot on.”</blockquote><figcaption><span class="avatar">AK</span><span><b>Aarav K.</b><small>Freelance consultant</small></span></figcaption></figure>
+            <figure class="glass slide"><blockquote>“The quiz generator turned my messy notes into a perfect revision set.”</blockquote><figcaption><span class="avatar">PS</span><span><b>Priya S.</b><small>Engineering student</small></span></figcaption></figure>
+            <figure class="glass slide"><blockquote>“Our landing page copy went from bland to bold in one afternoon.”</blockquote><figcaption><span class="avatar">RM</span><span><b>Rohan M.</b><small>Startup founder</small></span></figcaption></figure>
+          </div>
+          <div class="slider-ctrl">
+            <button type="button" class="btn btn-ghost btn-icon" id="prevSlide" aria-label="Previous testimonial">‹</button>
+            <div class="dots" id="sliderDots"></div>
+            <button type="button" class="btn btn-ghost btn-icon" id="nextSlide" aria-label="Next testimonial">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section" id="faq">
+      <div class="container narrow">
+        <header class="section-head reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2>Questions, <span class="grad">answered</span></h2>
+        </header>
+        <div class="faq reveal">
+          <details class="glass"><summary>Is my data private?</summary><p>Profile data is stored only in your browser. Prompts are sent to the AI backend only when a backend is connected; in demo mode nothing leaves your device.</p></details>
+          <details class="glass"><summary>What is demo mode?</summary><p>If no AI backend is reachable, SmartMind uses a built-in offline engine that produces structured template responses so you can try the interface.</p></details>
+          <details class="glass"><summary>Can I connect a real AI API?</summary><p>Yes. Expose a <code>POST /api/generate</code> endpoint that returns <code>{ "text": "..." }</code> and a <code>GET /api/status</code> endpoint that returns <code>{ "configured": true }</code>. Keep your API key on the server.</p></details>
+          <details class="glass"><summary>Does it work on mobile?</summary><p>Yes — the layout is fully responsive and keyboard accessible.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NEWSLETTER CTA ============ -->
+    <section class="section cta-section">
+      <div class="container">
+        <div class="glass cta reveal">
+          <h2>Ready to <span class="grad">think faster</span>?</h2>
+          <p class="muted">Get product updates and prompt tips. No spam.</p>
+          <form id="newsForm" class="news-form" novalidate>
+            <label for="news-email" class="sr-only">Email</label>
+            <input id="news-email" type="email" placeholder="you@example.com" maxlength="120" required />
+            <button class="btn btn-primary" type="submit">Subscribe</button>
+          </form>
+          <small class="err" id="err-news"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section" id="contact">
+      <div class="container contact-grid">
+        <div class="reveal">
+          <span class="eyebrow">Contact</span>
+          <h2>Let's <span class="grad">talk</span></h2>
+          <p class="lead">Questions, feedback or partnership ideas? Send a message and we'll get back to you.</p>
+          <ul class="contact-list">
+            <li>📧 hello@smartmind.example</li>
+            <li>🕒 Mon–Fri, 9am–6pm IST</li>
+          </ul>
+        </div>
+        <form class="glass contact-form reveal" id="contactForm" novalidate style="--d:.15s">
+          <div class="field"><label for="ct-name">Name</label><input id="ct-name" name="name" type="text" maxlength="80" autocomplete="name" required /><small class="err" id="err-name"></small></div>
+          <div class="field"><label for="ct-email">Email</label><input id="ct-email" name="email" type="email" maxlength="120" autocomplete="email" required /><small class="err" id="err-email"></small></div>
+          <div class="field"><label for="ct-msg">Message</label><textarea id="ct-msg" name="message" rows="5" maxlength="2000" required></textarea><small class="err" id="err-message"></small></div>
+          <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button class="btn btn-primary" type="submit">Send message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="#home" class="logo"><span class="logo-mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg></span><span>SmartMind<b>AI</b></span></a>
+        <p class="muted">Work smarter. Learn faster. Create more.</p>
+      </div>
+      <div><h5>Product</h5><a href="#features">Features</a><a href="#dashboard">Dashboard</a><a href="#pricing">Pricing</a></div>
+      <div><h5>Company</h5><a href="#about">About</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></div>
+      <div><h5>Tools</h5><a href="#dashboard" data-open="chat">Chat</a><a href="#dashboard" data-open="writer">Writer</a><a href="#dashboard" data-open="study">Study</a></div>
+    </div>
+    <div class="container footer-bottom"><span>© <span id="year"></span> SmartMind AI. All rights reserved.</span><button type="button" class="link" id="toTop">Back to top ↑</button></div>
+  </footer>
+
+  <!-- ============ PROFILE MODAL ============ -->
+  <div class="modal" id="profileModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="glass modal-box" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+      <button class="modal-x" type="button" data-close aria-label="Close">×</button>
+      <h3 id="profileTitle">Your profile</h3>
+      <p class="muted small">Stored only in this browser (localStorage). For real accounts, connect an auth provider.</p>
+      <form id="profileForm" novalidate>
+        <div class="field"><label for="p-name">Display name</label><input id="p-name" type="text" maxlength="40" required /><small class="err" id="err-pname"></small></div>
+        <div class="field"><label for="p-focus">Main focus</label>
+          <select id="p-focus"><option>Productivity</option><option>Learning</option><option>Writing</option><option>Startups</option><option>Marketing</option></select></div>
+        <div class="row">
+          <button class="btn btn-primary" type="submit">Save profile</button>
+          <button class="btn btn-ghost" type="button" id="signOut">Sign out</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+   
+"use strict";
+
+(() => {
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+  const store = {
+    get(k, fallback) { try { const v = localStorage.getItem("smartmind:" + k); return v ? JSON.parse(v) : fallback; } catch { return fallback; } },
+    set(k, v) { try { localStorage.setItem("smartmind:" + k, JSON.stringify(v)); } catch { /* storage blocked */ } },
+    del(k) { try { localStorage.removeItem("smartmind:" + k); } catch { /* ignore */ } },
+  };
+
+  const escapeHTML = (v) =>
+    String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  /* Safe mini-markdown: everything is escaped FIRST, then formatting is applied. */
+  function md(text) {
+    const lines = escapeHTML(text).split("\n");
+    const inline = (s) => s.replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+    let html = "", list = null, para = [];
+    const flushPara = () => { if (para.length) { html += `<p>${inline(para.join("<br>"))}</p>`; para = []; } };
+    const closeList = () => { if (list) { html += `</${list}>`; list = null; } };
+    for (const raw of lines) {
+      const line = raw.trimEnd();
+      let m;
+      if (!line.trim()) { flushPara(); closeList(); continue; }
+      if ((m = line.match(/^(#{1,3})\s+(.*)$/))) { flushPara(); closeList(); html += `<h${m[1].length + 2}>${inline(m[2])}</h${m[1].length + 2}>`; continue; }
+      if ((m = line.match(/^\s*[-*•]\s+(.*)$/))) { flushPara(); if (list !== "ul") { closeList(); html += "<ul>"; list = "ul"; } html += `<li>${inline(m[1])}</li>`; continue; }
+      if ((m = line.match(/^\s*\d+[.)]\s+(.*)$/))) { flushPara(); if (list !== "ol") { closeList(); html += "<ol>"; list = "ol"; } html += `<li>${inline(m[1])}</li>`; continue; }
+      closeList(); para.push(line);
+    }
+    flushPara(); closeList();
+    return html;
+  }
+
+  /* ---------- Toasts ---------- */
+  function toast(message, type = "ok", ms = 3000) {
+    const el = document.createElement("div");
+    el.className = `toast ${type}`;
+    el.textContent = message;
+    $("#toasts").appendChild(el);
+    setTimeout(() => { el.style.transition = "opacity .3s, transform .3s"; el.style.opacity = "0"; el.style.transform = "translateX(20px)"; setTimeout(() => el.remove(), 320); }, ms);
+  }
+
+  /* ---------- Loader ---------- */
+  function initLoader() {
+    const fill = $("#loaderFill"), pct = $("#loaderPct"), text = $("#loaderText"), loader = $("#loader");
+    const steps = ["Initializing neural interface…", "Loading language modules…", "Calibrating creativity…", "Almost ready…"];
+    let progress = 0, finished = false, start = performance.now();
+    const loaded = new Promise((res) => (document.readyState === "complete" ? res() : addEventListener("load", res, { once: true })));
+    loaded.then(() => (finished = true));
+    function tick() {
+      const elapsed = performance.now() - start;
+      const target = finished && elapsed > 900 ? 100 : Math.min(90, elapsed / 18);
+      progress += (target - progress) * 0.12 + 0.2;
+      progress = Math.min(progress, target);
+      const p = Math.round(progress);
+      fill.style.width = p + "%"; pct.textContent = p + "%";
+      text.textContent = steps[Math.min(steps.length - 1, Math.floor(p / 26))];
+      if (p >= 100) return done();
+      requestAnimationFrame(tick);
+    }
+    function done() {
+      loader.classList.add("done");
+      document.body.classList.remove("loading");
+      setTimeout(() => loader.remove(), 800);
+    }
+    setTimeout(() => { if (document.body.classList.contains("loading")) done(); }, 6000); // safety net
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- Animated particle background ---------- */
+  function initCanvas() {
+    const canvas = $("#bgCanvas");
+    if (!canvas || reduceMotion) return;
+    const ctx = canvas.getContext("2d");
+    let w, h, dpr, nodes = [], raf;
+    const mouse = { x: -999, y: -999 };
+    function resize() {
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      w = canvas.width = innerWidth * dpr; h = canvas.height = innerHeight * dpr;
+      const count = clamp(Math.floor((innerWidth * innerHeight) / 22000), 25, 80);
+      nodes = Array.from({ length: count }, () => ({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.35 * dpr, vy: (Math.random() - 0.5) * 0.35 * dpr, r: (Math.random() * 1.6 + 0.6) * dpr }));
+    }
+    function frame() {
+      ctx.clearRect(0, 0, w, h);
+      const maxD = 140 * dpr;
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+        const dx = n.x - mouse.x * dpr, dy = n.y - mouse.y * dpr, d = Math.hypot(dx, dy);
+        if (d < 120 * dpr) { n.x += (dx / d) * 1.2; n.y += (dy / d) * 1.2; }
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fillStyle = "rgba(160,170,255,.8)"; ctx.fill();
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const d = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+          if (d < maxD) { ctx.strokeStyle = `rgba(110,130,255,${(1 - d / maxD) * 0.35})`; ctx.lineWidth = dpr * 0.8; ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke(); }
+        }
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    addEventListener("resize", resize, { passive: true });
+    addEventListener("pointermove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+    document.addEventListener("visibilitychange", () => { cancelAnimationFrame(raf); if (!document.hidden) frame(); });
+    resize(); frame();
+  }
+
+  /* ---------- Cursor glow, nav, scroll progress ---------- */
+  function initCursorGlow() {
+    const glow = $("#glowCursor");
+    if (!glow || matchMedia("(pointer: coarse)").matches) return;
+    let x = 0, y = 0, tx = 0, ty = 0;
+    addEventListener("pointermove", (e) => { tx = e.clientX; ty = e.clientY; glow.style.opacity = 1; }, { passive: true });
+    document.addEventListener("pointerleave", () => (glow.style.opacity = 0));
+    (function loop() { x += (tx - x) * 0.12; y += (ty - y) * 0.12; glow.style.transform = `translate(${x - 190}px,${y - 190}px)`; requestAnimationFrame(loop); })();
+  }
+
+  function initNav() {
+    const nav = $("#nav"), bar = $("#scrollProgress"), burger = $("#burger"), links = $("#navLinks");
+    let ticking = false;
+    const onScroll = () => {
+      nav.classList.toggle("scrolled", scrollY > 20);
+      const max = document.documentElement.scrollHeight - innerHeight;
+      bar.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + "%";
+      ticking = false;
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+    onScroll();
+
+    const closeMenu = () => { links.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); };
+    burger.addEventListener("click", () => { const open = links.classList.toggle("open"); burger.setAttribute("aria-expanded", String(open)); });
+    links.addEventListener("click", (e) => e.target.closest("a") && closeMenu());
+    addEventListener("keydown", (e) => e.key === "Escape" && closeMenu());
+
+    // scroll spy
+    const map = new Map($$("a", links).map((a) => [a.getAttribute("href").slice(1), a]));
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting && map.has(en.target.id)) {
+          map.forEach((a) => a.classList.remove("active"));
+          map.get(en.target.id).classList.add("active");
+        }
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    map.forEach((_, id) => { const s = document.getElementById(id); if (s) spy.observe(s); });
+
+    $("#toTop").addEventListener("click", () => scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }));
+    $("#year").textContent = new Date().getFullYear();
+  }
+
+  /* ---------- Reveal on scroll, counters, tilt ---------- */
+  function initReveal() {
+    const fmt = new Intl.NumberFormat("en-US");
+    const animateCount = (el) => {
+      const target = +el.dataset.count, suffix = el.dataset.suffix || "", dur = 1600, t0 = performance.now();
+      if (reduceMotion) { el.textContent = fmt.format(target) + suffix; return; }
+      (function step(t) {
+        const p = clamp((t - t0) / dur, 0, 1), eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt.format(Math.round(target * eased)) + (p === 1 ? suffix : "");
+        if (p < 1) requestAnimationFrame(step);
+      })(t0);
+    };
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("in");
+        $$("[data-count]", en.target).forEach(animateCount);
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.12 });
+    $$(".reveal").forEach((el) => io.observe(el));
+  }
+
+  function initTilt() {
+    if (reduceMotion || matchMedia("(pointer: coarse)").matches) return;
+    $$(".tilt").forEach((card) => {
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect(), px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(800px) rotateY(${px * 9}deg) rotateX(${-py * 9}deg) translateY(-4px)`;
+      });
+      card.addEventListener("pointerleave", () => (card.style.transform = ""));
+    });
+  }
+
+  /* ---------- Backend status + API layer ---------- */
+  const backend = { live: false };
+  async function checkBackend() {
+    const badge = $("#modeBadge"), banner = $("#demoBanner");
+    const set = (cls, label, demo) => { badge.className = "mode-badge " + cls; badge.textContent = label; banner.hidden = !demo; };
+    if (location.protocol === "file:") return set("demo", "Demo mode", true);
+    try {
+      const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 4000);
+      const res = await fetch("/api/status", { signal: ctrl.signal }); clearTimeout(t);
+      const data = res.ok ? await res.json() : null;
+      if (data && data.configured) { backend.live = true; return set("live", "AI connected", false); }
+      set("demo", "Demo mode", true);
+    } catch { set(navigator.onLine ? "demo" : "offline", navigator.onLine ? "Demo mode" : "Offline", true); }
+  }
+  addEventListener("online", checkBackend);
+  addEventListener("offline", checkBackend);
+
+  let lastCall = 0;
+  async function callAPI(tool, payload) {
+    const gap = 700 - (Date.now() - lastCall);
+    if (gap > 0) await sleep(gap); // simple client-side rate limit
+    lastCall = Date.now();
+    if (!backend.live) { await sleep(500 + Math.random() * 600); return { text: demo(tool, payload), demo: true }; }
+    const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 45000);
+    try {
+      const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool, ...payload }), signal: ctrl.signal });
+      if (res.status === 429) throw new Error("Too many requests — please wait a moment.");
+      if (!res.ok) throw new Error(`Server error (${res.status}). Please try again.`);
+      const json = await res.json();
+      if (!json || typeof json.text !== "string" || !json.text.trim()) throw new Error("Empty response from server.");
+      return { text: json.text, demo: false };
+    } catch (e) {
+      throw new Error(e.name === "AbortError" ? "The request timed out. Please try again." : e.message);
+    } finally { clearTimeout(t); }
+  }
+
+  /* ---------- Offline demo engine ---------- */
+  const words = (s) => s.trim().split(/\s+/).filter(Boolean);
+  const short = (s, n = 70) => (s.length > n ? s.slice(0, n).trim() + "…" : s.trim());
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function demo(tool, p) {
+    const d = p.data || {};
+    switch (tool) {
+      case "chat": return demoChat(p.messages || []);
+      case "writer": return demoWriter(d);
+      case "study": return demoStudy(d);
+      case "ideas": return demoIdeas(d);
+      case "copy": return demoCopy(d);
+      default: return "Unknown tool.";
+    }
+  }
+
+  function demoChat(messages) {
+    const last = (messages[messages.length - 1]?.content || "").trim();
+    const q = last.toLowerCase();
+    if (/^(hi|hello|hey|namaste|yo)\b/.test(q)) return "Hello! 👋 I'm running in **demo mode**, but I can still help you structure ideas. What are you working on?";
+    if (/study|exam|revision|plan/.test(q)) return `Here's a simple weekly plan for "${short(last, 50)}":\n\n1. **Mon–Tue:** Learn core concepts, 2 focused sessions of 45 min.\n2. **Wed:** Practice problems, then review mistakes.\n3. **Thu:** Teach the topic aloud in your own words.\n4. **Fri:** Mock test under time limit.\n5. **Weekend:** Light revision and rest.\n\nTip: use short breaks (5 min) between sessions.\n\n_Demo reply — connect an AI backend for tailored plans._`;
+    if (/tagline|slogan|headline/.test(q)) return "Try these directions:\n\n- **Benefit-first:** “Do more. Stress less.”\n- **Curiosity:** “What if work felt easy?”\n- **Bold:** “Built for people who ship.”\n\nTell me your product and audience and I'll sharpen them.";
+    if (/api/.test(q)) return "An **API** is like a restaurant waiter. You (the app) tell the waiter (API) what you want, the waiter takes the order to the kitchen (server), and brings back the result.\n\n- You never enter the kitchen.\n- You follow a menu (documentation).\n- Responses usually come back as JSON.";
+    if (/code|bug|error|javascript|python|html|css/.test(q)) return "To debug effectively:\n\n1. Reproduce the problem with the smallest example.\n2. Read the exact error message and line number.\n3. Log or inspect values just before it fails.\n4. Change one thing at a time.\n\nPaste your code and the error and I'll walk through it with you.";
+    return `Good question. A useful way to approach "${short(last, 60)}":\n\n1. **Define the goal** — what does success look like?\n2. **List constraints** — time, budget, skills.\n3. **Break it down** — pick the smallest next step.\n4. **Review** — check what worked and adjust.\n\nShare a bit more context and I'll make this specific.\n\n_Demo reply — connect an AI backend for live answers._`;
+  }
+
+  function demoWriter({ type = "Article", tone = "Professional", topic = "", length = "Medium" }) {
+    const n = { Short: 1, Medium: 2, Long: 4 }[length] || 2;
+    const paras = [
+      `${cap(topic)} matters because it changes how people work, learn and decide. Start with the audience: who needs this, and what do they want to do afterwards?`,
+      `Lead with the single most useful idea. Support it with one concrete example, then connect it to an action the reader can take today.`,
+      `Keep sentences short and verbs active. Replace vague claims with specifics — numbers, names and short stories are far more convincing.`,
+      `Close by restating the benefit and inviting the next step. A clear ending turns a good draft into a useful one.`,
+    ].slice(0, n);
+    const intro = `# ${cap(short(topic, 60))}\n_${type} · ${tone} tone · ${length}_\n\n`;
+    if (/caption/i.test(type)) return `${intro}✨ ${cap(short(topic, 90))} — small steps, big results.\n\n${tone === "Witty" ? "Plot twist: it actually works. 😉" : "Save this for later and share with someone who needs it."}\n\n#smartmind #ideas #growth`;
+    if (/email/i.test(type)) return `${intro}**Subject:** ${cap(short(topic, 60))}\n\nHi [Name],\n\nI hope you're doing well. I'm reaching out about ${topic.toLowerCase()}.\n\n${paras[0]}\n\nWould you be open to a quick call this week?\n\nBest regards,\n[Your name]`;
+    if (/poem/i.test(type)) return `${intro}Where ${topic.toLowerCase()} begins,\nA quiet spark takes flight,\nEach word a small beginning,\nEach thought a steady light.\n\nWe build it, line by line,\nAnd shape what we can see —\nThe future isn't waiting,\nIt starts with you and me.`;
+    return `${intro}${paras.join("\n\n")}\n\n_Demo draft — connect an AI backend for fully written content._`;
+  }
+
+  function demoStudy({ mode = "explain", topic = "", level = "Intermediate", questions = 5 }) {
+    const t = short(topic, 60), q = clamp(parseInt(questions, 10) || 5, 3, 15);
+    if (mode === "quiz") {
+      const stems = ["Define the main idea of", "Give one real-world example of", "What is a common misconception about", "How would you explain to a beginner:", "Which factors influence", "Compare two key parts of", "What happens if you change one variable in", "Why is it important to understand"];
+      return `# Quiz: ${cap(t)}\n_Level: ${level}_\n\n` + Array.from({ length: q }, (_, i) => `${i + 1}. ${stems[i % stems.length]} **${t}**?`).join("\n") + `\n\n### Tip\nAnswer in your own words first, then check your notes.\n\n_Demo quiz — connect an AI backend for real questions and answer keys._`;
+    }
+    if (mode === "summarize") {
+      const sentences = topic.split(/(?<=[.!?])\s+/).filter(Boolean).slice(0, 4);
+      return `# Summary\n\n${sentences.length > 1 ? sentences.map((s) => `- ${short(s, 140)}`).join("\n") : `- ${short(topic, 160)}`}\n\n### Key takeaways\n1. Identify the main idea.\n2. Note supporting evidence.\n3. Write one question you still have.\n\n_Demo summary — a live AI backend would condense your notes properly._`;
+    }
+    return `# ${cap(t)} (${level})\n\n### Simple explanation\nStart with the big idea: what is **${t}** and why does it matter? Then split it into 3 smaller parts and learn them one at a time.\n\n### Remember these steps\n1. Read the core definition.\n2. Rewrite it in your own words.\n3. Create one real-life example.\n4. Test yourself without looking.\n\n### Quick check\nCan you explain ${t} in two sentences?\n\n_Demo explanation — connect an AI backend for a detailed, accurate answer._`;
+  }
+
+  function demoIdeas({ kind = "Business ideas", topic = "", count = 5 }) {
+    const n = clamp(parseInt(count, 10) || 5, 3, 10), t = short(topic, 60);
+    const pool = [
+      ["Starter kit", `Bundle the essentials for ${t} into an affordable first purchase.`],
+      ["Personalised service", "Use a short questionnaire to tailor the result for each customer."],
+      ["Micro-learning", "Teach one practical skill per day through 5-minute lessons."],
+      ["Community club", "Create a members group to share progress, templates and feedback."],
+      ["Local-first brand", "Partner with nearby creators and small businesses to build trust."],
+      ["Subscription box", "Deliver a curated monthly package with a small surprise inside."],
+      ["Marketplace", "Connect independent providers with customers who need them."],
+      ["Done-for-you service", "Handle the boring setup work so customers see results quickly."],
+      ["Challenge series", "Run a 30-day challenge with daily prompts and a leaderboard."],
+      ["Data-driven insights", "Turn simple user data into weekly personal recommendations."],
+    ].sort(() => Math.random() - 0.5).slice(0, n);
+    return `# ${n} ${kind} for "${t}"\n\n` + pool.map(([h, b], i) => `${i + 1}. **${h}:** ${b}`).join("\n") + `\n\n### Next step\nPick one idea and validate it with five potential customers before building anything.\n\n_Demo ideas — connect an AI backend for topic-specific suggestions._`;
+  }
+
+  function demoCopy({ business = "Your Brand", topic = "", type = "Hero headline & subheadline", tone = "Confident" }) {
+    const t = short(topic, 120);
+    const heads = { Confident: "Results you can count on.", Playful: "Work, but make it fun.", Premium: "Crafted for those who expect more.", Warm: "Made with care, for you.", Bold: "Stop waiting. Start winning." };
+    const h = heads[tone] || heads.Confident;
+    if (/SEO/i.test(type)) return `# SEO Meta\n\n**Title (≤60 chars):** ${short(business + " — " + h.replace(/\.$/, ""), 60)}\n\n**Description (≤155 chars):** ${short(`${business}: ${t}. Learn more and get started today.`, 155)}`;
+    if (/Call-to-action/i.test(type)) return `# Call-to-action buttons\n\n- Get started free\n- See how it works\n- Try ${business} today\n- Book a demo\n- Join the waitlist`;
+    if (/About/i.test(type)) return `# About ${business}\n\n${business} exists to make life easier for the people we serve. ${cap(t)}.\n\n### Our promise\nClear value, honest service, and results you can feel.\n\n### Our story\nWe started with a simple question: what would this look like if it were done right?`;
+    if (/Feature/i.test(type)) return `# Features\n\n1. **Simple to start:** Set up in minutes, no experience needed.\n2. **Built for you:** ${cap(t)}.\n3. **Reliable:** Consistent quality you can trust.\n4. **Supportive:** Real people ready to help.`;
+    if (/landing/i.test(type)) return `# ${business}\n\n## ${h}\n${cap(t)}.\n\n[ Get started → ]\n\n### Why ${business}?\n- **Save time** — less effort, better outcomes.\n- **Stay confident** — clear steps and honest guidance.\n- **See results** — measurable progress from week one.\n\n### How it works\n1. Tell us what you need.\n2. We tailor the solution.\n3. You enjoy the results.\n\n### Ready?\n**Start today with ${business}.**`;
+    return `# Hero section\n\n**Headline**\n${h}\n\n**Subheadline**\n${business} — ${t}.\n\n**Button**\nGet started today →\n\n_Demo copy — connect an AI backend for custom brand copy._`;
+  }
+
+  /* ---------- Typewriter rendering for chat bubbles ---------- */
+  async function typeInto(el, text, scrollEl) {
+    if (reduceMotion || text.length > 1800) { el.innerHTML = md(text); return; }
+    const chunk = Math.max(2, Math.ceil(text.length / 140));
+    for (let i = chunk; i < text.length + chunk; i += chunk) {
+      el.innerHTML = md(text.slice(0, i));
+      scrollEl.scrollTop = scrollEl.scrollHeight;
+      await sleep(16);
+    }
+    el.innerHTML = md(text);
+  }
+
+  /* ---------- Chat controller (reused by hero preview & dashboard) ---------- */
+  function createChat({ win, form, input, clearBtn, storageKey, greeting }) {
+    let history = store.get(storageKey, []);
+    let busy = false;
+    const scroll = () => (win.scrollTop = win.scrollHeight);
+    const bubble = (role, text = "", cls = "") => {
+      const el = document.createElement("div");
+      el.className = `msg ${role} ${cls}`.trim();
+      if (text) el.innerHTML = role === "user" ? `<p>${escapeHTML(text).replace(/\n/g, "<br>")}</p>` : md(text);
+      win.appendChild(el); scroll(); return el;
+    };
+    // restore
+    if (history.length) { win.innerHTML = ""; history.forEach((m) => bubble(m.role === "user" ? "user" : "bot", m.content)); }
+
+    async function send(text) {
+      text = text.trim();
+      if (!text || busy) return;
+      busy = true;
+      bubble("user", text);
+      history.push({ role: "user", content: text });
+      const typing = document.createElement("div");
+      typing.className = "msg bot typing"; typing.innerHTML = "<i></i><i></i><i></i>";
+      win.appendChild(typing); scroll();
+      try {
+        const { text: reply } = await callAPI("chat", { messages: history.slice(-12) });
+        typing.remove();
+        const el = bubble("bot");
+        await typeInto(el, reply, win);
+        history.push({ role: "assistant", content: reply });
+      } catch (err) {
+        typing.remove();
+        bubble("bot", err.message || "Something went wrong.", "error");
+      } finally {
+        history = history.slice(-30); store.set(storageKey, history); busy = false; scroll();
+      }
+    }
+    form.addEventListener("submit", (e) => { e.preventDefault(); const v = input.value; input.value = ""; autosize(); send(v); });
+    const autosize = () => { if (input.tagName === "TEXTAREA") { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px"; } };
+    input.addEventListener("input", autosize);
+    if (input.tagName === "TEXTAREA") input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
+    clearBtn && clearBtn.addEventListener("click", () => { history = []; store.del(storageKey); win.innerHTML = ""; bubble("bot", greeting); toast("Conversation cleared"); });
+    return { send };
+  }
+
+  function initChats() {
+    const hero = createChat({ win: $("#previewBody"), form: $("#previewForm"), input: $("#previewInput"), storageKey: "chat-preview", greeting: "Hi! I'm SmartMind. Ask me anything or try a prompt below." });
+    $("#previewChips").addEventListener("click", (e) => { const c = e.target.closest(".chip"); if (c) hero.send(c.textContent); });
+    createChat({ win: $("#chatWindow"), form: $("#chatForm"), input: $("#chatInput"), clearBtn: $("#chatClear"), storageKey: "chat-main", greeting: "Hello! I'm your SmartMind assistant. What are we working on today?" });
+  }
+
+  /* ---------- Dashboard tabs ---------- */
+  function initTabs() {
+    const tabs = $$('[role="tab"]', $("#tabs"));
+    function select(tool, focus = false) {
+      tabs.forEach((t) => {
+        const on = t.dataset.tool === tool;
+        t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1;
+        $("#" + t.getAttribute("aria-controls")).hidden = !on;
+        if (on && focus) t.focus();
+      });
+      store.set("tool", tool);
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(t.dataset.tool));
+      t.addEventListener("keydown", (e) => {
+        const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (k) { e.preventDefault(); select(tabs[(i + k + tabs.length) % tabs.length].dataset.tool, true); }
+        if (e.key === "Home") { e.preventDefault(); select(tabs[0].dataset.tool, true); }
+        if (e.key === "End") { e.preventDefault(); select(tabs[tabs.length - 1].dataset.tool, true); }
+      });
+    });
+    document.addEventListener("click", (e) => { const l = e.target.closest("[data-open]"); if (l) select(l.dataset.open); });
+    const saved = store.get("tool", "chat");
+    if (tabs.some((t) => t.dataset.tool === saved)) select(saved);
+  }
+
+  /* ---------- Tool forms (writer / study / ideas / copy) ---------- */
+  function initToolForms() {
+    $$(".tool-form").forEach((form) => {
+      const tool = form.dataset.tool, out = $(`[data-output="${tool}"]`);
+      // character counters
+      $$("textarea[maxlength]", form).forEach((ta) => {
+        const c = $(".count span", ta.parentElement);
+        if (c) ta.addEventListener("input", () => (c.textContent = ta.value.length));
+      });
+      // restore last result
+      const saved = store.get("result-" + tool, null);
+      if (saved) renderResult(out, tool, saved.text, form, saved.demo);
+
+      // study form: toggle quiz-count availability
+      if (tool === "study") {
+        const mode = $("#s-mode"), q = $("#s-q"), sync = () => { q.disabled = mode.value !== "quiz"; q.parentElement.style.opacity = q.disabled ? ".5" : "1"; };
+        mode.addEventListener("change", sync); sync();
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!validate(form)) return;
+        const btn = $("button[type=submit]", form);
+        const data = Object.fromEntries(new FormData(form).entries());
+        btn.classList.add("loading"); btn.disabled = true;
+        out.innerHTML = `<div class="result"><div class="skeleton" aria-label="Generating"><i></i><i></i><i></i><i></i></div></div>`;
+        try {
+          const res = await callAPI(tool, { data });
+          store.set("result-" + tool, { text: res.text, demo: res.demo });
+          renderResult(out, tool, res.text, form, res.demo);
+        } catch (err) {
+          out.innerHTML = `<div class="alert" role="alert">${escapeHTML(err.message || "Something went wrong.")}</div>`;
+        } finally { btn.classList.remove("loading"); btn.disabled = false; }
+      });
+    });
+  }
+
+  function validate(form) {
+    let ok = true;
+    $$("[required]", form).forEach((el) => {
+      const field = el.closest(".field"), err = $(".err", field);
+      const bad = !el.value.trim();
+      field.classList.toggle("invalid", bad);
+      if (err) err.textContent = bad ? "This field is required." : "";
+      if (bad && ok) { el.focus(); ok = false; }
+      el.addEventListener("input", () => { field.classList.remove("invalid"); if (err) err.textContent = ""; }, { once: true });
+    });
+    return ok;
+  }
+
+  function renderResult(out, tool, text, form, isDemo) {
+    const wc = words(text).length;
+    out.innerHTML = `
+      <div class="result">
+        <div class="result-bar">
+          <span>✦ Result · ${wc} words${isDemo ? " · demo" : ""}</span>
+          <span class="result-actions">
+            <button type="button" class="btn btn-ghost btn-sm" data-act="copy">Copy</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-act="download">Download</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-act="again">Regenerate</button>
+          </span>
+        </div>
+        <div class="result-body">${md(text)}</div>
+      </div>`;
+    out.querySelector(".result-actions").addEventListener("click", async (e) => {
+      const act = e.target.closest("[data-act]")?.dataset.act;
+      if (act === "copy") {
+        try { await navigator.clipboard.writeText(text); toast("Copied to clipboard"); }
+        catch { toast("Clipboard blocked by browser", "bad"); }
+      } else if (act === "download") {
+        const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+        const a = Object.assign(document.createElement("a"), { href: url, download: `smartmind-${tool}-${Date.now()}.txt` });
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } else if (act === "again") form.requestSubmit();
+    });
+  }
+
+  /* ---------- Pricing toggle ---------- */
+  function initPricing() {
+    const nums = $$(".price .num"), btns = $$(".billing button");
+    const fmt = new Intl.NumberFormat("en-IN");
+    btns.forEach((b) => b.addEventListener("click", () => {
+      btns.forEach((x) => x.classList.toggle("on", x === b));
+      const key = b.dataset.bill === "yearly" ? "y" : "m";
+      nums.forEach((n) => (n.textContent = "₹" + fmt.format(+n.dataset[key])));
+    }));
+  }
+
+  /* ---------- Testimonial slider ---------- */
+  function initSlider() {
+    const slider = $("#slider"), track = $("#slides"), count = track.children.length, dotsEl = $("#sliderDots");
+    let i = 0, timer, startX = null;
+    const dots = Array.from({ length: count }, (_, n) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.setAttribute("aria-label", `Go to testimonial ${n + 1}`);
+      b.addEventListener("click", () => { go(n); restart(); });
+      dotsEl.appendChild(b); return b;
+    });
+    function go(n) { i = (n + count) % count; track.style.transform = `translateX(-${i * 100}%)`; dots.forEach((d, k) => d.classList.toggle("on", k === i)); }
+    const restart = () => { clearInterval(timer); if (!reduceMotion) timer = setInterval(() => go(i + 1), 6000); };
+    $("#prevSlide").addEventListener("click", () => { go(i - 1); restart(); });
+    $("#nextSlide").addEventListener("click", () => { go(i + 1); restart(); });
+    slider.addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") { go(i - 1); restart(); } if (e.key === "ArrowRight") { go(i + 1); restart(); } });
+    slider.addEventListener("mouseenter", () => clearInterval(timer));
+    slider.addEventListener("mouseleave", restart);
+    slider.addEventListener("pointerdown", (e) => (startX = e.clientX));
+    slider.addEventListener("pointerup", (e) => { if (startX === null) return; const dx = e.clientX - startX; if (Math.abs(dx) > 50) { go(i + (dx < 0 ? 1 : -1)); restart(); } startX = null; });
+    go(0); restart();
+  }
+
+  /* ---------- Contact + newsletter ---------- */
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function initForms() {
+    const form = $("#contactForm");
+    const setErr = (id, msg) => { const el = $("#err-" + id); el.textContent = msg; el.closest(".field").classList.toggle("invalid", !!msg); return !msg; };
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = Object.fromEntries(new FormData(form).entries());
+      if (f.website) return; // honeypot caught a bot
+      const a = setErr("name", f.name.trim().length < 2 ? "Please enter your name." : "");
+      const b = setErr("email", emailRe.test(f.email.trim()) ? "" : "Please enter a valid email.");
+      const c = setErr("message", f.message.trim().length < 10 ? "Message must be at least 10 characters." : "");
+      if (!(a && b && c)) return toast("Please fix the highlighted fields", "bad");
+      const btn = $("button[type=submit]", form);
+      btn.classList.add("loading");
+      await sleep(900);
+      // Demo: store locally. Replace with fetch('/api/contact', …) on a real backend.
+      const box = store.get("contact-messages", []);
+      box.push({ name: f.name.trim(), email: f.email.trim(), message: f.message.trim(), at: new Date().toISOString() });
+      store.set("contact-messages", box.slice(-20));
+      btn.classList.remove("loading"); form.reset();
+      toast("Message saved locally (demo). Connect a backend to deliver it.");
+    });
+
+    $("#newsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = $("#news-email"), err = $("#err-news");
+      if (!emailRe.test(input.value.trim())) { err.textContent = "Please enter a valid email."; return input.focus(); }
+      err.textContent = ""; await sleep(500);
+      store.set("newsletter", input.value.trim()); input.value = "";
+      toast("Subscribed (demo) — thank you!");
+    });
+  }
+
+  /* ---------- Profile modal ---------- */
+  function initProfile() {
+    const modal = $("#profileModal"), btn = $("#profileBtn"), nameIn = $("#p-name"), focusIn = $("#p-focus"), err = $("#err-pname");
+    let lastFocus = null;
+    const render = () => { const p = store.get("profile", null); btn.textContent = p ? `Hi, ${p.name.split(" ")[0]}` : "Sign in"; };
+    const open = () => {
+      lastFocus = document.activeElement;
+      const p = store.get("profile", { name: "", focus: "Productivity" });
+      nameIn.value = p.name; focusIn.value = p.focus; err.textContent = "";
+      modal.hidden = false; document.body.style.overflow = "hidden"; nameIn.focus();
+    };
+    const close = () => { modal.hidden = true; document.body.style.overflow = ""; lastFocus && lastFocus.focus(); };
+    btn.addEventListener("click", open);
+    modal.addEventListener("click", (e) => e.target.closest("[data-close]") && close());
+    addEventListener("keydown", (e) => {
+      if (modal.hidden) return;
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") { // focus trap
+        const f = $$("button, input, select", modal).filter((x) => !x.disabled);
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+    $("#profileForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = nameIn.value.trim();
+      if (name.length < 2) { err.textContent = "Please enter at least 2 characters."; return nameIn.focus(); }
+      store.set("profile", { name, focus: focusIn.value }); render(); close(); toast(`Welcome, ${name}!`);
+    });
+    $("#signOut").addEventListener("click", () => { store.del("profile"); render(); close(); toast("Signed out"); });
+    render();
+  }
+
+  /* ---------- Boot ---------- */
+  function boot() {
+    initLoader();
+    initCanvas();
+    initCursorGlow();
+    initNav();
+    initReveal();
+    initTilt();
+    initTabs();
+    initChats();
+    initToolForms();
+    initPricing();
+    initSlider();
+    initForms();
+    initProfile();
+    checkBackend();
+  }
+  document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", boot) : boot();
+})();
+  </script>
+</body>
+</html>
