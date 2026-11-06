@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NameSpark – Business Name Generator</title>
+<style>
+:root{--bg:#fff8fc;--bg2:#eef6ff;--card:#ffffffcc;--tx:#2b2540;--mut:#756f90;--a:#ff8fb8;--b:#8fb8ff;--c:#ffd78f;--d:#b9f0d0;--line:#ffffffaa}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0a0919;--bg2:#17123a;--card:#1c1740cc;--tx:#f3efff;--mut:#a59fd0;--line:#ffffff22}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);background:linear-gradient(135deg,var(--bg),var(--bg2));background-attachment:fixed;overflow-x:hidden;transition:background .6s,color .6s;line-height:1.6}
+@media (hover:hover){body,a,button,input,select,summary{cursor:none}}
+a{color:inherit;text-decoration:none}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blobs i{position:absolute;width:45vmax;height:45vmax;border-radius:50%;filter:blur(90px);opacity:.4;animation:drift 16s ease-in-out infinite alternate}
+.blobs i:nth-child(1){background:var(--a);left:-12%;top:-10%}.blobs i:nth-child(2){background:var(--b);right:-15%;top:25%;animation-delay:-6s}.blobs i:nth-child(3){background:var(--c);left:25%;bottom:-30%;animation-delay:-10s}
+:root[data-theme="dark"] .blobs i{opacity:.25}
+@keyframes drift{to{transform:translate(8vw,6vh) scale(1.25)}}
+#cd,#cr{position:fixed;left:0;top:0;border-radius:50%;pointer-events:none;z-index:999;display:none}
+@media (hover:hover){#cd,#cr{display:block}}
+#cd{width:8px;height:8px;margin:-4px;background:var(--a)}
+#cr{width:38px;height:38px;margin:-19px;border:2px solid var(--b);transition:width .2s,height .2s,margin .2s,background .2s}
+#cr.big{width:66px;height:66px;margin:-33px;background:#ff8fb833}
+#pre{position:fixed;inset:0;z-index:900;display:grid;place-items:center;background:var(--bg);transition:opacity .8s,visibility .8s;text-align:center}
+#pre.off{opacity:0;visibility:hidden}
+.scene{perspective:700px;width:90px;height:90px;margin:0 auto}
+.cube{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:spin 3s linear infinite}
+.cube b{position:absolute;inset:0;border:2px solid #fff;background:linear-gradient(135deg,#ff8fb8aa,#8fb8ffaa);box-shadow:0 0 25px var(--a);display:grid;place-items:center;font-size:32px}
+.cube b:nth-child(1){transform:translateZ(45px)}.cube b:nth-child(2){transform:rotateY(180deg) translateZ(45px)}.cube b:nth-child(3){transform:rotateY(90deg) translateZ(45px)}.cube b:nth-child(4){transform:rotateY(-90deg) translateZ(45px)}.cube b:nth-child(5){transform:rotateX(90deg) translateZ(45px)}.cube b:nth-child(6){transform:rotateX(-90deg) translateZ(45px)}
+@keyframes spin{to{transform:rotateX(360deg) rotateY(360deg)}}
+#pre p{margin-top:70px;letter-spacing:.4em;color:var(--mut);font-size:.8rem}
+nav{position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 5vw;background:var(--card);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:1.4rem;background:linear-gradient(120deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav ul{display:flex;gap:22px;list-style:none;font-size:.95rem}
+nav ul a:hover{color:var(--a)}
+@media(max-width:800px){nav ul{display:none}}
+.pill{border:1px solid var(--line);background:var(--card);color:var(--tx);padding:9px 18px;border-radius:99px;font:inherit;font-size:.9rem}
+.btn{border:0;padding:14px 32px;border-radius:99px;font:inherit;font-weight:700;color:#2b2540;background:linear-gradient(120deg,var(--a),var(--c));box-shadow:0 10px 30px #ff8fb855;transition:transform .3s;position:relative;overflow:hidden;display:inline-block}
+.btn:hover{transform:translateY(-3px) scale(1.04)}
+.btn::after{content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(90deg,transparent,#fff9,transparent);transform:skewX(-20deg);animation:shine 2.6s infinite}
+@keyframes shine{to{left:130%}}
+section{position:relative;z-index:2;padding:90px 5vw}
+.wrap{max-width:1150px;margin:0 auto}
+.glass{background:var(--card);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;box-shadow:0 20px 60px #8fb8ff30}
+h1{font-size:clamp(2.6rem,8vw,5.6rem);line-height:1.05}
+h2{font-size:clamp(1.8rem,4.5vw,3rem);text-align:center;margin-bottom:12px}
+.lead{text-align:center;color:var(--mut);max-width:620px;margin:0 auto 46px}
+.grad{background:linear-gradient(120deg,var(--a),var(--b),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.letters span{display:inline-block;opacity:0;transform:translateY(60px) rotateX(-90deg);animation:pop .8s forwards}
+@keyframes pop{to{opacity:1;transform:none}}
+.hero{min-height:92vh;display:grid;place-items:center;text-align:center;overflow:hidden}
+.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;z-index:-1}
+.type{color:var(--a);font-weight:700;border-right:3px solid var(--b);padding-right:4px;animation:blink .7s infinite}
+@keyframes blink{50%{border-color:transparent}}
+.hero p.sub{font-size:1.25rem;margin:18px 0 30px;color:var(--mut)}
+.gem{width:110px;height:110px;margin:0 auto 18px;perspective:600px}
+.gem div{width:100%;height:100%;display:grid;place-items:center;font-size:4.5rem;animation:spin 9s linear infinite;transform-style:preserve-3d;filter:drop-shadow(0 0 18px var(--a))}
+/* generator */
+.gen{padding:34px}
+.row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:center}
+@media(max-width:800px){.row{grid-template-columns:1fr}}
+input,select{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--tx);font:inherit;outline:0;transition:box-shadow .3s}
+input:focus,select:focus{box-shadow:0 0 0 3px var(--b)}
+.names{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:28px;perspective:900px}
+.nm{padding:18px;border-radius:18px;background:var(--card);border:1px solid var(--line);transition:transform .15s;animation:rise .5s both;transform-style:preserve-3d}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+.nm b{display:block;font-size:1.25rem;transform:translateZ(25px)}
+.nm small{color:var(--mut)}
+.nm div{margin-top:10px;display:flex;gap:8px}
+.nm button{border:1px solid var(--line);background:transparent;color:var(--tx);border-radius:99px;padding:5px 12px;font-size:.8rem}
+.nm button.fav{background:var(--a);color:#2b2540}
+/* wheel */
+.wheelbox{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+@media(max-width:800px){.wheelbox{grid-template-columns:1fr}}
+.wheelwrap{position:relative;width:min(340px,80vw);aspect-ratio:1;margin:0 auto}
+.pointer{position:absolute;left:50%;top:-12px;transform:translateX(-50%);z-index:5;font-size:2rem;filter:drop-shadow(0 4px 6px #0005)}
+.wheel{width:100%;height:100%;border-radius:50%;border:8px solid #fff;box-shadow:0 0 0 4px var(--b),0 20px 60px #8fb8ff66;position:relative;transition:transform 5s cubic-bezier(.17,.67,.12,1);
+background:conic-gradient(#ffc2d9 0 45deg,#c2d8ff 0 90deg,#ffe7b8 0 135deg,#c9f5dd 0 180deg,#ffc2d9 0 225deg,#c2d8ff 0 270deg,#ffe7b8 0 315deg,#c9f5dd 0 360deg)}
+.wheel span{position:absolute;left:50%;top:50%;width:70px;margin-left:-35px;margin-top:-30px;text-align:center;font-size:.7rem;font-weight:700;color:#2b2540;line-height:1.15}
+.wheel span em{display:block;font-style:normal;font-size:1.6rem}
+.hub{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--c));border:4px solid #fff;display:grid;place-items:center;font-size:1.6rem;z-index:4}
+.res{font-size:1.6rem;font-weight:800;margin:10px 0 18px}
+/* cards */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px;perspective:1000px}
+.card{padding:30px 24px;text-align:center;transition:transform .15s,box-shadow .3s;transform-style:preserve-3d}
+.card:hover{box-shadow:0 25px 60px #ff8fb855}
+.card .ic{font-size:3.2rem;transform:translateZ(50px);display:inline-block;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{translate:0 -9px}}
+.card h3{margin:10px 0 6px;transform:translateZ(30px)}
+.card p{color:var(--mut);font-size:.95rem}
+.steps{counter-reset:s}.steps .card::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:44px;height:44px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:800}
+/* 3D showcase carousel */
+.stage{perspective:1100px;height:280px;margin:20px auto 0;max-width:700px}
+.ring{position:relative;width:200px;height:240px;margin:0 auto;transform-style:preserve-3d;animation:rot 20s linear infinite}
+.stage:hover .ring{animation-play-state:paused}
+.ring div{position:absolute;inset:0;border-radius:20px;display:grid;place-items:center;text-align:center;padding:14px;font-weight:800;font-size:1.15rem;color:#2b2540;border:2px solid #fff;box-shadow:0 10px 40px #0002}
+@keyframes rot{to{transform:rotateY(360deg)}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;text-align:center}
+.stats b{display:block;font-size:2.8rem}
+.marq{overflow:hidden;white-space:nowrap;padding:18px 0;border-block:1px solid var(--line);position:relative;z-index:2}
+.marq div{display:inline-block;animation:mq 25s linear infinite;font-size:1.4rem;font-weight:700;color:var(--mut)}
+@keyframes mq{to{transform:translateX(-50%)}}
+.price{text-align:center;padding:34px 26px}
+.price h3{font-size:1.3rem}.price .big{font-size:3rem;font-weight:800;margin:8px 0}.price ul{list-style:none;margin:16px 0 24px;color:var(--mut)}.price li{padding:5px 0}
+.price.hot{border:2px solid var(--a);transform:scale(1.04)}
+details{padding:18px 22px;margin-bottom:14px}
+summary{font-weight:700;list-style:none}summary::after{content:"＋";float:right;color:var(--a)}details[open] summary::after{content:"－"}
+details p{margin-top:10px;color:var(--mut)}
+.reveal{opacity:0;transform:translateY(50px);transition:opacity .9s,transform .9s}
+.reveal.in{opacity:1;transform:none}
+footer{position:relative;z-index:2;text-align:center;padding:50px 5vw 70px;color:var(--mut);border-top:1px solid var(--line)}
+#toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,120px);padding:12px 24px;border-radius:99px;z-index:700;background:var(--tx);color:var(--bg);transition:transform .5s}
+#toast.on{transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="blobs"><i></i><i></i><i></i></div>
+<div id="cd"></div><div id="cr"></div>
+
+<!-- 3D PRELOADER -->
+<div id="pre"><div><div class="scene"><div class="cube"><b>✨</b><b>💡</b><b>🛞</b><b>🚀</b><b>💎</b><b>🏷️</b></div></div><p>GENERATING IDEAS…</p></div></div>
+
+<nav>
+  <a class="logo" href="#top">NameSpark ✦</a>
+  <ul><li><a href="#generator">Generator</a></li><li><a href="#wheel">Spin Wheel</a></li><li><a href="#how">How it works</a></li><li><a href="#showcase">Showcase</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li></ul>
+  <button class="pill" id="theme">🌙 Night</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <video muted loop playsinline autoplay aria-hidden="true"><!-- add your own: <source src="your-video.mp4" type="video/mp4"> --></video>
+  <div class="wrap">
+    <div class="gem"><div>💎</div></div>
+    <h1 class="letters grad" id="t1"></h1>
+    <p class="sub">Free business name generator for <span class="type" id="type"></span></p>
+    <a href="#generator" class="btn">✨ Generate My Name</a>
+  </div>
+</section>
+
+<div class="marq"><div id="mq"></div></div>
+
+<!-- GENERATOR -->
+<section id="generator"><div class="wrap reveal">
+  <h2>Find your <span class="grad">perfect name</span></h2>
+  <p class="lead">Type a keyword, pick an industry and a style, and get fresh brand ideas instantly.</p>
+  <div class="glass gen">
+    <div class="row">
+      <input id="kw" placeholder="Keyword (e.g. spark, bloom, speed)" value="spark">
+      <select id="ind"></select>
+      <select id="sty"><option>Modern</option><option>Classic</option><option>Playful</option></select>
+      <button class="btn" id="go">Generate</button>
+    </div>
+    <div class="names" id="names"></div>
+  </div>
+</div></section>
+
+<!-- WHEEL -->
+<section id="wheel"><div class="wrap reveal">
+  <h2>Spin the <span class="grad">Wheel</span> 🎡</h2>
+  <p class="lead">Cannot decide an industry? Spin the wheel – it picks one and balances out a fresh set of names for you. Yes, it includes wheel balancing shops!</p>
+  <div class="wheelbox">
+    <div class="wheelwrap"><div class="pointer">🔻</div><div class="wheel" id="wh"></div><div class="hub">✨</div></div>
+    <div>
+      <p style="color:var(--mut)">Your industry:</p>
+      <div class="res grad" id="res">Spin to find out!</div>
+      <button class="btn" id="spin">🎡 Spin the wheel</button>
+    </div>
+  </div>
+</div></section>
+
+<!-- FEATURES -->
+<section id="features"><div class="wrap">
+  <h2 class="reveal">Why <span class="grad">NameSpark</span>?</h2>
+  <p class="lead reveal">Everything you need to launch a brand people remember.</p>
+  <div class="grid3">
+    <div class="card glass reveal"><span class="ic">⚡</span><h3>Instant results</h3><p>Dozens of name ideas in a click, no signup needed.</p></div>
+    <div class="card glass reveal"><span class="ic">🎯</span><h3>Industry smart</h3><p>Names shaped for cafes, tech, fitness, beauty, auto care and more.</p></div>
+    <div class="card glass reveal"><span class="ic">🌐</span><h3>Domain ideas</h3><p>Every name comes with a matching .com idea to check.</p></div>
+    <div class="card glass reveal"><span class="ic">❤️</span><h3>Save favourites</h3><p>Heart the names you love and compare them later.</p></div>
+    <div class="card glass reveal"><span class="ic">🌙</span><h3>Day and night</h3><p>A soft light theme and a starry dark theme.</p></div>
+    <div class="card glass reveal"><span class="ic">📱</span><h3>Works everywhere</h3><p>Fully responsive on phones, tablets and desktops.</p></div>
+  </div>
+</div></section>
+
+<!-- HOW -->
+<section id="how"><div class="wrap">
+  <h2 class="reveal">How it <span class="grad">works</span></h2>
+  <p class="lead reveal">Three easy steps from idea to brand.</p>
+  <div class="grid3 steps">
+    <div class="card glass reveal"><h3>Tell us your idea</h3><p>Add a keyword and choose your industry.</p></div>
+    <div class="card glass reveal"><h3>Pick a style</h3><p>Modern, classic or playful – you decide the vibe.</p></div>
+    <div class="card glass reveal"><h3>Choose and launch</h3><p>Save favourites, copy names and grab your domain.</p></div>
+  </div>
+</div></section>
+
+<!-- STATS -->
+<section><div class="wrap glass reveal" style="padding:44px 20px"><div class="stats">
+  <div><b class="grad" data-n="250000">0</b>Names generated</div>
+  <div><b class="grad" data-n="18000">0</b>Happy founders</div>
+  <div><b class="grad" data-n="40">0</b>Industries</div>
+  <div><b class="grad" data-n="99">0</b>% love it</div>
+</div></div></section>
+
+<!-- SHOWCASE -->
+<section id="showcase"><div class="wrap">
+  <h2 class="reveal">Names made with <span class="grad">NameSpark</span></h2>
+  <p class="lead reveal">Hover to pause the 3D carousel.</p>
+  <div class="stage"><div class="ring" id="ring"></div></div>
+</div></section>
+
+<!-- PRICING -->
+<section id="pricing"><div class="wrap">
+  <h2 class="reveal">Simple <span class="grad">pricing</span></h2>
+  <p class="lead reveal">Start free, upgrade when you grow.</p>
+  <div class="grid3">
+    <div class="price glass reveal"><h3>Free</h3><div class="big">₹0</div><ul><li>20 names a day</li><li>Spin wheel</li><li>Save favourites</li></ul><a href="#generator" class="btn">Start free</a></div>
+    <div class="price glass hot reveal"><h3>Pro ⭐</h3><div class="big">₹199</div><ul><li>Unlimited names</li><li>Logo ideas</li><li>Domain tips</li></ul><a href="#generator" class="btn">Go Pro</a></div>
+    <div class="price glass reveal"><h3>Agency</h3><div class="big">₹499</div><ul><li>Team workspace</li><li>Client folders</li><li>Priority support</li></ul><a href="#generator" class="btn">Contact us</a></div>
+  </div>
+</div></section>
+
+<!-- FAQ -->
+<section id="faq"><div class="wrap" style="max-width:760px">
+  <h2 class="reveal">Questions? <span class="grad">Answered.</span></h2>
+  <p class="lead reveal">Quick answers to common questions.</p>
+  <details class="glass reveal"><summary>Is NameSpark free?</summary><p>Yes, the free plan gives you plenty of ideas every day.</p></details>
+  <details class="glass reveal"><summary>Does it check domain availability?</summary><p>It suggests a .com idea for each name. Please verify availability with a domain registrar.</p></details>
+  <details class="glass reveal"><summary>What does the wheel do?</summary><p>It randomly picks an industry, including wheel balancing and auto care, and generates names for it.</p></details>
+  <details class="glass reveal"><summary>Can I use the names commercially?</summary><p>Names are ideas only. Please check trademarks before you launch.</p></details>
+</div></section>
+
+<footer>© 2026 NameSpark ✦ Made with sparkle and light.</footer>
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let theme="light";
+try{theme=localStorage.getItem("ns-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}
+function setTheme(t){theme=t;document.documentElement.dataset.theme=t;$("#theme").textContent=t==="dark"?"☀️ Day":"🌙 Night";try{localStorage.setItem("ns-theme",t)}catch(e){}}
+setTheme(theme);$("#theme").onclick=()=>setTheme(theme==="dark"?"light":"dark");
+addEventListener("load",()=>setTimeout(()=>$("#pre").classList.add("off"),1800));
+
+// animated text
+$("#t1").innerHTML=[..."NameSpark"].map((c,i)=>`<span style="animation-delay:${i*.07+1.9}s">${c}</span>`).join("");
+const words=["cafés ☕","tech startups 💻","fitness studios 💪","beauty brands 💄","wheel balancing shops 🛞","real estate 🏠"];let wi=0,ci=0,del=false;
+(function tick(){const w=words[wi];$("#type").textContent=w.slice(0,ci);
+ if(!del&&ci===w.length){del=true;return setTimeout(tick,1300)}
+ if(del&&ci===0){del=false;wi=(wi+1)%words.length}
+ ci+=del?-1:1;setTimeout(tick,del?45:100)})();
+$("#mq").innerHTML=("✦ Brand names ✦ Domain ideas ✦ Logo vibes ✦ Spin &amp; win ✦ Launch faster ").repeat(8);
+
+// data
+const IND={
+ "Wheel Balancing 🛞":{p:["Spin","True","Even","Smooth","Round","Axle","Torque","Steady"],s:["Balance","Wheelworks","Tyre Pro","Rolling","Alignment","Garage","Hub"]},
+ "Café ☕":{p:["Bean","Brew","Cozy","Roast","Steam","Latte","Mocha"],s:["Café","Corner","Cup","House","Bar","Beans"]},
+ "Fitness 💪":{p:["Iron","Flex","Peak","Pulse","Core","Titan","Fit"],s:["Gym","Studio","Lab","Club","Tribe","Zone"]},
+ "Beauty 💄":{p:["Glow","Velvet","Petal","Luxe","Bloom","Silk","Aura"],s:["Beauty","Studio","Salon","Skin","Co","Atelier"]},
+ "Real Estate 🏠":{p:["Haven","Nest","Urban","Summit","Keystone","Oak","Prime"],s:["Homes","Realty","Estates","Living","Properties","Spaces"]},
+ "Tech 💻":{p:["Byte","Pixel","Nova","Quantum","Cloud","Logic","Neo"],s:["Labs","Soft","Hub","Works","AI","Systems"]},
+ "Fashion 👗":{p:["Thread","Velour","Chic","Muse","Drape","Vogue","Stitch"],s:["Wear","Closet","Couture","House","Label","Studio"]},
+ "Education 🎓":{p:["Bright","Mentor","Scholar","Wise","Lumen","Idea","Learn"],s:["Academy","School","Hub","Lab","Campus","Path"]}};
+const sel=$("#ind");Object.keys(IND).forEach(k=>sel.add(new Option(k)));
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function gen(kw,ind,sty){const d=IND[ind],k=cap(kw.trim()||"spark"),out=new Set();let n=0;
+ while(out.size<12&&n++<200){let r;const t=Math.random();
+  if(sty==="Modern")r=t<.3?k+"ly":t<.55?k+"ify":t<.8?pick(d.p)+k:k+" "+pick(d.s);
+  else if(sty==="Classic")r=t<.4?k+" & "+pick(d.p):t<.7?pick(d.p)+" "+k+" Co.":k+" "+pick(d.s);
+  else r=t<.3?k+"oodle":t<.55?"Pop"+k:t<.8?k+"zy "+pick(d.s):pick(d.p)+"-a-"+k;
+  out.add(r)}
+ return [...out]}
+const favs=new Set();
+function render(list){const box=$("#names");box.innerHTML="";
+ list.forEach((n,i)=>{const d=document.createElement("div");d.className="nm";d.style.animationDelay=i*.05+"s";
+  const dom=n.toLowerCase().replace(/[^a-z0-9]/g,"")+".com";
+  d.innerHTML=`<b></b><small>${dom} (idea)</small><div><button class="cp">Copy</button><button class="fv">♡ Save</button></div>`;
+  d.querySelector("b").textContent=n;
+  d.querySelector(".cp").onclick=()=>{try{navigator.clipboard.writeText(n)}catch(e){}toast("Copied "+n)};
+  d.querySelector(".fv").onclick=e=>{const b=e.target;favs.has(n)?favs.delete(n):favs.add(n);b.classList.toggle("fav");b.textContent=favs.has(n)?"♥ Saved":"♡ Save"};
+  d.addEventListener("mousemove",e=>{const r=d.getBoundingClientRect();d.style.transform=`rotateY(${((e.clientX-r.left)/r.width-.5)*18}deg) rotateX(${-((e.clientY-r.top)/r.height-.5)*18}deg)`});
+  d.addEventListener("mouseleave",()=>d.style.transform="");
+  box.appendChild(d)})}
+function run(){render(gen($("#kw").value,sel.value,$("#sty").value))}
+$("#go").onclick=run;$("#kw").addEventListener("keydown",e=>e.key==="Enter"&&run());run();
+
+// wheel
+const keys=Object.keys(IND),wh=$("#wh");
+keys.forEach((k,i)=>{const [name,emo]=[k.split(" ").slice(0,-1).join(" "),k.split(" ").pop()];
+ const s=document.createElement("span");s.style.transform=`rotate(${i*45+22.5}deg) translateY(-115px)`;
+ s.innerHTML=`<em>${emo}</em>${name}`;wh.appendChild(s)});
+let rot=0,spinning=false;
+$("#spin").onclick=()=>{if(spinning)return;spinning=true;
+ const idx=Math.floor(Math.random()*8);
+ rot=(Math.floor(rot/360)+6)*360+(360-(idx*45+22.5));wh.style.transform=`rotate(${rot}deg)`;
+ setTimeout(()=>{spinning=false;$("#res").textContent=keys[idx];sel.value=keys[idx];run();toast("Names ready for "+keys[idx]);
+  for(let i=0;i<40;i++)spark(innerWidth/2,innerHeight/2)},5100)};
+
+// 3D ring
+const ringNames=["Spin True 🛞","Bloom & Co.","Peakly","Velvet Atelier","Nova Labs","Cozy Corner","Haven Homes","Brightify"];
+const cols=["#ffc2d9","#c2d8ff","#ffe7b8","#c9f5dd"];
+ringNames.forEach((n,i)=>{const d=document.createElement("div");d.textContent=n;d.style.background=cols[i%4];d.style.transform=`rotateY(${i*45}deg) translateZ(300px)`;$("#ring").appendChild(d)});
+
+// reveal + counters
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);
+ e.target.querySelectorAll("[data-n]").forEach(c=>{const to=+c.dataset.n;let v=0;const st=to/60;(function u(){v=Math.min(v+st,to);c.textContent=Math.round(v).toLocaleString();if(v<to)requestAnimationFrame(u)})()})}}),{threshold:.15});
+$$(".reveal").forEach(e=>io.observe(e));
+
+// 3D tilt on cards
+$$(".card").forEach(d=>{d.addEventListener("mousemove",e=>{const r=d.getBoundingClientRect();d.style.transform=`rotateY(${((e.clientX-r.left)/r.width-.5)*20}deg) rotateX(${-((e.clientY-r.top)/r.height-.5)*20}deg)`});d.addEventListener("mouseleave",()=>d.style.transform="")});
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2200)}
+
+// cursor
+let mx=0,my=0,rx=0,ry=0;
+addEventListener("mousemove",e=>{mx=e.clientX;my=e.clientY;$("#cd").style.transform=`translate(${mx}px,${my}px)`;if(Math.random()<.25)spark(mx,my)});
+(function f(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;$("#cr").style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(f)})();
+document.addEventListener("mouseover",e=>$("#cr").classList.toggle("big",!!e.target.closest("a,button,.card,.nm,input,select,summary")));
+
+// sparkles + night stars
+const cv=$("#fx"),g=cv.getContext("2d");let W,H,ps=[],stars=[],shoot=[];
+function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight;stars=Array.from({length:100},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.3,p:Math.random()*6}))}
+rs();addEventListener("resize",rs);
+function spark(x,y){ps.push({x,y,vx:(Math.random()-.5)*3,vy:Math.random()*-2-.3,l:1,s:Math.random()*5+2})}
+setInterval(()=>spark(Math.random()*W,Math.random()*H),220);
+setInterval(()=>{if(theme==="dark")shoot.push({x:Math.random()*W*.7,y:Math.random()*H*.4,l:1})},2500);
+function star(x,y,s,a,col){g.save();g.translate(x,y);g.globalAlpha=a;g.fillStyle=col;g.shadowColor=col;g.shadowBlur=10;g.beginPath();for(let i=0;i<8;i++){const r=i%2?s*.3:s;g.lineTo(Math.cos(i*Math.PI/4)*r,Math.sin(i*Math.PI/4)*r)}g.fill();g.restore()}
+(function draw(t){g.clearRect(0,0,W,H);const dark=theme==="dark";
+ if(dark)stars.forEach(s=>{g.globalAlpha=.3+.7*Math.abs(Math.sin(t/700+s.p));g.fillStyle="#fff";g.beginPath();g.arc(s.x,s.y,s.r,0,7);g.fill()});
+ shoot.forEach(s=>{s.x+=10;s.y+=5;s.l-=.02;g.globalAlpha=Math.max(s.l,0);g.strokeStyle="#fff";g.lineWidth=2;g.beginPath();g.moveTo(s.x,s.y);g.lineTo(s.x-60,s.y-30);g.stroke()});
+ shoot=shoot.filter(s=>s.l>0);
+ ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.l-=.015;star(p.x,p.y,p.s,Math.max(p.l,0),dark?"#c7b8ff":"#ffb347")});
+ ps=ps.filter(p=>p.l>0);requestAnimationFrame(draw)})(0);
+</script>
+</body>
+</html>

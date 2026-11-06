@@ -1,0 +1,3830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080817">
+<title>WIXGEN — AI Website Generator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+<style>
+    
+:root {
+    --bg: #080817;
+    --surface: #101022;
+    --surface2: #18182c;
+    --text: #f6f4ff;
+    --muted: #a3a1b9;
+    --purple: #a66cff;
+    --blue: #00d9ff;
+    --pink: #fa63cf;
+    --border: rgba(255,255,255,.11);
+    --gradient: linear-gradient(120deg,#a66cff,#526dff,#00d9ff);
+}
+
+body.light-mode {
+    --bg: #f6f5fc;
+    --surface: #fff;
+    --surface2: #eceaf5;
+    --text: #171329;
+    --muted: #706c82;
+    --border: rgba(20,15,50,.12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "DM Sans",sans-serif;
+    overflow-x: hidden;
+    transition: background .4s,color .4s;
+}
+
+button,input,textarea,select {
+    font: inherit;
+}
+
+button,a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* CUSTOM CURSOR */
+
+.cursor,.cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 100000;
+    transform: translate(-50%,-50%);
+}
+
+.cursor {
+    width: 7px;
+    height: 7px;
+    background: var(--blue);
+    box-shadow: 0 0 15px var(--blue);
+}
+
+.cursor-ring {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--purple);
+    transition: width .25s,height .25s;
+}
+
+body.cursor-hover .cursor-ring {
+    width: 60px;
+    height: 60px;
+    background: rgba(166,108,255,.12);
+}
+
+/* PRELOADER */
+
+.preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 200000;
+    background: #070711;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity .8s,visibility .8s;
+}
+
+.preloader.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-scene {
+    width: 100px;
+    height: 100px;
+    perspective: 500px;
+    display: grid;
+    place-items: center;
+}
+
+.loader-cube {
+    width: 55px;
+    height: 55px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: cubeRotate 5s linear infinite;
+}
+
+.loader-cube span {
+    position: absolute;
+    inset: 0;
+    border: 2px solid #b47aff;
+    background: rgba(120,70,255,.17);
+    box-shadow: inset 0 0 20px rgba(0,217,255,.25),
+                0 0 20px rgba(166,108,255,.3);
+}
+
+.loader-cube span:nth-child(1) {transform: translateZ(27px);}
+.loader-cube span:nth-child(2) {transform: rotateY(180deg) translateZ(27px);}
+.loader-cube span:nth-child(3) {transform: rotateY(90deg) translateZ(27px);}
+.loader-cube span:nth-child(4) {transform: rotateY(-90deg) translateZ(27px);}
+.loader-cube span:nth-child(5) {transform: rotateX(90deg) translateZ(27px);}
+.loader-cube span:nth-child(6) {transform: rotateX(-90deg) translateZ(27px);}
+
+.preloader h1 {
+    margin-top: 30px;
+    font-family: "Space Grotesk";
+    letter-spacing: 8px;
+    font-size: 28px;
+}
+
+.preloader h1 span,.logo span {
+    color: var(--blue);
+}
+
+.preloader > p {
+    color: #8f8ca8;
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin: 13px 0;
+}
+
+.loader-track {
+    width: 190px;
+    height: 3px;
+    background: #24243b;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+#loaderProgress {
+    width: 0;
+    height: 100%;
+    background: var(--gradient);
+    box-shadow: 0 0 15px var(--blue);
+}
+
+.loader-number {
+    color: white;
+    margin-top: 12px;
+    font-size: 12px;
+}
+
+/* WELCOME SCREEN */
+
+.welcome-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 150000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #080817;
+    overflow: auto;
+}
+
+.welcome-screen.active {
+    display: flex;
+    animation: fadeIn .8s;
+}
+
+.welcome-glow {
+    position: absolute;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle,rgba(130,70,255,.25),transparent 70%);
+    filter: blur(20px);
+    animation: glowPulse 5s infinite alternate;
+}
+
+.welcome-card {
+    position: relative;
+    width: 100%;
+    max-width: 470px;
+    padding: 45px;
+    border-radius: 24px;
+    background: rgba(23,21,43,.88);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(166,108,255,.25);
+    box-shadow: 0 0 70px rgba(130,70,255,.12);
+}
+
+.logo {
+    font-family: "Space Grotesk";
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -2px;
+}
+
+.welcome-card .logo {
+    display: block;
+    margin-bottom: 35px;
+    color: white;
+}
+
+.welcome-icon {
+    color: var(--blue);
+    font-size: 32px;
+    margin-bottom: 18px;
+}
+
+.eyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--blue);
+    margin-bottom: 17px;
+}
+
+.welcome-card h1 {
+    font-family: "Space Grotesk";
+    font-size: 43px;
+    line-height: 1.1;
+    margin-bottom: 18px;
+    color: white;
+}
+
+.welcome-card h1 span {
+    color: #b68aff;
+}
+
+.welcome-description {
+    color: #aaa7bf;
+    line-height: 1.8;
+    font-size: 13px;
+    margin-bottom: 27px;
+}
+
+.welcome-card input {
+    width: 100%;
+    padding: 16px;
+    background: #111123;
+    border: 1px solid #39354f;
+    color: white;
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 14px;
+}
+
+.welcome-card input:focus {
+    border-color: var(--purple);
+}
+
+.welcome-card > small {
+    display: block;
+    color: #8f8ca5;
+    font-size: 10px;
+    text-align: center;
+    margin-top: 22px;
+}
+
+/* BUTTONS */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 15px 23px;
+    min-height: 48px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    transition: .35s;
+}
+
+.btn-primary {
+    color: white;
+    background: linear-gradient(110deg,#9652f9,#526eff,#00bfe8);
+    background-size: 200%;
+    box-shadow: 0 10px 30px rgba(120,70,255,.22);
+}
+
+.btn-primary:hover {
+    background-position: 100%;
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0,210,255,.25);
+}
+
+.btn-glass {
+    color: white;
+    border-color: rgba(255,255,255,.35);
+    background: rgba(255,255,255,.05);
+    backdrop-filter: blur(10px);
+}
+
+.btn-glass:hover {
+    background: white;
+    color: #111;
+}
+
+.btn-small {
+    padding: 11px 17px;
+    color: white;
+    background: var(--gradient);
+}
+
+.full-btn {
+    width: 100%;
+}
+
+/* NAVIGATION */
+
+.navbar {
+    height: 82px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: color-mix(in srgb,var(--bg) 85%,transparent);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-links a {
+    color: var(--muted);
+    font-size: 12px;
+    transition: .3s;
+}
+
+.nav-links a:hover {
+    color: var(--blue);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.theme-btn,.menu-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 13px;
+    font-size: 18px;
+}
+
+.menu-btn {
+    display: none;
+}
+
+/* HERO */
+
+.hero {
+    min-height: 760px;
+    position: relative;
+    padding: 100px 8%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #070713;
+    isolation: isolate;
+}
+
+.hero-video,.showcase video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -3;
+}
+
+.hero-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,#080817 5%,rgba(8,8,23,.94) 40%,rgba(8,8,23,.45) 100%);
+    z-index: -2;
+}
+
+#sparkCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hero-grid {
+    position: absolute;
+    width: 700px;
+    height: 700px;
+    right: -150px;
+    top: 0;
+    background-image:
+        linear-gradient(rgba(166,108,255,.09) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(166,108,255,.09) 1px,transparent 1px);
+    background-size: 45px 45px;
+    mask-image: radial-gradient(circle,black,transparent 70%);
+    transform: perspective(500px) rotateX(55deg);
+    z-index: -1;
+}
+
+.hero-content {
+    max-width: 640px;
+    position: relative;
+    z-index: 5;
+}
+
+.hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #c4b6ff;
+    border: 1px solid rgba(166,108,255,.3);
+    background: rgba(120,70,255,.1);
+    padding: 11px 15px;
+    border-radius: 30px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    margin-bottom: 30px;
+}
+
+.live-dot,.status-dot {
+    width: 7px;
+    height: 7px;
+    background: #36e6a2;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #36e6a2;
+}
+
+.hero h1 {
+    font-family: "Space Grotesk";
+    font-size: clamp(55px,7vw,92px);
+    line-height: 1.02;
+    letter-spacing: -5px;
+    color: white;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg,#bd8bff,#00e4ff,#ff70d5);
+    background-size: 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: gradientMove 5s linear infinite;
+}
+
+.hero-content > p {
+    color: #b5b2c8;
+    max-width: 500px;
+    line-height: 1.9;
+    font-size: 14px;
+    margin-top: 25px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 55px;
+}
+
+.avatar-stack {
+    display: flex;
+}
+
+.avatar-stack img {
+    width: 33px;
+    height: 33px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #17152c;
+    margin-left: -8px;
+}
+
+.avatar-stack img:first-child {
+    margin-left: 0;
+}
+
+.hero-trust strong,.hero-trust small {
+    display: block;
+}
+
+.hero-trust strong {
+    font-size: 11px;
+    color: white;
+}
+
+.hero-trust small {
+    color: #9693ab;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.hero-bottom {
+    position: absolute;
+    bottom: 25px;
+    right: 8%;
+    color: #b3aec7;
+    font-size: 9px;
+    letter-spacing: 3px;
+}
+
+.hero-bottom span {
+    color: var(--blue);
+}
+
+/* 3D CUBE */
+
+.hero-visual {
+    position: absolute;
+    right: 9%;
+    top: 50%;
+    width: 380px;
+    height: 380px;
+    transform: translateY(-50%);
+    perspective: 1000px;
+}
+
+.visual-glow {
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    background: radial-gradient(circle,rgba(126,65,255,.6),transparent 70%);
+    filter: blur(35px);
+    animation: glowPulse 4s infinite alternate;
+}
+
+.hero-cube {
+    width: 155px;
+    height: 155px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    transform-style: preserve-3d;
+    animation: heroCube 13s linear infinite;
+}
+
+.cube-face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(0,220,255,.8);
+    background: linear-gradient(135deg,rgba(130,70,255,.35),rgba(0,210,255,.12));
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 30px rgba(130,70,255,.25),
+                0 0 25px rgba(0,210,255,.12);
+    font-family: "Space Grotesk";
+    font-size: 42px;
+    font-weight: 800;
+    color: white;
+}
+
+.front {transform: translateZ(77px);}
+.back {transform: rotateY(180deg) translateZ(77px);}
+.right {transform: rotateY(90deg) translateZ(77px);}
+.left {transform: rotateY(-90deg) translateZ(77px);}
+.top {transform: rotateX(90deg) translateZ(77px);}
+.bottom {transform: rotateX(-90deg) translateZ(77px);}
+
+.orbit {
+    position: absolute;
+    border: 1px solid rgba(155,110,255,.5);
+    border-radius: 50%;
+    inset: 20px;
+    transform: rotateX(68deg);
+}
+
+.orbit-one {
+    animation: orbitSpin 9s linear infinite;
+}
+
+.orbit-two {
+    inset: 45px -20px;
+    transform: rotateY(70deg);
+    border-color: rgba(0,220,255,.45);
+    animation: orbitSpin 12s linear infinite reverse;
+}
+
+.floating-panel {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: rgba(22,20,46,.8);
+    border: 1px solid rgba(166,108,255,.3);
+    border-radius: 12px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+    animation: float 4s ease-in-out infinite;
+}
+
+.floating-panel > span {
+    font-size: 22px;
+    color: var(--blue);
+}
+
+.floating-panel strong,.floating-panel small {
+    display: block;
+    color: white;
+}
+
+.floating-panel strong {
+    font-size: 10px;
+}
+
+.floating-panel small {
+    color: #a6a0bc;
+    font-size: 9px;
+    margin-top: 4px;
+}
+
+.panel-one {
+    top: 30px;
+    left: -35px;
+}
+
+.panel-two {
+    bottom: 35px;
+    right: -30px;
+    animation-delay: -2s;
+}
+
+/* STATS */
+
+.stats-section {
+    padding: 50px 8%;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 25px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.stat {
+    text-align: center;
+    padding: 10px;
+}
+
+.stat h2 {
+    font-family: "Space Grotesk";
+    font-size: 38px;
+    color: var(--purple);
+}
+
+.stat p {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-top: 8px;
+}
+
+/* MARQUEE */
+
+.marquee {
+    padding: 22px 0;
+    overflow: hidden;
+    background: linear-gradient(100deg,#6437c1,#3156bb,#773bc1);
+}
+
+.marquee-content {
+    display: flex;
+    width: max-content;
+    gap: 55px;
+    animation: marquee 24s linear infinite;
+}
+
+.marquee-content span {
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+/* COMMON SECTIONS */
+
+.section {
+    padding: 110px 8%;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.section-heading h2 {
+    font-family: "Space Grotesk";
+    font-size: clamp(36px,5vw,60px);
+    line-height: 1.1;
+    letter-spacing: -2px;
+}
+
+.section-heading h2 span {
+    color: var(--purple);
+}
+
+.section-heading > p {
+    max-width: 290px;
+    color: var(--muted);
+    line-height: 1.9;
+    font-size: 13px;
+}
+
+.center-heading {
+    justify-content: center;
+    text-align: center;
+}
+
+/* FEATURES */
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+}
+
+.feature-card {
+    position: relative;
+    min-height: 300px;
+    padding: 30px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: .4s;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--purple);
+    box-shadow: 0 20px 55px rgba(130,70,255,.13);
+}
+
+.feature-large {
+    grid-row: span 2;
+    min-height: 620px;
+    background: linear-gradient(145deg,#17102e,#111a35);
+}
+
+.feature-wide {
+    grid-column: span 2;
+}
+
+.feature-icon {
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(150,100,255,.14);
+    color: var(--blue);
+    font-size: 24px;
+    margin-bottom: 35px;
+}
+
+.feature-card > span {
+    color: var(--blue);
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.feature-card h3 {
+    font-family: "Space Grotesk";
+    font-size: 27px;
+    margin: 16px 0;
+}
+
+.feature-card p {
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 12px;
+    max-width: 300px;
+}
+
+/* FEATURE ART */
+
+.ai-art {
+    position: absolute;
+    left: 50%;
+    bottom: 25px;
+    width: 280px;
+    height: 280px;
+    transform: translateX(-50%);
+}
+
+.ai-circle {
+    position: absolute;
+    inset: 55px;
+    border-radius: 50%;
+    background: radial-gradient(circle,#a56aff,#5431aa 50%,transparent 75%);
+    box-shadow: 0 0 80px rgba(157,100,255,.6);
+    animation: glowPulse 4s infinite alternate;
+}
+
+.ai-ring {
+    position: absolute;
+    inset: 20px;
+    border: 2px solid rgba(0,220,255,.5);
+    border-radius: 50%;
+    transform: rotateX(65deg);
+    animation: orbitSpin 9s linear infinite;
+}
+
+.ai-spark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 90px;
+    text-shadow: 0 0 30px #00e5ff;
+    animation: float 3s infinite ease-in-out;
+}
+
+.mini-editor {
+    position: absolute;
+    bottom: 25px;
+    right: 20px;
+    width: 150px;
+    height: 95px;
+    padding: 10px;
+    border: 1px solid var(--purple);
+    background: var(--surface2);
+    border-radius: 8px;
+    transform: rotate(-5deg);
+}
+
+.editor-bar {
+    height: 8px;
+    background: linear-gradient(90deg,#ff638d,#b66cff,#00d9ff);
+    border-radius: 5px;
+}
+
+.editor-block {
+    margin-top: 10px;
+    width: 45%;
+    height: 25px;
+    background: #8655d9;
+    border-radius: 4px;
+}
+
+.editor-lines {
+    height: 4px;
+    margin-top: 8px;
+    width: 75%;
+    background: #888;
+}
+
+.device-art {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    width: 180px;
+    height: 120px;
+}
+
+.device {
+    position: absolute;
+    border: 4px solid #8c69d9;
+    background: linear-gradient(145deg,#171b42,#393079);
+    border-radius: 8px;
+}
+
+.laptop {
+    width: 130px;
+    height: 85px;
+    right: 20px;
+    top: 0;
+}
+
+.phone {
+    width: 42px;
+    height: 76px;
+    left: 0;
+    bottom: 0;
+    border-color: #00cbe9;
+}
+
+.speed-art {
+    position: absolute;
+    bottom: 15px;
+    right: 25px;
+    font-size: 70px;
+    font-weight: 800;
+    color: var(--purple);
+    text-shadow: 0 0 30px var(--purple);
+}
+
+.speed-art span {
+    font-size: 24px;
+}
+
+.color-orbs {
+    position: absolute;
+    right: 30px;
+    bottom: 20px;
+    display: flex;
+}
+
+.color-orbs span {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-left: -12px;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 20px currentColor;
+}
+
+.color-orbs span:nth-child(1) {background:#9c5cff;}
+.color-orbs span:nth-child(2) {background:#00dfff;}
+.color-orbs span:nth-child(3) {background:#fa63cf;}
+.color-orbs span:nth-child(4) {background:#ffcb68;}
+
+/* TEMPLATES */
+
+.templates-section {
+    background: var(--surface);
+}
+
+.template-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 35px;
+}
+
+.filter-btn {
+    background: var(--bg);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 11px 19px;
+    border-radius: 30px;
+    font-size: 11px;
+    transition: .3s;
+}
+
+.filter-btn.active,.filter-btn:hover {
+    background: var(--purple);
+    color: white;
+    border-color: var(--purple);
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 24px;
+}
+
+.template-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    overflow: hidden;
+    transition: .4s;
+}
+
+.template-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(100,60,180,.16);
+}
+
+.template-image {
+    height: 250px;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .7s;
+}
+
+.template-card:hover img {
+    transform: scale(1.1);
+}
+
+.template-label {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(110,60,210,.9);
+    color: white;
+    padding: 7px 11px;
+    border-radius: 4px;
+    font-size: 9px;
+}
+
+.preview-template {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,20px);
+    opacity: 0;
+    border: 0;
+    border-radius: 6px;
+    padding: 12px 18px;
+    color: white;
+    background: #8152e7;
+    font-size: 11px;
+    transition: .35s;
+}
+
+.template-card:hover .preview-template {
+    opacity: 1;
+    transform: translate(-50%,-50%);
+}
+
+.template-details {
+    padding: 20px;
+}
+
+.template-details h3 {
+    font-size: 17px;
+    margin-bottom: 7px;
+}
+
+.template-details span {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+/* VIDEO SHOWCASE */
+
+.showcase {
+    height: 550px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 8%;
+    overflow: hidden;
+    isolation: isolate;
+    background: #080817;
+}
+
+.showcase video {
+    filter: brightness(.4);
+}
+
+.showcase-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(90deg,rgba(8,8,23,.9),rgba(8,8,23,.3));
+}
+
+.showcase-content {
+    max-width: 650px;
+}
+
+.showcase-content h2 {
+    font-family: "Space Grotesk";
+    font-size: clamp(48px,7vw,80px);
+    line-height: 1.1;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.showcase-content h2 span {
+    color: #b98aff;
+}
+
+.showcase-content > p:not(.eyebrow) {
+    color: #c2bfd1;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+/* STUDIO */
+
+.studio-section {
+    background: var(--bg);
+}
+
+.studio-layout {
+    display: grid;
+    grid-template-columns: .8fr 1.2fr;
+    gap: 25px;
+    align-items: stretch;
+}
+
+.studio-controls,.studio-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 27px;
+}
+
+.studio-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--blue);
+    margin-bottom: 30px;
+}
+
+.studio-controls label {
+    display: block;
+    font-size: 12px;
+    color: var(--text);
+    margin: 18px 0 10px;
+}
+
+.studio-controls textarea,.studio-controls select {
+    width: 100%;
+    padding: 15px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+}
+
+.studio-controls textarea {
+    min-height: 135px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.studio-controls textarea:focus,.studio-controls select:focus {
+    border-color: var(--purple);
+}
+
+.studio-controls .btn {
+    margin-top: 25px;
+}
+
+.generation-status {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    font-size: 11px;
+}
+
+.preview-toolbar {
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 1px;
+}
+
+.window-dots {
+    display: flex;
+    gap: 5px;
+}
+
+.window-dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff637c;
+}
+
+.window-dots i:nth-child(2) {background:#ffca65;}
+.window-dots i:nth-child(3) {background:#48dc99;}
+
+.preview-live {
+    color: #3cd99a;
+}
+
+.preview-screen {
+    min-height: 430px;
+    padding: 20px;
+    background: linear-gradient(135deg,#19142f,#25214b);
+    border-radius: 9px;
+    overflow: hidden;
+    color: white;
+}
+
+.preview-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 9px;
+}
+
+.preview-nav strong {
+    font-size: 14px;
+}
+
+.preview-nav button,.preview-hero button {
+    padding: 9px 12px;
+    border: 0;
+    background: #8e60e7;
+    color: white;
+    font-size: 9px;
+    border-radius: 3px;
+}
+
+.preview-hero {
+    text-align: center;
+    padding: 75px 10px 35px;
+}
+
+.preview-hero small {
+    color: #62e3ff;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.preview-hero h2 {
+    font-family: "Space Grotesk";
+    font-size: clamp(25px,4vw,43px);
+    line-height: 1.15;
+    margin: 15px 0;
+}
+
+.preview-hero p {
+    font-size: 11px;
+    color: #c4bdd8;
+    margin-bottom: 20px;
+}
+
+.preview-cards {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+}
+
+.preview-cards div {
+    height: 60px;
+    border-radius: 5px;
+    background: linear-gradient(130deg,#6944b8,#202d61);
+}
+
+/* WHEEL LAB */
+
+.wheel-section {
+    background: var(--surface);
+}
+
+.wheel-layout {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 35px;
+    align-items: center;
+}
+
+.wheel-stage {
+    height: 450px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    perspective: 1000px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: radial-gradient(ellipse at center,#252047,#101020 65%,#090916);
+    border: 1px solid var(--border);
+}
+
+.wheel-light {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    background: #8052ff;
+    filter: blur(100px);
+    opacity: .3;
+}
+
+.wheel-platform {
+    position: absolute;
+    width: 330px;
+    height: 85px;
+    bottom: 75px;
+    border-radius: 50%;
+    transform: rotateX(65deg);
+    background: linear-gradient(90deg,#222238,#65628a,#222238);
+    box-shadow: 0 0 35px rgba(0,220,255,.2);
+}
+
+.wheel-assembly {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    transform-style: preserve-3d;
+    transform: rotateX(-12deg);
+    z-index: 2;
+}
+
+.wheel {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#08080d,#343449,#07070c);
+    border: 13px solid #171722;
+    box-shadow: 0 15px 30px rgba(0,0,0,.7),
+                inset 0 0 15px #000,
+                0 0 25px rgba(0,210,255,.16);
+    transform-style: preserve-3d;
+}
+
+.wheel-tire {
+    position: absolute;
+    inset: -8px;
+    border: 10px dashed #41414d;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 5px #08080d;
+}
+
+.wheel-rim {
+    position: absolute;
+    inset: 15px;
+    border-radius: 50%;
+    border: 7px solid #9d9eac;
+    background: radial-gradient(circle,#25283e,#10101d);
+    box-shadow: inset 0 0 20px #000,
+                0 0 15px rgba(0,220,255,.25);
+}
+
+.rim-ring {
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    border: 2px solid #b6b8ce;
+}
+
+.rim-spokes {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+}
+
+.rim-spokes i {
+    position: absolute;
+    width: 7px;
+    height: 65px;
+    left: calc(50% - 3.5px);
+    top: 4px;
+    transform-origin: 50% 100%;
+    background: linear-gradient(90deg,#64667c,#e5e7f5,#65677d);
+    border-radius: 5px;
+}
+
+.rim-spokes i:nth-child(2) {transform:rotate(45deg);}
+.rim-spokes i:nth-child(3) {transform:rotate(90deg);}
+.rim-spokes i:nth-child(4) {transform:rotate(135deg);}
+.rim-spokes i:nth-child(5) {transform:rotate(180deg);}
+.rim-spokes i:nth-child(6) {transform:rotate(225deg);}
+.rim-spokes i:nth-child(7) {transform:rotate(270deg);}
+.rim-spokes i:nth-child(8) {transform:rotate(315deg);}
+
+.rim-center {
+    position: absolute;
+    width: 39px;
+    height: 39px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg,#9c65ff,#00dfff);
+    box-shadow: 0 0 20px #8459ff;
+    color: white;
+    font-weight: 800;
+}
+
+.wheel-weight {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 4px;
+    background: #ffcb63;
+    box-shadow: 0 0 15px #ffb93c;
+    z-index: 5;
+}
+
+.wheel-label {
+    position: absolute;
+    bottom: 25px;
+    color: #9c96b6;
+    letter-spacing: 3px;
+    font-size: 9px;
+}
+
+.wheel-controls {
+    padding: 35px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+}
+
+.wheel-controls h3 {
+    font-family: "Space Grotesk";
+    font-size: 29px;
+    margin-bottom: 35px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    margin: 25px 0 12px;
+}
+
+.control-row strong {
+    color: var(--blue);
+}
+
+.wheel-controls input[type="range"] {
+    width: 100%;
+    accent-color: var(--purple);
+}
+
+.balance-meter {
+    margin-top: 35px;
+    padding: 18px;
+    background: var(--surface2);
+    border-radius: 9px;
+}
+
+.meter-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+#stabilityText {
+    color: #41dc9b;
+}
+
+.meter-track {
+    height: 7px;
+    border-radius: 10px;
+    background: var(--bg);
+    overflow: hidden;
+    margin-top: 14px;
+}
+
+#stabilityBar {
+    height: 100%;
+    width: 80%;
+    border-radius: inherit;
+    background: linear-gradient(90deg,#ffb54b,#40e3a4);
+    transition: width .3s;
+}
+
+.wheel-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.simulation-note {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.7;
+    margin-top: 22px;
+}
+
+/* GALLERY */
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-auto-rows: 220px;
+    gap: 15px;
+}
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.gallery-tall {
+    grid-row: span 2;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: .7s;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+    filter: brightness(.7);
+}
+
+.gallery-caption {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    color: white;
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: .4s;
+}
+
+.gallery-item:hover .gallery-caption {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* PROCESS */
+
+.process-section {
+    background: var(--surface);
+}
+
+.process-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 18px;
+}
+
+.process-card {
+    position: relative;
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    transition: .4s;
+}
+
+.process-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--purple);
+}
+
+.process-card > span {
+    color: var(--blue);
+    font-size: 11px;
+}
+
+.process-icon {
+    font-size: 32px;
+    color: var(--purple);
+    margin: 30px 0 20px;
+}
+
+.process-card h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.process-card p {
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 12px;
+}
+
+/* PRICING */
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 20px;
+}
+
+.price-card {
+    position: relative;
+    padding: 35px 28px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: var(--surface);
+    transition: .4s;
+}
+
+.price-card:hover {
+    transform: translateY(-7px);
+}
+
+.price-card.popular {
+    border-color: var(--purple);
+    background: linear-gradient(145deg,#21163e,#11172e);
+    box-shadow: 0 15px 50px rgba(130,70,255,.15);
+}
+
+.popular-tag {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    background: var(--gradient);
+    color: white;
+    padding: 9px 12px;
+    font-size: 8px;
+    letter-spacing: 1px;
+    border-radius: 0 0 6px 6px;
+}
+
+.price-card h3 {
+    font-family: "Space Grotesk";
+    font-size: 37px;
+    margin: 15px 0;
+}
+
+.price-card h3 small {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.price-card > p:not(.eyebrow) {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.price-card ul {
+    list-style: none;
+    margin: 30px 0;
+}
+
+.price-card li {
+    font-size: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.pricing-note {
+    color: var(--muted);
+    text-align: center;
+    font-size: 10px;
+    margin-top: 25px;
+}
+
+/* TESTIMONIALS */
+
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 20px;
+}
+
+.testimonial {
+    padding: 30px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 13px;
+}
+
+.stars {
+    color: #ffcb64;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+}
+
+.testimonial > p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.9;
+    min-height: 80px;
+}
+
+.person {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-top: 25px;
+}
+
+.person img {
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.person strong,.person small {
+    display: block;
+}
+
+.person strong {
+    font-size: 12px;
+}
+
+.person small {
+    color: var(--muted);
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+/* FAQ */
+
+.faq-section {
+    background: var(--surface);
+}
+
+.faq-list {
+    max-width: 850px;
+    margin: auto;
+}
+
+.faq-item {
+    border-bottom: 1px solid var(--border);
+}
+
+.faq-question {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 5px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    font-size: 15px;
+}
+
+.faq-question span {
+    color: var(--blue);
+    font-size: 23px;
+    transition: .3s;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s;
+}
+
+.faq-answer p {
+    color: var(--muted);
+    line-height: 1.9;
+    font-size: 13px;
+    padding: 0 5px 22px;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 180px;
+}
+
+.faq-item.active .faq-question span {
+    transform: rotate(45deg);
+}
+
+/* CTA */
+
+.final-cta {
+    position: relative;
+    padding: 110px 20px;
+    text-align: center;
+    overflow: hidden;
+    background: linear-gradient(130deg,#17102e,#101a39,#241044);
+}
+
+.cta-glow {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    background: radial-gradient(circle,rgba(144,83,255,.25),transparent 70%);
+    pointer-events: none;
+}
+
+.final-cta > *:not(.cta-glow) {
+    position: relative;
+}
+
+.final-cta h2 {
+    font-family: "Space Grotesk";
+    font-size: clamp(40px,6vw,70px);
+    line-height: 1.15;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.final-cta h2 span {
+    color: #b58aff;
+}
+
+.final-cta > p:not(.eyebrow) {
+    color: #c1bdd1;
+    margin-bottom: 30px;
+    font-size: 13px;
+}
+
+/* FOOTER */
+
+.footer {
+    padding: 65px 8% 25px;
+    background: #080817;
+    color: white;
+}
+
+.footer-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 35px;
+    padding-bottom: 55px;
+}
+
+.footer-main > div:first-child p {
+    color: #9994af;
+    margin-top: 15px;
+    font-size: 12px;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.footer-column strong {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    color: var(--blue);
+}
+
+.footer-column a {
+    color: #aaa5bb;
+    font-size: 12px;
+    transition: .3s;
+}
+
+.footer-column a:hover {
+    color: white;
+    padding-left: 4px;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,.12);
+    padding-top: 23px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    color: #8d899f;
+    font-size: 10px;
+}
+
+/* MODAL */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(10px);
+}
+
+.modal-backdrop.active {
+    display: flex;
+}
+
+.modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 470px;
+    padding: 45px;
+    background: #17152b;
+    color: white;
+    border: 1px solid rgba(166,108,255,.4);
+    border-radius: 17px;
+    animation: modalIn .4s;
+}
+
+.modal-box h2 {
+    font-family: "Space Grotesk";
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.modal-box > p:not(.eyebrow) {
+    color: #b2aec3;
+    line-height: 1.8;
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: #292442;
+    color: white;
+    font-size: 21px;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+    z-index: 6000;
+    left: 50%;
+    bottom: 25px;
+    transform: translate(-50%,100px);
+    background: #211a3b;
+    color: white;
+    padding: 15px 25px;
+    border: 1px solid #8d5bff;
+    border-radius: 8px;
+    font-size: 12px;
+    box-shadow: 0 0 25px rgba(150,80,255,.2);
+    transition: .4s;
+    text-align: center;
+    max-width: calc(100% - 30px);
+}
+
+.toast.show {
+    transform: translate(-50%,0);
+}
+
+/* ANIMATIONS */
+
+@keyframes cubeRotate {
+    to {transform: rotateX(360deg) rotateY(360deg);}
+}
+
+@keyframes heroCube {
+    0% {transform:translate(-50%,-50%) rotateX(0) rotateY(0);}
+    100% {transform:translate(-50%,-50%) rotateX(360deg) rotateY(360deg);}
+}
+
+@keyframes orbitSpin {
+    to {transform:rotate(360deg);}
+}
+
+@keyframes glowPulse {
+    from {opacity:.4;transform:scale(.9);}
+    to {opacity:.9;transform:scale(1.15);}
+}
+
+@keyframes float {
+    0%,100% {translate:0 0;}
+    50% {translate:0 -15px;}
+}
+
+@keyframes gradientMove {
+    to {background-position:200%;}
+}
+
+@keyframes marquee {
+    to {transform:translateX(-50%);}
+}
+
+@keyframes fadeIn {
+    from {opacity:0;}
+    to {opacity:1;}
+}
+
+@keyframes modalIn {
+    from {opacity:0;transform:translateY(20px) scale(.96);}
+    to {opacity:1;transform:translateY(0) scale(1);}
+}
+
+/* TABLET */
+
+@media(max-width:1100px) {
+    .hero-visual {
+        right: 3%;
+        transform: translateY(-50%) scale(.8);
+    }
+
+    .hero-content {
+        max-width: 570px;
+    }
+
+    .nav-links {
+        gap: 15px;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .feature-large {
+        grid-row: span 1;
+        min-height: 400px;
+    }
+
+    .feature-wide {
+        grid-column: span 2;
+    }
+}
+
+/* MOBILE */
+
+@media(max-width:760px) {
+    .navbar {
+        height: 70px;
+        padding: 0 5%;
+    }
+
+    .menu-btn {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        padding: 25px;
+        flex-direction: column;
+        align-items: flex-start;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .nav-actions {
+        gap: 8px;
+    }
+
+    .nav-actions .btn {
+        display: none;
+    }
+
+    .hero {
+        min-height: 790px;
+        padding: 75px 7%;
+        align-items: flex-start;
+    }
+
+    .hero h1 {
+        font-size: 57px;
+        letter-spacing: -3px;
+    }
+
+    .hero-visual {
+        top: auto;
+        bottom: -50px;
+        right: 50%;
+        transform: translateX(50%) scale(.65);
+        transform-origin: center;
+    }
+
+    .hero-trust {
+        margin-top: 30px;
+    }
+
+    .hero-bottom {
+        display: none;
+    }
+
+    .stats-section {
+        grid-template-columns: repeat(2,1fr);
+        padding: 35px 5%;
+    }
+
+    .stat h2 {
+        font-size: 29px;
+    }
+
+    .section {
+        padding: 75px 6%;
+    }
+
+    .section-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .feature-grid,.template-grid {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    .feature-wide {
+        grid-column: span 2;
+    }
+
+    .feature-card {
+        padding: 20px;
+        min-height: 320px;
+    }
+
+    .feature-card h3 {
+        font-size: 22px;
+    }
+
+    .feature-large {
+        min-height: 390px;
+    }
+
+    .ai-art {
+        width: 200px;
+        height: 200px;
+    }
+
+    .template-image {
+        height: 180px;
+    }
+
+    .studio-layout,.wheel-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .wheel-stage {
+        height: 380px;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(2,1fr);
+        grid-auto-rows: 180px;
+    }
+
+    .process-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .pricing-grid,.testimonial-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-main {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .showcase {
+        height: 480px;
+    }
+}
+
+@media(max-width:420px) {
+    .welcome-card {
+        padding: 28px 22px;
+    }
+
+    .welcome-card h1 {
+        font-size: 35px;
+    }
+
+    .hero h1 {
+        font-size: 46px;
+    }
+
+    .hero-tag {
+        font-size: 8px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .feature-grid,.template-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-wide {
+        grid-column: span 1;
+    }
+
+    .process-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-tall {
+        grid-row: span 1;
+    }
+
+    .wheel-controls {
+        padding: 22px;
+    }
+
+    .wheel-buttons {
+        flex-direction: column;
+    }
+
+    .footer-main {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+    }
+
+    .modal-box {
+        padding: 30px 23px;
+    }
+}
+
+/* REDUCED MOTION */
+
+@media(prefers-reduced-motion:reduce) {
+    *,*::before,*::after {
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+        transition-duration:.01ms !important;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor"></div>
+<div class="cursor-ring"></div>
+
+<!-- 3D PRELOADER -->
+<div class="preloader" id="preloader">
+    <div class="loader-scene">
+        <div class="loader-cube">
+            <span></span><span></span>
+            <span></span><span></span>
+            <span></span><span></span>
+        </div>
+    </div>
+    <h1>WIXGEN<span>.</span></h1>
+    <p>CREATING YOUR DIGITAL UNIVERSE</p>
+    <div class="loader-track">
+        <div id="loaderProgress"></div>
+    </div>
+    <div class="loader-number" id="loaderNumber">00%</div>
+</div>
+
+<!-- WELCOME / LOGIN -->
+<section class="welcome-screen" id="welcomeScreen">
+    <div class="welcome-glow"></div>
+    <div class="welcome-card">
+        <a href="#" class="logo">WIXGEN<span>.</span></a>
+        <div class="welcome-icon">✦</div>
+        <p class="eyebrow">YOUR CREATIVE JOURNEY STARTS HERE</p>
+        <h1>Build Something<br><span>Extraordinary.</span></h1>
+        <p class="welcome-description">
+            Create beautiful websites with intelligent design tools,
+            creative freedom and next-generation technology.
+        </p>
+        <form id="welcomeForm">
+            <input type="text" id="userName" placeholder="Enter your name" required>
+            <input type="email" id="userEmail" placeholder="Email address" required>
+            <button class="btn btn-primary full-btn" type="submit">
+                ENTER WIXGEN <span>↗</span>
+            </button>
+        </form>
+        <small>Frontend demo • No real account is created</small>
+    </div>
+</section>
+
+<!-- MAIN WEBSITE -->
+<div class="website hidden" id="website">
+
+<!-- NAVIGATION -->
+<header class="navbar" id="navbar">
+    <a href="#home" class="logo">WIXGEN<span>.</span></a>
+
+    <nav class="nav-links" id="navLinks">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#templates">Templates</a>
+        <a href="#studio">AI Studio</a>
+        <a href="#wheel">3D Lab</a>
+        <a href="#pricing">Pricing</a>
+    </nav>
+
+    <div class="nav-actions">
+        <button id="themeToggle" class="theme-btn">☼</button>
+        <a href="#studio" class="btn btn-small">Start Creating ↗</a>
+        <button class="menu-btn" id="menuBtn">☰</button>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+
+    <video class="hero-video" autoplay muted loop playsinline>
+        <source src="https://videos.pexels.com/video-files/3141208/3141208-hd_1920_1080_25fps.mp4" type="video/mp4">
+    </video>
+
+    <div class="hero-shade"></div>
+    <canvas id="sparkCanvas"></canvas>
+
+    <div class="hero-grid"></div>
+
+    <div class="hero-content">
+        <div class="hero-tag">
+            <span class="live-dot"></span>
+            NEXT GENERATION AI WEBSITE BUILDER
+        </div>
+
+        <h1>
+            Your Ideas.<br>
+            Your Website.<br>
+            <span class="gradient-text" id="animatedText">Your Universe.</span>
+        </h1>
+
+        <p>
+            Transform your imagination into stunning digital experiences.
+            Design, build and launch beautiful websites with WIXGEN.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="#studio" class="btn btn-primary">GENERATE WEBSITE ↗</a>
+            <a href="#templates" class="btn btn-glass">EXPLORE TEMPLATES</a>
+        </div>
+
+        <div class="hero-trust">
+            <div class="avatar-stack">
+                <img src="https://i.pravatar.cc/80?img=12" alt="Creator">
+                <img src="https://i.pravatar.cc/80?img=32" alt="Creator">
+                <img src="https://i.pravatar.cc/80?img=45" alt="Creator">
+                <img src="https://i.pravatar.cc/80?img=60" alt="Creator">
+            </div>
+            <div>
+                <strong>Creative minds, limitless possibilities</strong>
+                <small>Built for the next generation of creators</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D HERO OBJECT -->
+    <div class="hero-visual">
+        <div class="visual-glow"></div>
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+
+        <div class="hero-cube">
+            <div class="cube-face front">W</div>
+            <div class="cube-face back">✦</div>
+            <div class="cube-face right">AI</div>
+            <div class="cube-face left">WEB</div>
+            <div class="cube-face top">✧</div>
+            <div class="cube-face bottom">GEN</div>
+        </div>
+
+        <div class="floating-panel panel-one">
+            <span>✦</span>
+            <div><strong>AI DESIGN</strong><small>Intelligent creativity</small></div>
+        </div>
+
+        <div class="floating-panel panel-two">
+            <span>◈</span>
+            <div><strong>LIVE PREVIEW</strong><small>Real-time experience</small></div>
+        </div>
+    </div>
+
+    <div class="hero-bottom">SCROLL TO EXPLORE <span>↓</span></div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+    <div class="stat">
+        <h2 data-count="12000">0</h2>
+        <p>CREATORS</p>
+    </div>
+    <div class="stat">
+        <h2 data-count="8500">0</h2>
+        <p>WEBSITES DESIGNED</p>
+    </div>
+    <div class="stat">
+        <h2 data-count="120">0</h2>
+        <p>DESIGN TEMPLATES</p>
+    </div>
+    <div class="stat">
+        <h2 data-count="98">0</h2>
+        <p>CREATOR SATISFACTION</p>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+    <div class="marquee-content">
+        <span>DESIGN WITHOUT LIMITS ✦</span>
+        <span>CREATE WITH AI ✦</span>
+        <span>BUILD YOUR FUTURE ✦</span>
+        <span>DESIGN WITHOUT LIMITS ✦</span>
+        <span>CREATE WITH AI ✦</span>
+        <span>BUILD YOUR FUTURE ✦</span>
+    </div>
+</div>
+
+<!-- ABOUT -->
+<section class="section about-section" id="features">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">THE FUTURE OF WEB DESIGN</p>
+            <h2>One Platform.<br><span>Infinite Possibilities.</span></h2>
+        </div>
+        <p>
+            Everything you need to turn a simple idea into a professional
+            digital experience.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+
+        <article class="feature-card feature-large">
+            <div class="feature-icon">✦</div>
+            <span>01 / INTELLIGENCE</span>
+            <h3>AI Powered<br>Website Creation</h3>
+            <p>Turn your ideas into structured website concepts with our demo AI interface.</p>
+            <div class="feature-art ai-art">
+                <div class="ai-circle"></div>
+                <div class="ai-ring"></div>
+                <div class="ai-spark">✧</div>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-icon">◈</div>
+            <span>02 / EXPERIENCE</span>
+            <h3>Visual<br>Editor</h3>
+            <p>Explore layouts and personalize your digital workspace.</p>
+            <div class="mini-editor">
+                <div class="editor-bar"></div>
+                <div class="editor-block"></div>
+                <div class="editor-lines"></div>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-icon">◎</div>
+            <span>03 / RESPONSIVE</span>
+            <h3>Responsive<br>Design</h3>
+            <p>Create layouts for desktop, tablet and mobile screens.</p>
+            <div class="device-art">
+                <div class="device laptop"></div>
+                <div class="device phone"></div>
+            </div>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-icon">⌘</div>
+            <span>04 / PERFORMANCE</span>
+            <h3>Fast &<br>Optimized</h3>
+            <p>Build smooth and efficient website experiences.</p>
+            <div class="speed-art">100<span>%</span></div>
+        </article>
+
+        <article class="feature-card feature-wide">
+            <div class="feature-icon">✧</div>
+            <span>05 / CREATIVE FREEDOM</span>
+            <h3>Make Every Pixel Count.</h3>
+            <p>Combine beautiful typography, visuals, interactions and animations.</p>
+            <div class="color-orbs">
+                <span></span><span></span><span></span><span></span>
+            </div>
+        </article>
+
+    </div>
+</section>
+
+<!-- TEMPLATES -->
+<section class="section templates-section" id="templates">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">DESIGNED TO INSPIRE</p>
+            <h2>Explore Our <span>Templates.</span></h2>
+        </div>
+        <p>Choose a starting point for your next creative project.</p>
+    </div>
+
+    <div class="template-filters">
+        <button class="filter-btn active" data-filter="All">All</button>
+        <button class="filter-btn" data-filter="Business">Business</button>
+        <button class="filter-btn" data-filter="Portfolio">Portfolio</button>
+        <button class="filter-btn" data-filter="Store">E-Commerce</button>
+        <button class="filter-btn" data-filter="Agency">Agency</button>
+    </div>
+
+    <div class="template-grid" id="templateGrid">
+
+        <article class="template-card" data-category="Business">
+            <div class="template-image">
+                <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=900" alt="Business website">
+                <span class="template-label">BUSINESS</span>
+                <button class="preview-template" data-name="Modern Business">Quick Preview ↗</button>
+            </div>
+            <div class="template-details">
+                <h3>Modern Business</h3>
+                <span>Professional / Corporate</span>
+            </div>
+        </article>
+
+        <article class="template-card" data-category="Portfolio">
+            <div class="template-image">
+                <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=900" alt="Portfolio">
+                <span class="template-label">PORTFOLIO</span>
+                <button class="preview-template" data-name="Creative Portfolio">Quick Preview ↗</button>
+            </div>
+            <div class="template-details">
+                <h3>Creative Portfolio</h3>
+                <span>Creative / Personal</span>
+            </div>
+        </article>
+
+        <article class="template-card" data-category="Store">
+            <div class="template-image">
+                <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900" alt="Online store">
+                <span class="template-label">E-COMMERCE</span>
+                <button class="preview-template" data-name="Luxury Store">Quick Preview ↗</button>
+            </div>
+            <div class="template-details">
+                <h3>Luxury Store</h3>
+                <span>Shopping / Products</span>
+            </div>
+        </article>
+
+        <article class="template-card" data-category="Agency">
+            <div class="template-image">
+                <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=900" alt="Agency">
+                <span class="template-label">AGENCY</span>
+                <button class="preview-template" data-name="Digital Agency">Quick Preview ↗</button>
+            </div>
+            <div class="template-details">
+                <h3>Digital Agency</h3>
+                <span>Design / Technology</span>
+            </div>
+        </article>
+
+        <article class="template-card" data-category="Business">
+            <div class="template-image">
+                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=900" alt="Studio">
+                <span class="template-label">BUSINESS</span>
+                <button class="preview-template" data-name="Creative Studio">Quick Preview ↗</button>
+            </div>
+            <div class="template-details">
+                <h3>Creative Studio</h3>
+                <span>Studio / Services</span>
+            </div>
+        </article>
+
+        <article class="template-card" data-category="Portfolio">
+            <div class="template-image">
+                <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=900" alt="Technology">
+                <span class="template-label">PORTFOLIO</span>
+                <button class="preview-template" data-name="Tech Portfolio">Quick Preview ↗</button>
+            </div>
+            <div class="template-details">
+                <h3>Tech Portfolio</h3>
+                <span>Developer / Technology</span>
+            </div>
+        </article>
+
+    </div>
+</section>
+
+<!-- VIDEO SHOWCASE -->
+<section class="showcase">
+    <video autoplay muted loop playsinline>
+        <source src="https://videos.pexels.com/video-files/3255275/3255275-hd_1920_1080_25fps.mp4" type="video/mp4">
+    </video>
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content">
+        <p class="eyebrow">A NEW WAY TO CREATE</p>
+        <h2>Imagination<br>Meets <span>Innovation.</span></h2>
+        <p>Discover a creative world where technology meets design.</p>
+        <a href="#studio" class="btn btn-primary">START YOUR JOURNEY ↗</a>
+    </div>
+</section>
+
+<!-- AI STUDIO -->
+<section class="section studio-section" id="studio">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">YOUR CREATIVE WORKSPACE</p>
+            <h2>AI Website <span>Studio.</span></h2>
+        </div>
+        <p>Describe your vision and create a sample website concept.</p>
+    </div>
+
+    <div class="studio-layout">
+
+        <div class="studio-controls">
+            <div class="studio-top">
+                <span class="status-dot"></span>
+                AI GENERATOR INTERFACE
+            </div>
+
+            <label for="websitePrompt">Describe your website</label>
+            <textarea id="websitePrompt" placeholder="Example: Create a luxury fashion website with black and gold colors, animated hero section and product gallery..."></textarea>
+
+            <label for="websiteType">Website Category</label>
+            <select id="websiteType">
+                <option>Business Website</option>
+                <option>Portfolio Website</option>
+                <option>E-Commerce Website</option>
+                <option>Restaurant Website</option>
+                <option>Agency Website</option>
+                <option>Technology Website</option>
+                <option>Education Website</option>
+            </select>
+
+            <label for="websiteColor">Design Theme</label>
+            <select id="websiteColor">
+                <option>Dark Futuristic</option>
+                <option>Light Minimal</option>
+                <option>Luxury Black & Gold</option>
+                <option>Creative Purple</option>
+                <option>Ocean Blue</option>
+            </select>
+
+            <button class="btn btn-primary full-btn" id="generateBtn">
+                ✦ GENERATE MY WEBSITE
+            </button>
+
+            <div class="generation-status" id="generationStatus">
+                <span class="status-dot"></span>
+                Waiting for your idea...
+            </div>
+        </div>
+
+        <div class="studio-preview">
+            <div class="preview-toolbar">
+                <div class="window-dots"><i></i><i></i><i></i></div>
+                <span>WIXGEN / LIVE PREVIEW</span>
+                <span class="preview-live">● LIVE</span>
+            </div>
+
+            <div class="preview-screen" id="previewScreen">
+                <div class="preview-nav">
+                    <strong id="previewBrand">YOUR BRAND.</strong>
+                    <div>HOME &nbsp; ABOUT &nbsp; SERVICES</div>
+                    <button>CONTACT</button>
+                </div>
+
+                <div class="preview-hero">
+                    <small>WELCOME TO YOUR FUTURE</small>
+                    <h2 id="previewHeading">Your Vision.<br>Our Creativity.</h2>
+                    <p id="previewDescription">A beautiful website begins with a great idea.</p>
+                    <button>EXPLORE MORE ↗</button>
+                </div>
+
+                <div class="preview-cards">
+                    <div></div><div></div><div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- 3D WHEEL BALANCING LAB -->
+<section class="section wheel-section" id="wheel">
+
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">INTERACTIVE 3D EXPERIMENT</p>
+            <h2>Motion <span>Balancing Lab.</span></h2>
+        </div>
+        <p>Explore a virtual rotating wheel and adjust its balance with interactive controls.</p>
+    </div>
+
+    <div class="wheel-layout">
+
+        <div class="wheel-stage">
+            <div class="wheel-light"></div>
+            <div class="wheel-platform"></div>
+
+            <div class="wheel-assembly" id="wheelAssembly">
+                <div class="wheel">
+                    <div class="wheel-tire"></div>
+                    <div class="wheel-rim">
+                        <div class="rim-ring"></div>
+                        <div class="rim-spokes">
+                            <i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i>
+                        </div>
+                        <div class="rim-center">
+                            <span>W</span>
+                        </div>
+                    </div>
+                    <div class="wheel-weight" id="wheelWeight"></div>
+                </div>
+            </div>
+
+            <div class="wheel-label">3D MOTION SIMULATION</div>
+        </div>
+
+        <div class="wheel-controls">
+            <p class="eyebrow">CONTROL PANEL</p>
+            <h3>Balance Your Motion.</h3>
+
+            <div class="control-row">
+                <label for="wheelSpeed">Rotation Speed</label>
+                <strong id="speedValue">50%</strong>
+            </div>
+            <input type="range" id="wheelSpeed" min="0" max="100" value="50">
+
+            <div class="control-row">
+                <label for="wheelBalance">Balance Level</label>
+                <strong id="balanceValue">80%</strong>
+            </div>
+            <input type="range" id="wheelBalance" min="0" max="100" value="80">
+
+            <div class="balance-meter">
+                <div class="meter-top">
+                    <span>STABILITY</span>
+                    <strong id="stabilityText">GOOD</strong>
+                </div>
+                <div class="meter-track">
+                    <div id="stabilityBar"></div>
+                </div>
+            </div>
+
+            <div class="wheel-buttons">
+                <button id="wheelPlay" class="btn btn-primary">PAUSE ROTATION</button>
+                <button id="wheelReset" class="btn btn-glass">RESET</button>
+            </div>
+
+            <p class="simulation-note">
+                Interactive visual simulation only — not a physical wheel-balancing tool.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- CREATIVE GALLERY -->
+<section class="section gallery-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">CREATIVITY IN EVERY PIXEL</p>
+            <h2>Design <span>Inspiration.</span></h2>
+        </div>
+        <p>Explore visuals that inspire modern digital experiences.</p>
+    </div>
+
+    <div class="gallery-grid">
+        <div class="gallery-item gallery-tall">
+            <img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=1000" alt="Abstract digital art">
+            <div class="gallery-caption">DIGITAL FUTURE</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800" alt="Retro technology">
+            <div class="gallery-caption">CREATIVE TECHNOLOGY</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800" alt="3D art">
+            <div class="gallery-caption">3D EXPERIMENTS</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800" alt="Digital design">
+            <div class="gallery-caption">VISUAL STORIES</div>
+        </div>
+        <div class="gallery-item">
+            <img src="https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=800" alt="Creative abstract">
+            <div class="gallery-caption">NEXT DIMENSION</div>
+        </div>
+    </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section process-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">SIMPLE CREATION PROCESS</p>
+            <h2>From Idea to <span>Launch.</span></h2>
+        </div>
+    </div>
+
+    <div class="process-grid">
+        <div class="process-card">
+            <span>01</span>
+            <div class="process-icon">✎</div>
+            <h3>Describe</h3>
+            <p>Tell us about your idea, audience and website goals.</p>
+        </div>
+        <div class="process-card">
+            <span>02</span>
+            <div class="process-icon">✦</div>
+            <h3>Generate</h3>
+            <p>Explore your generated design concept and layout.</p>
+        </div>
+        <div class="process-card">
+            <span>03</span>
+            <div class="process-icon">◈</div>
+            <h3>Customize</h3>
+            <p>Adjust the colors, content, visuals and sections.</p>
+        </div>
+        <div class="process-card">
+            <span>04</span>
+            <div class="process-icon">↗</div>
+            <h3>Launch</h3>
+            <p>Connect your real hosting and publish your website.</p>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-section" id="pricing">
+    <div class="section-heading center-heading">
+        <div>
+            <p class="eyebrow">SIMPLE & TRANSPARENT</p>
+            <h2>Choose Your <span>Creative Plan.</span></h2>
+        </div>
+    </div>
+
+    <div class="pricing-grid">
+
+        <article class="price-card">
+            <p class="eyebrow">STARTER</p>
+            <h3>Free</h3>
+            <p>For exploring creative ideas.</p>
+            <ul>
+                <li>✓ Basic templates</li>
+                <li>✓ Design preview</li>
+                <li>✓ Basic customization</li>
+                <li>✓ Demo AI interface</li>
+            </ul>
+            <a href="#studio" class="btn btn-glass full-btn">GET STARTED</a>
+        </article>
+
+        <article class="price-card popular">
+            <span class="popular-tag">MOST POPULAR</span>
+            <p class="eyebrow">PRO CREATOR</p>
+            <h3>₹499 <small>/ month</small></h3>
+            <p>For serious digital creators.</p>
+            <ul>
+                <li>✓ Premium templates</li>
+                <li>✓ Advanced customization</li>
+                <li>✓ Design components</li>
+                <li>✓ Project management</li>
+            </ul>
+            <a href="#studio" class="btn btn-primary full-btn">CHOOSE PRO</a>
+        </article>
+
+        <article class="price-card">
+            <p class="eyebrow">BUSINESS</p>
+            <h3>₹999 <small>/ month</small></h3>
+            <p>For growing businesses.</p>
+            <ul>
+                <li>✓ Business templates</li>
+                <li>✓ Advanced design tools</li>
+                <li>✓ Team workflow concept</li>
+                <li>✓ Priority support concept</li>
+            </ul>
+            <a href="#studio" class="btn btn-glass full-btn">CHOOSE BUSINESS</a>
+        </article>
+
+    </div>
+    <p class="pricing-note">Illustrative demo pricing. No subscription or payment is processed.</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section testimonial-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">CREATOR STORIES</p>
+            <h2>Made for <span>Creators.</span></h2>
+        </div>
+    </div>
+
+    <div class="testimonial-grid">
+        <article class="testimonial">
+            <div class="stars">★★★★★</div>
+            <p>"A beautiful concept for people who want to explore creative website design."</p>
+            <div class="person">
+                <img src="https://i.pravatar.cc/100?img=11" alt="Alex">
+                <div><strong>Alex Morgan</strong><small>Creative Designer</small></div>
+            </div>
+        </article>
+        <article class="testimonial">
+            <div class="stars">★★★★★</div>
+            <p>"The interface feels modern and makes experimenting with layouts exciting."</p>
+            <div class="person">
+                <img src="https://i.pravatar.cc/100?img=22" alt="Sarah">
+                <div><strong>Sarah Wilson</strong><small>Digital Creator</small></div>
+            </div>
+        </article>
+        <article class="testimonial">
+            <div class="stars">★★★★★</div>
+            <p>"A creative starting point for building a professional digital presence."</p>
+            <div class="person">
+                <img src="https://i.pravatar.cc/100?img=33" alt="Daniel">
+                <div><strong>Daniel Lee</strong><small>Entrepreneur</small></div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">GOT QUESTIONS?</p>
+            <h2>Frequently <span>Asked.</span></h2>
+        </div>
+    </div>
+
+    <div class="faq-list">
+        <article class="faq-item">
+            <button class="faq-question">What is WIXGEN? <span>+</span></button>
+            <div class="faq-answer"><p>WIXGEN is a frontend demonstration of an AI-inspired website builder experience.</p></div>
+        </article>
+        <article class="faq-item">
+            <button class="faq-question">Can I generate a website? <span>+</span></button>
+            <div class="faq-answer"><p>The included studio creates a visual website concept. Actual AI-generated code requires a connected AI service and backend.</p></div>
+        </article>
+        <article class="faq-item">
+            <button class="faq-question">Can I change the theme? <span>+</span></button>
+            <div class="faq-answer"><p>Yes, use the theme switcher in the navigation to switch between dark and light modes.</p></div>
+        </article>
+        <article class="faq-item">
+            <button class="faq-question">Is WIXGEN mobile friendly? <span>+</span></button>
+            <div class="faq-answer"><p>Yes, the website includes responsive layouts for mobile, tablet and desktop screens.</p></div>
+        </article>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="final-cta">
+    <div class="cta-glow"></div>
+    <p class="eyebrow">YOUR NEXT BIG IDEA STARTS HERE</p>
+    <h2>Ready to Create<br><span>Something Amazing?</span></h2>
+    <p>Take your imagination beyond the ordinary.</p>
+    <a href="#studio" class="btn btn-primary">CREATE YOUR WEBSITE ↗</a>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-main">
+        <div>
+            <a href="#home" class="logo">WIXGEN<span>.</span></a>
+            <p>Where imagination meets intelligent design.</p>
+        </div>
+
+        <div class="footer-column">
+            <strong>EXPLORE</strong>
+            <a href="#features">Features</a>
+            <a href="#templates">Templates</a>
+            <a href="#studio">AI Studio</a>
+        </div>
+
+        <div class="footer-column">
+            <strong>COMPANY</strong>
+            <a href="#home">About</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#home">Contact</a>
+        </div>
+
+        <div class="footer-column">
+            <strong>FOLLOW</strong>
+            <a href="#">Instagram</a>
+            <a href="#">LinkedIn</a>
+            <a href="#">YouTube</a>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <span>© 2026 WIXGEN. All rights reserved.</span>
+        <span>DESIGNED FOR THE FUTURE ✦</span>
+    </div>
+</footer>
+
+</div>
+
+<!-- TEMPLATE MODAL -->
+<div class="modal-backdrop" id="templateModal">
+    <div class="modal-box">
+        <button class="modal-close" id="modalClose">×</button>
+        <p class="eyebrow">TEMPLATE PREVIEW</p>
+        <h2 id="modalTitle">Template Name</h2>
+        <p>Explore this design concept and start customizing your own creative experience.</p>
+        <a href="#studio" id="modalStart" class="btn btn-primary">USE THIS CONCEPT ↗</a>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script >
+    
+/* ==========================================
+   WIXGEN - FUTURISTIC WEBSITE BUILDER
+   HTML5 + CSS3 + ADVANCED JAVASCRIPT
+========================================== */
+
+
+/* 1. 3D PRELOADER */
+
+const preloader = document.getElementById("preloader");
+const loaderProgress = document.getElementById("loaderProgress");
+const loaderNumber = document.getElementById("loaderNumber");
+
+let progress = 0;
+
+const loadingInterval = setInterval(() => {
+
+    progress += Math.floor(Math.random() * 8) + 3;
+
+    if (progress >= 100) {
+        progress = 100;
+        clearInterval(loadingInterval);
+
+        setTimeout(() => {
+            preloader.classList.add("hide");
+
+            if (localStorage.getItem("wixgenUser")) {
+                enterWebsite();
+            } else {
+                document.getElementById("welcomeScreen").classList.add("active");
+            }
+        }, 600);
+    }
+
+    loaderProgress.style.width = progress + "%";
+    loaderNumber.textContent = progress + "%";
+
+}, 100);
+
+
+/* 2. WELCOME / LOGIN */
+
+const welcomeForm = document.getElementById("welcomeForm");
+const welcomeScreen = document.getElementById("welcomeScreen");
+const website = document.getElementById("website");
+
+welcomeForm.addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+    const name = document.getElementById("userName").value.trim();
+    const email = document.getElementById("userEmail").value.trim();
+
+    if (!name || !email) return;
+
+    const user = {name, email};
+
+    localStorage.setItem("wixgenUser", JSON.stringify(user));
+
+    enterWebsite();
+    showToast("Welcome to WIXGEN, " + name + "!");
+
+});
+
+function enterWebsite() {
+    welcomeScreen.classList.remove("active");
+    website.classList.remove("hidden");
+    window.scrollTo(0, 0);
+}
+
+
+/* 3. DARK / LIGHT THEME */
+
+const themeToggle = document.getElementById("themeToggle");
+
+function applyTheme() {
+
+    const theme = localStorage.getItem("wixgenTheme") || "dark";
+
+    document.body.classList.toggle("light-mode", theme === "light");
+
+    themeToggle.textContent = theme === "light" ? "☾" : "☼";
+}
+
+applyTheme();
+
+themeToggle.addEventListener("click", () => {
+
+    const light = document.body.classList.toggle("light-mode");
+
+    localStorage.setItem("wixgenTheme", light ? "light" : "dark");
+
+    applyTheme();
+
+    showToast(light ? "Light mode activated" : "Dark mode activated");
+});
+
+
+/* 4. MOBILE NAVIGATION */
+
+const menuBtn = document.getElementById("menuBtn");
+const navLinks = document.getElementById("navLinks");
+
+menuBtn.addEventListener("click", () => {
+
+    navLinks.classList.toggle("active");
+
+    menuBtn.textContent =
+        navLinks.classList.contains("active") ? "✕" : "☰";
+
+});
+
+document.querySelectorAll(".nav-links a").forEach(link => {
+
+    link.addEventListener("click", () => {
+
+        navLinks.classList.remove("active");
+        menuBtn.textContent = "☰";
+
+    });
+
+});
+
+
+/* 5. ANIMATED HERO TEXT */
+
+const animatedText = document.getElementById("animatedText");
+
+const heroWords = [
+    "Your Universe.",
+    "Your Creativity.",
+    "Your Future.",
+    "Your Website.",
+    "Your Vision."
+];
+
+let wordIndex = 0;
+
+function changeHeroText() {
+
+    animatedText.animate(
+        [
+            {opacity: 1, transform: "translateY(0)"},
+            {opacity: 0, transform: "translateY(20px)"}
+        ],
+        {duration: 350, fill: "forwards"}
+    ).onfinish = () => {
+
+        wordIndex = (wordIndex + 1) % heroWords.length;
+        animatedText.textContent = heroWords[wordIndex];
+
+        animatedText.animate(
+            [
+                {opacity: 0, transform: "translateY(-20px)"},
+                {opacity: 1, transform: "translateY(0)"}
+            ],
+            {duration: 500, fill: "forwards"}
+        );
+    };
+}
+
+setInterval(changeHeroText, 2800);
+
+
+/* 6. SPARKLING PARTICLES */
+
+const canvas = document.getElementById("sparkCanvas");
+const ctx = canvas.getContext("2d");
+
+let particles = [];
+let animationFrame;
+
+function createParticle(width, height) {
+
+    return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2 + .4,
+        speed: Math.random() * .7 + .2,
+        opacity: Math.random(),
+        phase: Math.random() * 6
+    };
+
+}
+
+function resizeCanvas() {
+
+    const rect = canvas.getBoundingClientRect();
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+    particles = Array.from(
+        {length: 100},
+        () => createParticle(rect.width, rect.height)
+    );
+
+}
+
+function animateParticles() {
+
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    ctx.clearRect(0, 0, width, height);
+
+    particles.forEach(p => {
+
+        p.y -= p.speed;
+        p.phase += .025;
+
+        const alpha = p.opacity * (
+            .45 + Math.sin(p.phase) * .4
+        );
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = `rgba(175,145,255,${Math.max(.1, alpha)})`;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "#9b65ff";
+        ctx.fill();
+
+        if (p.y < -10) {
+            p.y = height + 10;
+            p.x = Math.random() * width;
+        }
+
+    });
+
+    ctx.shadowBlur = 0;
+
+    animationFrame = requestAnimationFrame(animateParticles);
+
+}
+
+resizeCanvas();
+animateParticles();
+
+window.addEventListener("resize", resizeCanvas);
+
+
+/* 7. TEMPLATE FILTER SYSTEM */
+
+const filterButtons = document.querySelectorAll(".filter-btn");
+const templateCards = document.querySelectorAll(".template-card");
+
+filterButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        filterButtons.forEach(btn => btn.classList.remove("active"));
+
+        button.classList.add("active");
+
+        const category = button.dataset.filter;
+
+        templateCards.forEach(card => {
+
+            const match =
+                category === "All" ||
+                card.dataset.category === category;
+
+            card.style.display = match ? "block" : "none";
+
+        });
+
+    });
+
+});
+
+
+/* 8. TEMPLATE PREVIEW MODAL */
+
+const templateModal = document.getElementById("templateModal");
+const modalTitle = document.getElementById("modalTitle");
+
+document.querySelectorAll(".preview-template").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        modalTitle.textContent = button.dataset.name;
+
+        templateModal.classList.add("active");
+
+    });
+
+});
+
+function closeTemplateModal() {
+    templateModal.classList.remove("active");
+}
+
+document.getElementById("modalClose").addEventListener(
+    "click",
+    closeTemplateModal
+);
+
+templateModal.addEventListener("click", e => {
+
+    if (e.target === templateModal) {
+        closeTemplateModal();
+    }
+
+});
+
+document.getElementById("modalStart").addEventListener("click", () => {
+    closeTemplateModal();
+});
+
+
+/* 9. AI WEBSITE GENERATOR DEMO */
+
+const generateBtn = document.getElementById("generateBtn");
+
+const promptInput = document.getElementById("websitePrompt");
+const websiteType = document.getElementById("websiteType");
+const websiteColor = document.getElementById("websiteColor");
+
+const generationStatus = document.getElementById("generationStatus");
+
+const previewHeading = document.getElementById("previewHeading");
+const previewDescription = document.getElementById("previewDescription");
+const previewBrand = document.getElementById("previewBrand");
+
+const previewScreen = document.getElementById("previewScreen");
+
+let generationTimer;
+
+const designThemes = {
+    "Dark Futuristic": ["#19142f", "#25214b", "#b68aff"],
+    "Light Minimal": ["#f4f2ff", "#ffffff", "#7553c7"],
+    "Luxury Black & Gold": ["#15120d", "#2c2418", "#e7bd67"],
+    "Creative Purple": ["#25133f", "#44256a", "#d0a3ff"],
+    "Ocean Blue": ["#0b1e35", "#163e64", "#65ddff"]
+};
+
+generateBtn.addEventListener("click", () => {
+
+    const prompt = promptInput.value.trim();
+
+    if (prompt.length < 5) {
+        showToast("Please describe your website idea first.");
+        promptInput.focus();
+        return;
+    }
+
+    generateBtn.disabled = true;
+    generateBtn.textContent = "GENERATING...";
+
+    generationStatus.innerHTML =
+        '<span class="status-dot"></span> Analyzing your creative vision...';
+
+    const steps = [
+        "Analyzing your idea...",
+        "Building the design structure...",
+        "Applying visual theme...",
+        "Preparing website preview...",
+        "Your concept is ready!"
+    ];
+
+    let step = 0;
+
+    generationStatus.textContent = steps[0];
+
+    clearInterval(generationTimer);
+
+    generationTimer = setInterval(() => {
+
+        generationStatus.textContent = steps[step];
+
+        step++;
+
+        if (step >= steps.length) {
+
+            clearInterval(generationTimer);
+
+            createWebsitePreview(prompt);
+
+            generateBtn.disabled = false;
+            generateBtn.textContent = "✦ GENERATE MY WEBSITE";
+
+            generationStatus.textContent =
+                "✓ Your website concept is ready!";
+
+            showToast("Website concept generated!");
+
+        }
+
+    }, 750);
+
+});
+
+function createWebsitePreview(prompt) {
+
+    const category = websiteType.value;
+    const theme = websiteColor.value;
+
+    const words = prompt
+        .replace(/[^\w\s-]/g, "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    const brand = words.slice(0, 2).join(" ").toUpperCase();
+
+    const colors = designThemes[theme];
+
+    previewScreen.style.background =
+        `linear-gradient(135deg,${colors[0]},${colors[1]})`;
+
+    previewScreen.style.color =
+        theme === "Light Minimal" ? "#171329" : "#ffffff";
+
+    previewBrand.textContent = brand || "YOUR BRAND.";
+
+    const titles = {
+        "Business Website": "Grow Your<br>Business.",
+        "Portfolio Website": "Showcase Your<br>Creativity.",
+        "E-Commerce Website": "Discover Your<br>Next Favourite.",
+        "Restaurant Website": "Taste Something<br>Extraordinary.",
+        "Agency Website": "Create Beyond<br>Limits.",
+        "Technology Website": "Technology for<br>Tomorrow.",
+        "Education Website": "Learn. Grow.<br>Achieve."
+    };
+
+    previewHeading.innerHTML = titles[category];
+
+    previewDescription.textContent =
+        `A new ${category.toLowerCase()} concept inspired by your idea.`;
+
+    previewHeading.style.color = colors[2];
+
+    previewScreen.animate(
+        [
+            {opacity: .3, transform: "scale(.97)"},
+            {opacity: 1, transform: "scale(1)"}
+        ],
+        {duration: 650, easing: "ease-out"}
+    );
+
+}
+
+
+/* 10. INTERACTIVE 3D WHEEL BALANCING */
+
+const wheelAssembly = document.getElementById("wheelAssembly");
+
+const wheelSpeed = document.getElementById("wheelSpeed");
+const wheelBalance = document.getElementById("wheelBalance");
+
+const speedValue = document.getElementById("speedValue");
+const balanceValue = document.getElementById("balanceValue");
+
+const stabilityBar = document.getElementById("stabilityBar");
+const stabilityText = document.getElementById("stabilityText");
+
+const wheelPlay = document.getElementById("wheelPlay");
+const wheelReset = document.getElementById("wheelReset");
+
+let wheelRotation = 0;
+let wheelPaused = false;
+let previousTime = 0;
+
+function updateWheelControls() {
+
+    const speed = Number(wheelSpeed.value);
+    const balance = Number(wheelBalance.value);
+
+    speedValue.textContent = speed + "%";
+    balanceValue.textContent = balance + "%";
+
+    // Lower balance means more visible wobble.
+    const imbalance = (100 - balance) / 100;
+
+    stabilityBar.style.width = balance + "%";
+
+    if (balance >= 80) {
+        stabilityText.textContent = "EXCELLENT";
+        stabilityText.style.color = "#40dc9b";
+    } else if (balance >= 55) {
+        stabilityText.textContent = "GOOD";
+        stabilityText.style.color = "#ffcb65";
+    } else if (balance >= 30) {
+        stabilityText.textContent = "UNSTABLE";
+        stabilityText.style.color = "#ff9c60";
+    } else {
+        stabilityText.textContent = "POOR";
+        stabilityText.style.color = "#ff668b";
+    }
+
+    wheelAssembly.dataset.speed = speed;
+    wheelAssembly.dataset.imbalance = imbalance;
+
+}
+
+wheelSpeed.addEventListener("input", updateWheelControls);
+wheelBalance.addEventListener("input", updateWheelControls);
+
+function animateWheel(time) {
+
+    const delta = previousTime ? Math.min(time - previousTime, 40) : 16;
+    previousTime = time;
+
+    if (!wheelPaused) {
+
+        const speed = Number(wheelSpeed.value);
+        const balance = Number(wheelBalance.value);
+
+        wheelRotation += speed * delta * .0007;
+
+        const wobbleAmount = (100 - balance) / 100;
+
+        const wobbleX =
+            Math.sin(time * .006) * wobbleAmount * 9;
+
+        const wobbleY =
+            Math.cos(time * .008) * wobbleAmount * 9;
+
+        wheelAssembly.style.transform =
+            `rotateX(${-12 + wobbleX}deg)
+             rotateY(${wobbleY}deg)
+             rotateZ(${wheelRotation}rad)`;
+
+    }
+
+    requestAnimationFrame(animateWheel);
+
+}
+
+requestAnimationFrame(animateWheel);
+
+wheelPlay.addEventListener("click", () => {
+
+    wheelPaused = !wheelPaused;
+
+    wheelPlay.textContent =
+        wheelPaused ? "RESUME ROTATION" : "PAUSE ROTATION";
+
+});
+
+wheelReset.addEventListener("click", () => {
+
+    wheelSpeed.value = 50;
+    wheelBalance.value = 80;
+
+    wheelRotation = 0;
+    wheelPaused = false;
+
+    wheelPlay.textContent = "PAUSE ROTATION";
+
+    updateWheelControls();
+
+    showToast("Wheel simulation reset.");
+
+});
+
+updateWheelControls();
+
+
+/* 11. COUNTER ANIMATIONS */
+
+const counters = document.querySelectorAll("[data-count]");
+
+const counterObserver = new IntersectionObserver(entries => {
+
+    entries.forEach(entry => {
+
+        if (!entry.isIntersecting) return;
+
+        const counter = entry.target;
+        const target = Number(counter.dataset.count);
+
+        const duration = 1800;
+        const startTime = performance.now();
+
+        function updateCounter(now) {
+
+            const progress = Math.min(
+                (now - startTime) / duration,
+                1
+            );
+
+            const eased = 1 - Math.pow(1 - progress, 4);
+
+            counter.textContent =
+                Math.floor(target * eased).toLocaleString("en-IN") + "+";
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+
+        }
+
+        requestAnimationFrame(updateCounter);
+
+        counterObserver.unobserve(counter);
+
+    });
+
+}, {threshold: .4});
+
+counters.forEach(counter => counterObserver.observe(counter));
+
+
+/* 12. FAQ ACCORDION */
+
+document.querySelectorAll(".faq-question").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        const item = button.closest(".faq-item");
+        const wasActive = item.classList.contains("active");
+
+        document.querySelectorAll(".faq-item").forEach(faq => {
+            faq.classList.remove("active");
+        });
+
+        if (!wasActive) {
+            item.classList.add("active");
+        }
+
+    });
+
+});
+
+
+/* 13. CUSTOM CURSOR */
+
+const cursor = document.querySelector(".cursor");
+const cursorRing = document.querySelector(".cursor-ring");
+
+if (window.matchMedia("(pointer:fine)").matches) {
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    let ringX = 0;
+    let ringY = 0;
+
+    document.addEventListener("mousemove", e => {
+
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        cursor.style.left = mouseX + "px";
+        cursor.style.top = mouseY + "px";
+
+    });
+
+    function animateCursor() {
+
+        ringX += (mouseX - ringX) * .13;
+        ringY += (mouseY - ringY) * .13;
+
+        cursorRing.style.left = ringX + "px";
+        cursorRing.style.top = ringY + "px";
+
+        requestAnimationFrame(animateCursor);
+
+    }
+
+    animateCursor();
+
+    document.addEventListener("mouseover", e => {
+
+        if (e.target.closest("a,button,input,textarea,select")) {
+            document.body.classList.add("cursor-hover");
+        } else {
+            document.body.classList.remove("cursor-hover");
+        }
+
+    });
+
+}
+
+
+/* 14. SCROLL REVEAL */
+
+const revealItems = document.querySelectorAll(
+    ".feature-card, .template-card, .process-card, .price-card, .testimonial, .gallery-item"
+);
+
+const revealObserver = new IntersectionObserver(entries => {
+
+    entries.forEach(entry => {
+
+        if (!entry.isIntersecting) return;
+
+        entry.target.animate(
+            [
+                {opacity: 0, transform: "translateY(35px)"},
+                {opacity: 1, transform: "translateY(0)"}
+            ],
+            {
+                duration: 750,
+                easing: "cubic-bezier(.2,.8,.2,1)",
+                fill: "both"
+            }
+        );
+
+        revealObserver.unobserve(entry.target);
+
+    });
+
+}, {threshold: .12});
+
+revealItems.forEach(item => revealObserver.observe(item));
+
+
+/* 15. TOAST NOTIFICATIONS */
+
+let toastTimeout;
+
+function showToast(message) {
+
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimeout);
+
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2800);
+
+}
+
+
+/* 16. KEYBOARD SHORTCUTS */
+
+document.addEventListener("keydown", e => {
+
+    if (e.key === "Escape") {
+
+        templateModal.classList.remove("active");
+        navLinks.classList.remove("active");
+
+        menuBtn.textContent = "☰";
+
+    }
+
+});
+
+
+/* 17. INITIALIZE */
+
+console.log(
+    "%c WIXGEN INITIALIZED SUCCESSFULLY ",
+    "background:#8654e8;color:white;padding:12px;font-size:15px"
+);
+
+
+</script>
+</body>
+</html>

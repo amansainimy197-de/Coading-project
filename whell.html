@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d12">
+  <meta name="description" content="Nightshift Wheel Lab — wheel balancing, tire fitting, and alignment.">
+  <title>Nightshift Wheel Lab | Wheel Balancing</title>
+
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --surface: #12161e;
+      --surface-light: #191f29;
+      --text: #f3f6fb;
+      --muted: #a4adbb;
+      --line: #ffffff19;
+      --lime: #c8ff4d;
+      --cyan: #66e6ff;
+      --pink: #f5a8d7;
+      --header-height: 76px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: var(--header-height); }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    body.menu-open { overflow: hidden; }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    img { display: block; max-width: 100%; }
+    section { position: relative; }
+
+    .container {
+      width: min(1160px, calc(100% - 40px));
+      margin-inline: auto;
+    }
+
+    /* 3D preloader */
+    .preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      place-content: center;
+      gap: 20px;
+      text-align: center;
+      background: var(--bg);
+      transition: opacity .55s ease, visibility .55s ease;
+    }
+    .preloader.is-hidden { opacity: 0; visibility: hidden; }
+    .loader-cube {
+      width: 54px;
+      height: 54px;
+      margin-inline: auto;
+      border: 2px solid var(--lime);
+      box-shadow: 0 0 25px #c8ff4d55, inset 0 0 20px #c8ff4d33;
+      animation: cube-spin 1.5s ease-in-out infinite;
+    }
+    .loader-label {
+      color: var(--muted);
+      font-size: .75rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    @keyframes cube-spin {
+      0% { transform: perspective(250px) rotateX(0) rotateY(0); }
+      50% { transform: perspective(250px) rotateX(180deg) rotateY(90deg); }
+      100% { transform: perspective(250px) rotateX(360deg) rotateY(180deg); }
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      z-index: 999;
+      top: 0;
+      left: 0;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--lime);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 15px #c8ff4d77;
+      transition: width .2s, height .2s, background .2s;
+    }
+    .cursor.is-hovering {
+      width: 38px;
+      height: 38px;
+      background: #c8ff4d22;
+    }
+
+    /* Header and navigation */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: var(--header-height);
+      border-bottom: 1px solid var(--line);
+      background: #0b0d12dd;
+      backdrop-filter: blur(16px);
+    }
+    .nav-wrap {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+    .logo-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      color: var(--bg);
+      background: var(--lime);
+      border-radius: 12px;
+      font-size: 1.1rem;
+      box-shadow: 0 0 20px #c8ff4d55;
+    }
+    .logo small {
+      display: block;
+      color: var(--muted);
+      font-size: .62rem;
+      font-weight: 600;
+      letter-spacing: .19em;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .9rem;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--lime); }
+    .nav-cta { padding: 10px 16px !important; color: var(--bg) !important; }
+    .menu-button {
+      display: none;
+      width: 42px;
+      height: 42px;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    /* Shared styles */
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--lime);
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    .section-title {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 4.3rem);
+      line-height: 1.04;
+      letter-spacing: -.055em;
+    }
+    .section-copy {
+      max-width: 620px;
+      color: var(--muted);
+    }
+    .accent { color: var(--lime); }
+    .gradient-text {
+      color: transparent;
+      background: linear-gradient(90deg, var(--lime), var(--cyan), var(--pink));
+      background-clip: text;
+      -webkit-background-clip: text;
+    }
+    .button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 19px;
+      color: #0b0d12;
+      background: var(--lime);
+      border: 1px solid var(--lime);
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 850;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 32px #c8ff4d33;
+    }
+    .button.secondary {
+      color: var(--text);
+      background: #ffffff0a;
+      border-color: #ffffff33;
+    }
+    .button.secondary:hover { border-color: var(--lime); }
+    .button-small { min-height: 40px; padding: 9px 14px; font-size: .88rem; }
+
+    /* Hero */
+    .hero {
+      min-height: min(790px, calc(100svh - var(--header-height)));
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-video, .hero-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .hero-video {
+      z-index: -2;
+      object-fit: cover;
+      opacity: .4;
+      filter: saturate(.72) contrast(1.05);
+    }
+    .hero-overlay {
+      z-index: -1;
+      background:
+        linear-gradient(90deg, #0b0d12f2 4%, #0b0d12a8 52%, #0b0d1255),
+        linear-gradient(0deg, var(--bg), transparent 35%),
+        radial-gradient(ellipse at 75% 40%, #66e6ff20, transparent 40%);
+    }
+    .hero-content { padding-block: 100px; }
+    .hero h1 {
+      max-width: 900px;
+      margin: 0;
+      font-size: clamp(3.2rem, 9.5vw, 8rem);
+      line-height: .91;
+      letter-spacing: -.08em;
+    }
+    .hero-subtitle {
+      min-height: 32px;
+      margin: 22px 0 8px;
+      color: var(--cyan);
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      font-weight: 700;
+    }
+    .type-caret { color: var(--lime); animation: blink .7s steps(2) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .hero-copy { max-width: 550px; color: #c1c8d2; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .hero-note {
+      position: absolute;
+      right: 4%;
+      bottom: 14%;
+      color: #ffffffa8;
+      font-size: .75rem;
+      letter-spacing: .18em;
+      writing-mode: vertical-rl;
+      text-transform: uppercase;
+    }
+    .hero-orb {
+      position: absolute;
+      top: 19%;
+      right: 12%;
+      width: clamp(180px, 30vw, 390px);
+      aspect-ratio: 1;
+      z-index: -1;
+      border: 1px solid #c8ff4d38;
+      border-radius: 50%;
+      box-shadow: 0 0 80px #66e6ff18, inset 0 0 70px #c8ff4d12;
+      animation: float-orb 7s ease-in-out infinite;
+    }
+    .hero-orb::before, .hero-orb::after {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px solid #66e6ff55;
+      border-radius: 50%;
+      transform: rotateX(62deg);
+    }
+    .hero-orb::after { transform: rotateY(62deg); border-color: #f5a8d755; }
+    @keyframes float-orb {
+      50% { transform: translateY(-18px) rotate(8deg); }
+    }
+
+    /* Stats strip */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #ffffff04;
+    }
+    .stat {
+      padding: 25px 20px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+    .stat:last-child { border-right: 0; }
+    .stat strong { display: block; color: var(--lime); font-size: 1.7rem; }
+    .stat span { color: var(--muted); font-size: .83rem; }
+
+    /* Services */
+    .section { padding-block: 100px; }
+    .section-heading { margin-bottom: 38px; }
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      perspective: 1000px;
+    }
+    .service-card {
+      min-height: 250px;
+      padding: 25px;
+      background: linear-gradient(145deg, var(--surface-light), var(--surface));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      transform-style: preserve-3d;
+      transition: border-color .2s, transform .2s;
+    }
+    .service-card:hover { border-color: #c8ff4d77; }
+    .service-icon {
+      display: grid;
+      width: 54px;
+      height: 54px;
+      margin-bottom: 26px;
+      place-items: center;
+      color: var(--lime);
+      background: #c8ff4d12;
+      border: 1px solid #c8ff4d30;
+      border-radius: 16px;
+      font-size: 1.55rem;
+      transform: translateZ(30px);
+    }
+    .service-card h3 { margin: 0 0 9px; font-size: 1.22rem; }
+    .service-card p { margin: 0; color: var(--muted); font-size: .94rem; }
+
+    /* Wheel balancing feature */
+    .balancing {
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 80% 50%, #66e6ff10, transparent 38%),
+        var(--surface);
+      border-block: 1px solid var(--line);
+    }
+    .balancing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: clamp(35px, 7vw, 90px);
+    }
+    .wheel-art {
+      position: relative;
+      display: grid;
+      min-height: 390px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at center, #202b3333 0 25%, transparent 26%),
+        linear-gradient(145deg, #161d26, #0c0f14);
+    }
+    .wheel {
+      position: relative;
+      width: min(68%, 290px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 17px solid #77808c;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1a2028 0 34%, #bac2cc 35% 39%, #353d49 40% 58%, #13171d 59%);
+      box-shadow: 0 0 45px #66e6ff22, inset 0 0 18px #000;
+      animation: wheel-spin 12s linear infinite;
+    }
+    .wheel::before {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border: 2px solid #aeb8c3;
+      border-radius: 50%;
+      background: repeating-conic-gradient(from 0deg, #aeb8c3 0 5deg, transparent 5deg 72deg);
+      mask: radial-gradient(circle, transparent 0 14%, #000 15% 100%);
+      -webkit-mask: radial-gradient(circle, transparent 0 14%, #000 15% 100%);
+    }
+    .wheel::after {
+      content: "";
+      position: absolute;
+      width: 22%;
+      aspect-ratio: 1;
+      border: 7px solid #d0d5da;
+      border-radius: 50%;
+      background: #202630;
+      box-shadow: 0 0 0 5px #535e6a;
+    }
+    .wheel-glow {
+      position: absolute;
+      width: 85%;
+      height: 10px;
+      background: var(--lime);
+      filter: blur(30px);
+      opacity: .42;
+    }
+    @keyframes wheel-spin { to { transform: rotate(360deg); } }
+    .check-list { display: grid; gap: 15px; padding: 0; margin: 25px 0 0; list-style: none; }
+    .check-list li { display: flex; gap: 12px; color: #d3dae2; }
+    .check-list li::before { content: "✓"; color: var(--lime); font-weight: 900; }
+
+    /* How it works */
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step {
+      position: relative;
+      padding: 25px;
+      border-top: 1px solid var(--lime);
+      background: linear-gradient(180deg, #c8ff4d0b, transparent);
+    }
+    .step-number {
+      color: var(--lime);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+    }
+    .step h3 { margin: 12px 0 7px; }
+    .step p { margin: 0; color: var(--muted); }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr .8fr;
+      grid-template-rows: 220px 220px;
+      gap: 14px;
+    }
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+    }
+    .gallery-item:first-child { grid-row: span 2; }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .75;
+      transition: transform .5s, opacity .5s;
+    }
+    .gallery-item:hover img { transform: scale(1.06); opacity: 1; }
+    .gallery-caption {
+      position: absolute;
+      inset: auto 0 0;
+      padding: 30px 18px 17px;
+      background: linear-gradient(transparent, #080a0dcc);
+      font-weight: 750;
+    }
+
+    /* Testimonial / booking */
+    .testimonial {
+      padding: 32px;
+      background: linear-gradient(135deg, #c8ff4d0d, #66e6ff0b);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+    }
+    .stars { color: var(--lime); letter-spacing: .16em; }
+    .quote { max-width: 760px; font-size: clamp(1.25rem, 3vw, 2rem); line-height: 1.35; }
+    .quote-author { color: var(--muted); }
+    .booking {
+      background:
+        radial-gradient(ellipse at 12% 50%, #c8ff4d0d, transparent 35%),
+        var(--surface);
+      border-block: 1px solid var(--line);
+    }
+    .booking-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 55px; align-items: start; }
+    .booking-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      padding: 24px;
+      background: #0b0d12;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+    .field { display: grid; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #dce1e8; font-size: .85rem; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 13px;
+      color: var(--text);
+      background: #ffffff08;
+      border: 1px solid #ffffff24;
+      border-radius: 10px;
+      outline: none;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--lime); }
+    .field select option { color: var(--text); background: var(--surface); }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .form-message { grid-column: 1 / -1; min-height: 1.4em; color: var(--lime); font-size: .9rem; }
+
+    /* FAQ */
+    .faq-list { max-width: 850px; }
+    .faq-item { border-bottom: 1px solid var(--line); }
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 20px 0;
+      color: var(--text);
+      text-align: left;
+      background: none;
+      border: 0;
+      font-weight: 750;
+    }
+    .faq-question span:last-child { color: var(--lime); font-size: 1.35rem; transition: transform .2s; }
+    .faq-answer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .25s; }
+    .faq-answer > div { overflow: hidden; }
+    .faq-answer p { margin: 0; padding: 0 0 20px; color: var(--muted); }
+    .faq-item.open .faq-answer { grid-template-rows: 1fr; }
+    .faq-item.open .faq-question span:last-child { transform: rotate(45deg); }
+
+    /* Footer */
+    .footer { padding: 42px 0; border-top: 1px solid var(--line); }
+    .footer-grid { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .footer p { margin: 7px 0 0; color: var(--muted); font-size: .9rem; }
+    .footer-links { display: flex; gap: 18px; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: .9rem; }
+    .footer-links a:hover { color: var(--lime); }
+
+    /* Scroll reveal and sparkles */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .sparkle {
+      position: fixed;
+      z-index: 80;
+      pointer-events: none;
+      color: var(--lime);
+      text-shadow: 0 0 12px var(--lime);
+      animation: sparkle-fly .75s ease-out forwards;
+    }
+    @keyframes sparkle-fly {
+      from { opacity: 1; transform: translate(0, 0) scale(.5) rotate(0); }
+      to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.7) rotate(90deg); }
+    }
+
+    @media (max-width: 850px) {
+      .nav-links {
+        position: fixed;
+        inset: var(--header-height) 0 auto;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 14px 20px 24px;
+        background: #0b0d12f7;
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-links.is-open { display: flex; }
+      .nav-links a { padding: 14px 5px; }
+      .nav-cta { margin-top: 8px; text-align: center; }
+      .menu-button { display: block; }
+      .service-grid { grid-template-columns: repeat(2, 1fr); }
+      .balancing-grid, .booking-grid { grid-template-columns: 1fr; }
+      .wheel-art { min-height: 320px; }
+      .hero-orb { right: -4%; opacity: .7; }
+    }
+
+    @media (max-width: 600px) {
+      .container { width: min(100% - 30px, 1160px); }
+      .section { padding-block: 72px; }
+      .hero-content { padding-block: 75px; }
+      .hero-note { display: none; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(2) { border-right: 0; }
+      .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .service-grid, .steps-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 220px 160px 160px; }
+      .gallery-item:first-child { grid-row: auto; grid-column: 1 / -1; }
+      .booking-form { grid-template-columns: 1fr; padding: 18px; }
+      .field.full, .form-message { grid-column: auto; }
+      .footer-grid { align-items: flex-start; flex-direction: column; }
+      .cursor { display: none; }
+    }
+
+    @media (pointer: coarse) { .cursor { display: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="preloader" aria-label="Loading website">
+    <div class="loader-cube"></div>
+    <div class="loader-label">Nightshift Wheel Lab</div>
+  </div>
+  <div class="cursor" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="container nav-wrap">
+      <a class="logo" href="#home" aria-label="Nightshift Wheel Lab home">
+        <span class="logo-mark">NW</span>
+        <span>NIGHTSHIFT<small>WHEEL LAB</small></span>
+      </a>
+
+      <button class="menu-button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#services">Services</a>
+        <a href="#balancing">Wheel balancing</a>
+        <a href="#gallery">Workshop</a>
+        <a href="#faq">FAQs</a>
+        <a class="button button-small nav-cta" href="#booking">Book a visit ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <video class="hero-video" autoplay muted loop playsinline
+        poster="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1800&q=85">
+        <source src="https://videos.pexels.com/video-files/4489697/4489697-hd_1920_1080_25fps.mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
+      <div class="hero-orb" aria-hidden="true"></div>
+
+      <div class="container hero-content">
+        <p class="eyebrow">Precision wheel & tire care</p>
+        <h1>SMOOTHER<br><span class="gradient-text">STARTS HERE.</span></h1>
+        <p class="hero-subtitle">Built for <span class="typed-text"></span><span class="type-caret">|</span></p>
+        <p class="hero-copy">
+          From precise wheel balancing to tire fitting, we help your car ride
+          smoother, handle better, and feel ready for the road.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#booking">Book an appointment <span>↗</span></a>
+          <a class="button secondary" href="#services">Explore services</a>
+        </div>
+      </div>
+      <div class="hero-note">Precision in every rotation</div>
+    </section>
+
+    <section class="stats" aria-label="Workshop highlights">
+      <div class="stat"><strong>01</strong><span>Careful diagnostics</span></div>
+      <div class="stat"><strong>360°</strong><span>Wheel inspection</span></div>
+      <div class="stat"><strong>4×4</strong><span>Wheel service</span></div>
+      <div class="stat"><strong>Ready</strong><span>For your next drive</span></div>
+    </section>
+
+    <section class="section" id="services">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">What we do</p>
+          <h2 class="section-title">The right work for a <span class="accent">better ride.</span></h2>
+          <p class="section-copy">Straightforward wheel and tire services, delivered with care and attention to detail.</p>
+        </div>
+
+        <div class="service-grid">
+          <article class="service-card reveal">
+            <div class="service-icon">◉</div>
+            <h3>Wheel balancing</h3>
+            <p>We check wheel and tire balance to help reduce vibration and support a smoother ride.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon">⟳</div>
+            <h3>Tire fitting</h3>
+            <p>Need new tires fitted? We’ll help you choose a suitable option and fit them carefully.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon">⌖</div>
+            <h3>Wheel alignment</h3>
+            <p>Alignment checks can help address uneven tire wear and steering that pulls to one side.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon">✦</div>
+            <h3>Tire inspection</h3>
+            <p>Get a visual check of tread, pressure, and general tire condition before your next trip.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon">⚙</div>
+            <h3>Rotation</h3>
+            <p>Regular tire rotation can help promote more even wear across your tires.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon">＋</div>
+            <h3>Pressure check</h3>
+            <p>We’ll check your tire pressures and help you find the recommended setting for your vehicle.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section balancing" id="balancing">
+      <div class="container balancing-grid">
+        <div class="wheel-art reveal" aria-label="Animated wheel illustration">
+          <div class="wheel-glow"></div>
+          <div class="wheel"></div>
+        </div>
+        <div class="reveal">
+          <p class="eyebrow">Wheel balancing</p>
+          <h2 class="section-title">Less shake.<br><span class="accent">More confidence.</span></h2>
+          <p class="section-copy">
+            A wheel that’s out of balance may cause vibration, especially at certain speeds.
+            Our balancing service checks how weight is distributed around the wheel and tire.
+          </p>
+          <ul class="check-list">
+            <li>Inspection of wheels and tires</li>
+            <li>Balance check using appropriate equipment</li>
+            <li>Clear explanation of any concerns</li>
+            <li>Advice on the next step for your vehicle</li>
+          </ul>
+          <a class="button" href="#booking">Ask about balancing ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Easy as 1, 2, 3</p>
+          <h2 class="section-title">A simple way to get <span class="accent">back on the road.</span></h2>
+        </div>
+        <div class="steps-grid">
+          <article class="step reveal">
+            <span class="step-number">STEP 01</span>
+            <h3>Tell us what you need</h3>
+            <p>Choose a service and send an appointment request using the form below.</p>
+          </article>
+          <article class="step reveal">
+            <span class="step-number">STEP 02</span>
+            <h3>Bring in your vehicle</h3>
+            <p>We’ll inspect the wheels and discuss the work with you before getting started.</p>
+          </article>
+          <article class="step reveal">
+            <span class="step-number">STEP 03</span>
+            <h3>Drive away</h3>
+            <p>Once service is complete, you’re ready to continue your journey.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Inside the workshop</p>
+          <h2 class="section-title">Good tools. <span class="accent">Careful work.</span></h2>
+          <p class="section-copy">A look at the wheels, equipment, and details behind the service.</p>
+        </div>
+
+        <div class="gallery-grid">
+          <figure class="gallery-item reveal">
+            <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1200&q=85" alt="Mechanic working in an auto workshop">
+            <figcaption class="gallery-caption">Workshop details</figcaption>
+          </figure>
+          <figure class="gallery-item reveal">
+            <img src="https://images.unsplash.com/photo-1504222490345-c075b6008014?auto=format&fit=crop&w=900&q=85" alt="Close-up of a vehicle wheel">
+            <figcaption class="gallery-caption">Wheel care</figcaption>
+          </figure>
+          <figure class="gallery-item reveal">
+            <img src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=900&q=85" alt="Vehicle maintenance in a garage">
+            <figcaption class="gallery-caption">Hands-on service</figcaption>
+          </figure>
+          <figure class="gallery-item reveal">
+            <img src="https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=900&q=85" alt="Car tire and wheel close-up">
+            <figcaption class="gallery-caption">Ready for the road</figcaption>
+          </figure>
+          <figure class="gallery-item reveal">
+            <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=85" alt="Car at night under workshop lighting">
+            <figcaption class="gallery-caption">Nightshift mood</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <article class="testimonial reveal">
+          <div class="stars" aria-label="5 stars">★★★★★</div>
+          <p class="quote">“Friendly service, clear advice, and my steering feels much smoother after the wheel balance.”</p>
+          <p class="quote-author">— A happy customer</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section booking" id="booking">
+      <div class="container booking-grid">
+        <div class="reveal">
+          <p class="eyebrow">Book a visit</p>
+          <h2 class="section-title">Let’s get your wheels <span class="accent">sorted.</span></h2>
+          <p class="section-copy">
+            Send a request and include the service you’re interested in.
+            This sample form displays a confirmation in your browser.
+          </p>
+          <p class="section-copy"><strong class="accent">Hours:</strong> Monday–Saturday · 8:00 AM–6:00 PM</p>
+        </div>
+
+        <form class="booking-form reveal" id="booking-form">
+          <div class="field">
+            <label for="customer-name">Your name</label>
+            <input id="customer-name" name="name" autocomplete="name" required placeholder="Name">
+          </div>
+          <div class="field">
+            <label for="customer-email">Email address</label>
+            <input id="customer-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label for="vehicle">Vehicle</label>
+            <input id="vehicle" name="vehicle" placeholder="Make and model">
+          </div>
+          <div class="field">
+            <label for="service">Service</label>
+            <select id="service" name="service" required>
+              <option value="">Choose a service</option>
+              <option>Wheel balancing</option>
+              <option>Tire fitting</option>
+              <option>Wheel alignment</option>
+              <option>Tire inspection</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="notes">Anything else we should know?</label>
+            <textarea id="notes" name="notes" placeholder="Tell us about your vehicle or preferred date"></textarea>
+          </div>
+          <div class="form-message" id="form-message" aria-live="polite"></div>
+          <div class="field full">
+            <button class="button" type="submit">Send appointment request ↗</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Quick answers</p>
+          <h2 class="section-title">Frequently asked <span class="accent">questions.</span></h2>
+        </div>
+
+        <div class="faq-list reveal">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>What is wheel balancing?</span><span>＋</span>
+            </button>
+            <div class="faq-answer"><div><p>Wheel balancing checks whether weight is evenly distributed around the wheel and tire. Correcting an imbalance may help reduce vibration while driving.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>How can I tell if a wheel may need balancing?</span><span>＋</span>
+            </button>
+            <div class="faq-answer"><div><p>Vibration through the steering wheel or vehicle at certain speeds can be one sign. A tire inspection can help identify possible causes.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Can I request more than one service?</span><span>＋</span>
+            </button>
+            <div class="faq-answer"><div><p>Yes. Add the services you’re interested in to the notes field when you send an appointment request.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span>Does the booking form confirm an appointment?</span><span>＋</span>
+            </button>
+            <div class="faq-answer"><div><p>No. This is a front-end demo form. Connect it to a booking service or backend to receive requests and confirm appointments.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="logo" href="#home"><span class="logo-mark">NW</span><span>NIGHTSHIFT<small>WHEEL LAB</small></span></a>
+        <p>Wheel and tire care for the road ahead.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#services">Services</a>
+        <a href="#booking">Book</a>
+        <a href="#faq">FAQs</a>
+      </div>
+      <p>© <span id="year"></span> Nightshift Wheel Lab</p>
+    </div>
+  </footer>
+
+  <script>
+    // Hide the 3D preloader when the page is ready.
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.querySelector(".preloader")?.classList.add("is-hidden");
+      }, 450);
+    });
+
+    // Mobile navigation.
+    const menuButton = document.querySelector(".menu-button");
+    const nav = document.querySelector(".nav-links");
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("is-open");
+      document.body.classList.toggle("menu-open", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+      menuButton.textContent = isOpen ? "✕" : "☰";
+    });
+
+    nav.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("is-open");
+        document.body.classList.remove("menu-open");
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Open navigation");
+        menuButton.textContent = "☰";
+      });
+    });
+
+    // Animated typing text.
+    const typedText = document.querySelector(".typed-text");
+    if (typedText) {
+      const phrases = ["a smoother ride.", "everyday journeys.", "the open road."];
+      let phraseIndex = 0;
+      let letterIndex = 0;
+      let deleting = false;
+
+      function typeLoop() {
+        const phrase = phrases[phraseIndex];
+        typedText.textContent = phrase.slice(0, letterIndex);
+
+        if (!deleting && letterIndex < phrase.length) {
+          letterIndex++;
+          setTimeout(typeLoop, 75);
+        } else if (deleting && letterIndex > 0) {
+          letterIndex--;
+          setTimeout(typeLoop, 38);
+        } else {
+          deleting = !deleting;
+          if (!deleting) phraseIndex = (phraseIndex + 1) % phrases.length;
+          setTimeout(typeLoop, deleting ? 1000 : 240);
+        }
+      }
+      typeLoop();
+    }
+
+    // Custom cursor and hover state.
+    const cursor = document.querySelector(".cursor");
+    window.addEventListener("pointermove", event => {
+      if (!cursor) return;
+      cursor.style.left = `${event.clientX}px`;
+      cursor.style.top = `${event.clientY}px`;
+    });
+
+    document.querySelectorAll("a, button, input, select, textarea").forEach(element => {
+      element.addEventListener("pointerenter", () => cursor?.classList.add("is-hovering"));
+      element.addEventListener("pointerleave", () => cursor?.classList.remove("is-hovering"));
+    });
+
+    // Reveal content as it scrolls into view.
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll(".reveal").forEach(element => revealObserver.observe(element));
+
+    // 3D tilt effect on service cards.
+    document.querySelectorAll(".service-card").forEach(card => {
+      card.addEventListener("pointermove", event => {
+        if (matchMedia("(pointer: coarse)").matches) return;
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width - 0.5;
+        const y = (event.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform =
+          `perspective(800px) rotateY(${x * 7}deg) rotateX(${-y * 7}deg)`;
+      });
+      card.addEventListener("pointerleave", () => {
+        card.style.transform = "";
+      });
+    });
+
+    // FAQ accordion.
+    document.querySelectorAll(".faq-question").forEach(button => {
+      button.addEventListener("click", () => {
+        const item = button.closest(".faq-item");
+        const willOpen = !item.classList.contains("open");
+
+        document.querySelectorAll(".faq-item").forEach(otherItem => {
+          otherItem.classList.remove("open");
+          otherItem.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+        });
+
+        if (willOpen) {
+          item.classList.add("open");
+          button.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
+
+    // Demo booking form: validates fields and displays a local confirmation.
+    const bookingForm = document.querySelector("#booking-form");
+    bookingForm.addEventListener("submit", event => {
+      event.preventDefault();
+      if (!bookingForm.reportValidity()) return;
+
+      const name = document.querySelector("#customer-name").value.trim();
+      document.querySelector("#form-message").textContent =
+        `Thanks, ${name}! Your demo request is ready. Connect a booking backend to receive it.`;
+      bookingForm.reset();
+    });
+
+    // Sparkles on click.
+    window.addEventListener("click", event => {
+      if (event.target.closest("input, textarea, select")) return;
+
+      const sparkle = document.createElement("span");
+      sparkle.className = "sparkle";
+      sparkle.textContent = "✦";
+      sparkle.style.left = `${event.clientX}px`;
+      sparkle.style.top = `${event.clientY}px`;
+      sparkle.style.setProperty("--dx", `${Math.random() * 70 - 35}px`);
+      sparkle.style.setProperty("--dy", `${-25 - Math.random() * 55}px`);
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 800);
+    });
+
+    document.querySelector("#year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
