@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f5f7fb" />
+  <title>Inspire — Conversations that matter</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f3f5fa;
+      --surface: rgba(255,255,255,.88);
+      --solid: #fff;
+      --text: #192334;
+      --muted: #8290a4;
+      --line: #e9edf3;
+      --accent: #6b63e8;
+      --accent-2: #8982f5;
+      --bubble: #f0f1ff;
+      --shadow: 0 24px 70px rgba(32, 42, 75, .12);
+    }
+    body.dark {
+      color-scheme: dark;
+      --page: #10131d;
+      --surface: rgba(26,30,44,.92);
+      --solid: #1a1e2c;
+      --text: #edf0f9;
+      --muted: #9aa4b6;
+      --line: #2b3040;
+      --accent: #9189ff;
+      --accent-2: #6f67ed;
+      --bubble: #292844;
+      --shadow: 0 24px 70px rgba(0,0,0,.32);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(128,119,255,.13), transparent 34%),
+        radial-gradient(ellipse at 95% 100%, rgba(87,204,185,.10), transparent 30%),
+        var(--page);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: background .25s, color .25s;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .app {
+      width: min(1440px, 100%);
+      height: min(900px, calc(100vh - 48px));
+      min-height: 600px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 340px minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 26px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+    }
+    .panel { min-width: 0; background: var(--surface); }
+    .chats-panel { display: flex; flex-direction: column; border-right: 1px solid var(--line); }
+    .brand-row { padding: 23px 22px 18px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; gap:11px; align-items:center; }
+    .brand-mark {
+      display:grid; place-items:center; width:39px; height:39px; border-radius:14px;
+      background: linear-gradient(140deg, var(--accent), #a36be8);
+      color:#fff; font-size:19px; font-weight:800; box-shadow:0 8px 20px #7469e74d;
+    }
+    .brand-name { font-weight:800; letter-spacing:-.5px; font-size:19px; }
+    .brand-caption { color:var(--muted); font-size:11px; margin-top:2px; }
+    .icon-button {
+      border:1px solid var(--line); background:var(--solid); width:38px; height:38px;
+      border-radius:13px; display:grid; place-items:center; cursor:pointer; transition:.2s;
+    }
+    .icon-button:hover { transform:translateY(-2px); border-color:var(--accent); color:var(--accent); }
+    .icon { font-size:17px; line-height:1; }
+    .profile-card { margin:0 16px 17px; padding:13px; border:1px solid var(--line); border-radius:17px; display:flex; align-items:center; gap:11px; }
+    .avatar {
+      --avatar:#8579ed;
+      flex:0 0 auto; display:grid; place-items:center; width:46px; height:46px;
+      border-radius:16px; background:linear-gradient(145deg, color-mix(in srgb, var(--avatar), white 22%), var(--avatar));
+      color:white; font-size:14px; font-weight:750; position:relative;
+    }
+    .avatar.small { width:42px;height:42px;border-radius:15px; }
+    .avatar::after { content:""; position:absolute; width:10px;height:10px;right:-1px;bottom:-1px;border:2px solid var(--solid);border-radius:50%;background:#48c997; }
+    .profile-info { min-width:0; flex:1; }
+    .profile-info strong { display:block; font-size:13px; }
+    .profile-info span { color:var(--muted); font-size:11px; }
+    .search-wrap { padding:0 16px 15px; position:relative; }
+    .search-wrap span { position:absolute; top:11px; left:29px; color:var(--muted); }
+    .search {
+      width:100%; padding:11px 13px 11px 37px; border:1px solid var(--line);
+      border-radius:13px; outline:none; color:var(--text); background:var(--solid);
+    }
+    .search:focus, .composer input:focus { border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent), transparent 85%); }
+    .filters { display:flex; gap:7px; padding:0 16px 14px; }
+    .filter {
+      border:1px solid transparent; background:transparent; color:var(--muted); border-radius:10px;
+      padding:7px 10px; font-size:11px; cursor:pointer;
+    }
+    .filter.active { color:var(--accent); background:color-mix(in srgb, var(--accent), transparent 91%); border-color:color-mix(in srgb, var(--accent), transparent 82%); font-weight:700; }
+    .list-heading { display:flex; justify-content:space-between; padding:2px 20px 10px; color:var(--muted); font-size:10px; font-weight:750; letter-spacing:1.2px; text-transform:uppercase; }
+    .chat-list { overflow:auto; padding:0 9px 14px; }
+    .chat-item {
+      display:flex; gap:11px; align-items:center; padding:11px; border-radius:15px; cursor:pointer;
+      transition:background .18s; min-width:0;
+    }
+    .chat-item:hover { background:color-mix(in srgb, var(--accent), transparent 94%); }
+    .chat-item.selected { background:color-mix(in srgb, var(--accent), transparent 91%); }
+    .chat-copy { min-width:0; flex:1; }
+    .chat-top, .chat-bottom { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .chat-top strong { font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chat-time { color:var(--muted); font-size:10px; white-space:nowrap; }
+    .chat-preview { color:var(--muted); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:5px; }
+    .unread { min-width:18px; height:18px; padding:0 5px; display:grid; place-items:center; border-radius:99px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; }
+    .empty-list { text-align:center; color:var(--muted); font-size:12px; padding:36px 15px; }
+    .sidebar-footer { margin-top:auto; padding:13px 16px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+    .footer-note { color:var(--muted); font-size:10px; }
+    .new-chat {
+      border:0; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white;
+      border-radius:12px; width:39px;height:39px; font-size:23px; cursor:pointer;
+      box-shadow:0 7px 17px color-mix(in srgb, var(--accent), transparent 67%); transition:.2s;
+    }
+    .new-chat:hover { transform:translateY(-2px) scale(1.03); }
+
+    .conversation { display:flex; flex-direction:column; min-width:0; position:relative; }
+    .conversation-header { min-height:78px; padding:14px 23px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px; }
+    .contact-details { flex:1; min-width:0; }
+    .contact-details strong { font-size:14px; }
+    .contact-details div { color:var(--muted); font-size:11px; margin-top:4px; }
+    .header-actions { display:flex; gap:8px; }
+    .messages {
+      flex:1; overflow:auto; padding:27px clamp(18px, 5vw, 72px);
+      background-image:radial-gradient(color-mix(in srgb, var(--accent), transparent 94%) .8px, transparent .8px);
+      background-size:20px 20px;
+    }
+    .date-chip { width:max-content; margin:0 auto 23px; border:1px solid var(--line); border-radius:30px; padding:6px 12px; background:var(--solid); color:var(--muted); font-size:10px; }
+    .message-row { display:flex; margin:10px 0; }
+    .message-row.mine { justify-content:flex-end; }
+    .bubble {
+      max-width:min(72%, 490px); padding:11px 14px 8px; border-radius:16px 16px 16px 5px;
+      background:var(--solid); border:1px solid var(--line); box-shadow:0 4px 13px rgba(28,38,70,.035);
+      font-size:12px; line-height:1.55; overflow-wrap:anywhere; white-space:pre-wrap;
+      animation:rise .2s ease-out;
+    }
+    .mine .bubble { color:#fff; border:0; background:linear-gradient(140deg,var(--accent),var(--accent-2)); border-radius:16px 16px 5px 16px; }
+    .bubble-time { display:block; text-align:right; opacity:.65; font-size:9px; margin-top:4px; }
+    @keyframes rise { from {opacity:0;transform:translateY(5px)} to {opacity:1;transform:translateY(0)} }
+    .typing { display:none; color:var(--muted); font-size:11px; padding:0 25px 9px; }
+    .typing.show { display:block; }
+    .composer-area { padding:14px 22px 18px; border-top:1px solid var(--line); }
+    .composer {
+      display:flex; gap:10px; align-items:center; padding:7px; border:1px solid var(--line);
+      border-radius:17px; background:var(--solid);
+    }
+    .composer input { flex:1; min-width:0; border:1px solid transparent; outline:0; color:var(--text); background:transparent; padding:10px; border-radius:10px; font-size:12px; }
+    .send {
+      width:42px;height:42px;border:0;border-radius:13px; color:#fff; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      cursor:pointer; font-size:17px; transition:.2s;
+    }
+    .send:hover { transform:scale(1.06); }
+    .composer-hint { color:var(--muted); font-size:10px; padding:8px 4px 0; }
+    .welcome { flex:1; display:grid; place-items:center; text-align:center; padding:30px; }
+    .welcome-icon { width:86px;height:86px;display:grid;place-items:center;margin:auto auto 17px;border-radius:28px;background:linear-gradient(145deg,#8e82f1,#b18af1);color:white;font-size:34px;box-shadow:0 15px 34px #776ce34a; }
+    .welcome h2 { margin:0 0 8px; font-size:22px; letter-spacing:-.5px; }
+    .welcome p { margin:0; color:var(--muted); font-size:12px; line-height:1.7; }
+    .mobile-back { display:none; }
+    .toast { position:fixed; bottom:22px; left:50%; transform:translate(-50%,20px); opacity:0; pointer-events:none; padding:11px 16px; border-radius:12px; background:#202438; color:#fff; font-size:12px; transition:.25s; z-index:5; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:760px) {
+      body { padding:0; }
+      .app { height:100dvh; min-height:0; border:0; border-radius:0; grid-template-columns:1fr; }
+      .chats-panel { border-right:0; }
+      .conversation { display:none; }
+      .app.chat-open .chats-panel { display:none; }
+      .app.chat-open .conversation { display:flex; }
+      .mobile-back { display:grid; }
+      .conversation-header { padding:12px 14px; }
+      .messages { padding:22px 17px; }
+      .composer-area { padding:12px 13px calc(13px + env(safe-area-inset-bottom)); }
+      .header-actions .optional { display:none; }
+      .chat-list { padding-bottom:22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <aside class="panel chats-panel" aria-label="Conversations">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-mark">i</div>
+          <div><div class="brand-name">inspire</div><div class="brand-caption">Conversations that matter</div></div>
+        </div>
+        <button class="icon-button" id="themeButton" aria-label="Toggle color theme" title="Toggle theme"><span class="icon">☾</span></button>
+      </div>
+      <div class="profile-card">
+        <div class="avatar" style="--avatar:#7470e9">AM</div>
+        <div class="profile-info"><strong>Alex Morgan</strong><span>Your personal space</span></div>
+        <button class="icon-button" id="profileButton" aria-label="Profile">⋯</button>
+      </div>
+      <div class="search-wrap"><span>⌕</span><input id="search" class="search" type="search" placeholder="Search conversations..." aria-label="Search conversations"></div>
+      <div class="filters" role="group" aria-label="Filter conversations">
+        <button class="filter active" data-filter="all">All chats</button>
+        <button class="filter" data-filter="unread">Unread</button>
+        <button class="filter" data-filter="favorites">Favorites</button>
+      </div>
+      <div class="list-heading"><span>Messages</span><span id="chatCount"></span></div>
+      <div class="chat-list" id="chatList"></div>
+      <div class="sidebar-footer">
+        <span class="footer-note">Private moments, beautifully shared.</span>
+        <button class="new-chat" id="newChat" aria-label="Start a new chat" title="New chat">＋</button>
+      </div>
+    </aside>
+
+    <section class="panel conversation" id="conversation" aria-label="Chat">
+      <div class="welcome" id="welcome">
+        <div>
+          <div class="welcome-icon">✦</div>
+          <h2>Your conversations, connected.</h2>
+          <p>Choose a conversation to pick up where you left off,<br>or start a new one with someone you know.</p>
+        </div>
+      </div>
+      <div id="chatView" hidden style="display:flex;flex-direction:column;flex:1;min-height:0">
+        <header class="conversation-header">
+          <button class="icon-button mobile-back" id="backButton" aria-label="Back to conversations">←</button>
+          <div class="avatar small" id="activeAvatar"></div>
+          <div class="contact-details"><strong id="activeName"></strong><div id="activeStatus"></div></div>
+          <div class="header-actions">
+            <button class="icon-button optional" id="favoriteButton" aria-label="Toggle favorite" title="Toggle favorite">☆</button>
+            <button class="icon-button" id="infoButton" aria-label="Conversation details" title="Conversation details">ⓘ</button>
+          </div>
+        </header>
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <div class="typing" id="typing">A thoughtful reply is on its way…</div>
+        <div class="composer-area">
+          <form class="composer" id="messageForm">
+            <input id="messageInput" maxlength="2000" autocomplete="off" placeholder="Write a message..." aria-label="Write a message">
+            <button class="send" type="submit" aria-label="Send message" title="Send">➤</button>
+          </form>
+          <div class="composer-hint">Press Enter to send · Your demo conversations are saved on this device</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const starterChats = [
+      { id:"maya", name:"Maya Chen", initials:"MC", color:"#df8d73", online:true, favorite:true, unread:2,
+        messages:[
+          {from:"them",text:"Hey Alex! How's the new project coming along?",time:"10:24"},
+          {from:"me",text:"Really well! I finally got the first designs ready ✨",time:"10:27"},
+          {from:"them",text:"That sounds exciting. I'd love to see them when you have a moment.",time:"10:29"},
+          {from:"me",text:"Absolutely — I'll send them over this afternoon.",time:"10:31"},
+          {from:"them",text:"Perfect! Looking forward to it 😊",time:"10:32"}
+        ]},
+      { id:"studio", name:"The Sunday Studio", initials:"SS", color:"#ddaa57", online:true, favorite:true, unread:0,
+        messages:[
+          {from:"them",text:"Jordan: Brunch this weekend? I found a lovely little place downtown.",time:"09:48"},
+          {from:"me",text:"Count me in. Saturday or Sunday?",time:"09:52"},
+          {from:"them",text:"Sam: Sunday sounds perfect to me!",time:"10:03"}
+        ]},
+      { id:"leo", name:"Leo Martinez", initials:"LM", color:"#549eae", online:false, favorite:false, unread:0,
+        messages:[
+          {from:"them",text:"Sent you the playlist we talked about 🎧",time:"Yesterday"},
+          {from:"me",text:"These are great. Track 4 is going straight into my favorites.",time:"Yesterday"}
+        ]},
+      { id:"mom", name:"Mom", initials:"M", color:"#bb7eaa", online:true, favorite:false, unread:1,
+        messages:[
+          {from:"them",text:"Don't forget your umbrella, looks like rain later!",time:"Yesterday"}
+        ]},
+      { id:"design", name:"Design Circle", initials:"DC", color:"#7785c6", online:false, favorite:false, unread:0,
+        messages:[
+          {from:"them",text:"Avery: Shared some inspiration for the new moodboard.",time:"Mon"},
+          {from:"me",text:"Love this direction — the warm palette feels just right.",time:"Mon"}
+        ]}
+    ];
+    const storageKey = "inspire-chat-demo-v1";
+    let chats;
+    try { chats = JSON.parse(localStorage.getItem(storageKey)) || starterChats; }
+    catch { chats = starterChats; }
+    let activeId = null;
+    let activeFilter = "all";
+    const app = document.getElementById("app");
+    const $ = (id) => document.getElementById(id);
+    const safeText = (value) => String(value).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+    function save() {
+      try { localStorage.setItem(storageKey, JSON.stringify(chats)); }
+      catch { showToast("Could not save on this device. Storage may be full."); }
+    }
+    function lastMessage(chat) { return chat.messages[chat.messages.length - 1]; }
+    function renderList() {
+      const term = $("search").value.trim().toLowerCase();
+      const filtered = chats.filter(chat => {
+        const matchesText = chat.name.toLowerCase().includes(term) ||
+          chat.messages.some(message => message.text.toLowerCase().includes(term));
+        const matchesFilter = activeFilter === "all" ||
+          (activeFilter === "unread" && chat.unread > 0) ||
+          (activeFilter === "favorites" && chat.favorite);
+        return matchesText && matchesFilter;
+      });
+      $("chatCount").textContent = chats.length ? String(chats.length).padStart(2,"0") : "";
+      $("chatList").innerHTML = filtered.length ? filtered.map(chat => {
+        const last = lastMessage(chat);
+        return `<div class="chat-item ${chat.id === activeId ? "selected" : ""}" data-id="${safeText(chat.id)}" tabindex="0" role="button" aria-label="Open chat with ${safeText(chat.name)}">
+          <div class="avatar small" style="--avatar:${safeText(chat.color)}">${safeText(chat.initials)}</div>
+          <div class="chat-copy">
+            <div class="chat-top"><strong>${safeText(chat.name)}${chat.favorite ? " <span aria-label='favorite'>★</span>" : ""}</strong><span class="chat-time">${safeText(last?.time || "")}</span></div>
+            <div class="chat-bottom"><span class="chat-preview">${safeText(last?.text || "Start a conversation")}</span>${chat.unread ? `<span class="unread">${chat.unread}</span>` : ""}</div>
+          </div></div>`;
+      }).join("") : `<div class="empty-list">No conversations found.<br>Try another search or start a new chat.</div>`;
+      document.querySelectorAll(".chat-item").forEach(item => {
+        item.addEventListener("click", () => openChat(item.dataset.id));
+        item.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openChat(item.dataset.id); }
+        });
+      });
+    }
+    function openChat(id) {
+      const chat = chats.find(item => item.id === id);
+      if (!chat) return;
+      activeId = id;
+      chat.unread = 0;
+      $("welcome").hidden = true;
+      $("chatView").hidden = false;
+      $("activeAvatar").textContent = chat.initials;
+      $("activeAvatar").style.setProperty("--avatar", chat.color);
+      $("activeName").textContent = chat.name;
+      $("activeStatus").textContent = chat.online ? "●  Online now" : "Usually replies when available";
+      $("favoriteButton").textContent = chat.favorite ? "★" : "☆";
+      $("favoriteButton").title = chat.favorite ? "Remove from favorites" : "Add to favorites";
+      renderMessages();
+      renderList();
+      save();
+      app.classList.add("chat-open");
+      if (window.innerWidth > 760) $("messageInput").focus();
+    }
+    function renderMessages() {
+      const chat = chats.find(item => item.id === activeId);
+      if (!chat) return;
+      $("messages").innerHTML = `<div class="date-chip">Today · Your messages are private on this device</div>` +
+        chat.messages.map(message => `<div class="message-row ${message.from === "me" ? "mine" : ""}">
+          <div class="bubble">${safeText(message.text)}<span class="bubble-time">${safeText(message.time)}${message.from === "me" ? " · ✓✓" : ""}</span></div>
+        </div>`).join("");
+      $("messages").scrollTop = $("messages").scrollHeight;
+    }
+    function showToast(message) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+    $("search").addEventListener("input", renderList);
+    document.querySelectorAll(".filter").forEach(button => button.addEventListener("click", () => {
+      activeFilter = button.dataset.filter;
+      document.querySelectorAll(".filter").forEach(item => item.classList.toggle("active", item === button));
+      renderList();
+    }));
+    $("messageForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const text = $("messageInput").value.trim();
+      const chat = chats.find(item => item.id === activeId);
+      if (!chat || !text) return;
+      const now = new Date();
+      chat.messages.push({from:"me", text, time:now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})});
+      $("messageInput").value = "";
+      save();
+      renderMessages();
+      renderList();
+    });
+    $("newChat").addEventListener("click", () => {
+      const name = prompt("Who would you like to message?");
+      if (!name || !name.trim()) return;
+      const cleanName = name.trim().slice(0, 45);
+      const existing = chats.find(chat => chat.name.toLowerCase() === cleanName.toLowerCase());
+      if (existing) { openChat(existing.id); return; }
+      const initials = cleanName.split(/\s+/).slice(0,2).map(part => part[0]).join("").toUpperCase();
+      const chat = {id:"chat-" + Date.now(), name:cleanName, initials, color:"#8579ed", online:false, favorite:false, unread:0, messages:[]};
+      chats.unshift(chat);
+      save();
+      renderList();
+      openChat(chat.id);
+    });
+    $("favoriteButton").addEventListener("click", () => {
+      const chat = chats.find(item => item.id === activeId);
+      if (!chat) return;
+      chat.favorite = !chat.favorite;
+      save();
+      openChat(chat.id);
+    });
+    $("themeButton").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      localStorage.setItem("inspire-theme", isDark ? "dark" : "light");
+      $("themeButton").innerHTML = `<span class="icon">${isDark ? "☀" : "☾"}</span>`;
+    });
+    $("backButton").addEventListener("click", () => app.classList.remove("chat-open"));
+    $("profileButton").addEventListener("click", () => showToast("Profile settings are part of the full app build."));
+    $("infoButton").addEventListener("click", () => {
+      const chat = chats.find(item => item.id === activeId);
+      if (chat) showToast(`${chat.name} · ${chat.messages.length} messages on this device`);
+    });
+    if (localStorage.getItem("inspire-theme") === "dark") {
+      document.body.classList.add("dark");
+      $("themeButton").innerHTML = '<span class="icon">☀</span>';
+    }
+    renderList();
+  </script>
+</body>
+</html>

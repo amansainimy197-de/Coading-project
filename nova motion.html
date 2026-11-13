@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090a0d" />
+  <title>NOVA — Tomorrow, in motion</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090a0d;
+      --surface: #111318;
+      --text: #f3f4f6;
+      --muted: #9a9da7;
+      --line: rgba(255,255,255,.11);
+      --accent: #c4f169;
+      --accent-2: #a7d95c;
+      --header-bg: rgba(9,10,13,.7);
+      --radius: 22px;
+      --page-width: 1180px;
+    }
+
+    body.light {
+      color-scheme: light;
+      --bg: #f4f4ef;
+      --surface: #fff;
+      --text: #17191c;
+      --muted: #666b73;
+      --line: rgba(20,25,30,.14);
+      --accent: #77a928;
+      --accent-2: #618c1e;
+      --header-bg: rgba(244,244,239,.78);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: auto; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", sans-serif;
+      overflow-x: hidden;
+      transition: background .35s ease, color .35s ease;
+    }
+    body.loading { overflow: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    img { display: block; width: 100%; }
+    .wrap { width: min(var(--page-width), calc(100% - 48px)); margin-inline: auto; }
+    .section { padding: 120px 0; position: relative; }
+    .eyebrow {
+      display: inline-flex; gap: 10px; align-items: center;
+      color: var(--accent); font-size: .75rem; font-weight: 700;
+      letter-spacing: .16em; text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 22px; height: 1px; background: currentColor; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; letter-spacing: -.055em; }
+    h2 { font-size: clamp(2.4rem, 5vw, 4.5rem); line-height: 1.02; margin: 18px 0; }
+    .section-intro { max-width: 570px; color: var(--muted); line-height: 1.75; }
+    .accent { color: var(--accent); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+      min-height: 52px; padding: 0 22px; border: 1px solid var(--line);
+      border-radius: 999px; color: var(--text); background: transparent;
+      cursor: pointer; transition: background .25s, color .25s, border-color .25s;
+    }
+    .btn.primary { color: #14180e; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+    .btn:hover { color: #14180e; background: var(--accent); border-color: var(--accent); }
+    .btn.primary:hover { background: var(--accent-2); }
+    .arrow { font-size: 1.15rem; transition: transform .25s; }
+    .btn:hover .arrow { transform: translate(3px,-3px); }
+
+    /* Loader */
+    .loader {
+      position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center;
+      background: #090a0d; color: #f3f4f6;
+    }
+    .loader-inner { width: min(390px, 80vw); }
+    .loader-brand { font: 700 1.2rem "Space Grotesk", sans-serif; letter-spacing: .2em; }
+    .loader-brand span { color: var(--accent); }
+    .loader-track { height: 2px; margin-top: 28px; background: #292b30; overflow: hidden; }
+    .loader-bar { height: 100%; width: 0; background: var(--accent); }
+    .loader-note { color: #8d929c; font-size: .75rem; margin-top: 12px; }
+
+    /* Background effects and navigation */
+    #particles-js { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .48; }
+    #sparkles { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+    .spark {
+      position: absolute; width: 3px; height: 3px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 12px 2px var(--accent);
+      animation: twinkle var(--duration, 4s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s); opacity: 0;
+    }
+    @keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.4); } 50% { opacity: .9; transform: scale(1.3); } }
+    .site-header {
+      position: fixed; z-index: 100; inset: 0 0 auto; border-bottom: 1px solid transparent;
+      background: var(--header-bg); backdrop-filter: blur(18px); transition: border-color .3s;
+    }
+    .site-header.scrolled { border-color: var(--line); }
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .logo { font: 700 1.35rem "Space Grotesk", sans-serif; letter-spacing: .13em; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 30px; color: var(--muted); font-size: .9rem; }
+    .nav-links a { transition: color .2s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+      color: var(--text); background: transparent; border: 1px solid var(--line); cursor: pointer;
+    }
+    .menu-btn { display: none; }
+
+    /* Hero */
+    main, footer { position: relative; z-index: 2; }
+    .hero {
+      min-height: 780px; height: min(920px, 100svh); display: flex; align-items: center;
+      padding-top: 76px; position: relative; overflow: hidden;
+    }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .9; }
+    .hero::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--bg) 2%, color-mix(in srgb, var(--bg) 76%, transparent) 48%, transparent 100%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 3; max-width: 700px; padding: 80px 0; }
+    .hero h1 { font-size: clamp(3.8rem, 9.3vw, 8rem); line-height: .91; margin: 24px 0; }
+    .hero-copy { max-width: 480px; color: var(--muted); line-height: 1.75; font-size: 1.05rem; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .hero-meta { display: flex; align-items: center; gap: 14px; margin-top: 48px; color: var(--muted); font-size: .8rem; }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+    .hero-scroll { position: absolute; right: 0; bottom: 42px; color: var(--muted); font-size: .75rem; letter-spacing: .13em; text-transform: uppercase; writing-mode: vertical-rl; }
+
+    /* Marquee */
+    .marquee { overflow: hidden; border-block: 1px solid var(--line); padding: 18px 0; }
+    .marquee-track { display: flex; width: max-content; animation: marquee 26s linear infinite; }
+    .marquee-item { display: flex; align-items: center; gap: 24px; padding: 0 24px; color: var(--muted); font: 600 .85rem "Space Grotesk", sans-serif; letter-spacing: .14em; }
+    .marquee-item b { color: var(--accent); font-size: 1rem; }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* Feature cards */
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 48px; }
+    .section-heading > div { max-width: 670px; }
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature-card {
+      position: relative; min-height: 360px; padding: 28px; border-radius: var(--radius);
+      overflow: hidden; border: 1px solid var(--line); background: var(--surface);
+      transform-style: preserve-3d; transition: border-color .3s, background .3s;
+    }
+    .feature-card:hover { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+    .feature-card img {
+      position: absolute; inset: 0; height: 100%; object-fit: cover; opacity: .42;
+      transition: transform .7s, opacity .4s;
+    }
+    .feature-card:hover img { transform: scale(1.07); opacity: .55; }
+    .feature-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 10%, var(--surface) 100%); opacity: .9; }
+    .feature-card > *:not(img) { position: relative; z-index: 1; }
+    .card-number { color: var(--accent); font: 600 .8rem "Space Grotesk", sans-serif; }
+    .feature-card h3 { position: absolute !important; bottom: 60px; left: 28px; font-size: 1.65rem; }
+    .feature-card p { position: absolute !important; bottom: 24px; left: 28px; right: 28px; margin: 0; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+
+    /* Image feature */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
+    .image-frame { position: relative; min-height: 520px; border-radius: var(--radius); overflow: hidden; }
+    .image-frame img { position: absolute; inset: 0; height: 100%; object-fit: cover; }
+    .image-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 40%, rgba(0,0,0,.4)); }
+    .image-label { position: absolute; z-index: 1; left: 24px; bottom: 24px; color: white; }
+    .image-label strong { display: block; font: 600 1.15rem "Space Grotesk", sans-serif; }
+    .image-label span { color: rgba(255,255,255,.7); font-size: .85rem; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 38px; }
+    .stat { border-top: 1px solid var(--line); padding-top: 18px; }
+    .stat strong { display: block; font: 600 2rem "Space Grotesk", sans-serif; }
+    .stat span { color: var(--muted); font-size: .82rem; }
+
+    /* Showcase / Swiper */
+    .showcase-section { overflow: hidden; }
+    .showcase-swiper { padding: 12px 4px 54px; }
+    .showcase-card { position: relative; height: 460px; border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+    .showcase-card img { height: 100%; object-fit: cover; transition: transform .7s; }
+    .showcase-card:hover img { transform: scale(1.06); }
+    .showcase-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.82), transparent 66%); }
+    .showcase-caption { position: absolute; z-index: 1; inset: auto 24px 24px; color: white; }
+    .showcase-caption small { color: var(--accent); letter-spacing: .1em; text-transform: uppercase; }
+    .showcase-caption h3 { margin: 8px 0 0; font-size: 1.5rem; }
+    .play-button {
+      position: absolute; z-index: 2; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 64px; height: 64px; display: grid; place-items: center; color: #171a11;
+      background: var(--accent); border: 0; border-radius: 50%; font-size: 1.2rem; cursor: pointer;
+      box-shadow: 0 0 0 12px rgba(196,241,105,.18); transition: transform .25s;
+    }
+    .play-button:hover { transform: translate(-50%,-50%) scale(1.1); }
+    .swiper-pagination-bullet { background: var(--muted); }
+    .swiper-pagination-bullet-active { background: var(--accent); }
+
+    /* Quote, CTA and footer */
+    .quote-box {
+      padding: clamp(32px, 7vw, 80px); border: 1px solid var(--line);
+      border-radius: var(--radius); background: var(--surface); text-align: center;
+    }
+    .quote-box blockquote { max-width: 850px; margin: 24px auto; font: 500 clamp(1.8rem, 4.5vw, 3.8rem)/1.15 "Space Grotesk", sans-serif; letter-spacing: -.05em; }
+    .quote-box cite { color: var(--muted); font-style: normal; font-size: .9rem; }
+    .cta {
+      position: relative; overflow: hidden; padding: 80px 30px; border-radius: var(--radius);
+      text-align: center; background: var(--accent); color: #15190e;
+    }
+    .cta::before, .cta::after {
+      content: ""; position: absolute; width: 220px; height: 220px; border-radius: 50%;
+      border: 1px solid rgba(20,30,10,.2);
+    }
+    .cta::before { left: -60px; top: -100px; }
+    .cta::after { right: -40px; bottom: -130px; width: 320px; height: 320px; }
+    .cta h2 { position: relative; z-index: 1; max-width: 750px; margin: 0 auto 24px; }
+    .cta .btn { position: relative; z-index: 1; color: #fff; background: #171a11; border-color: #171a11; }
+    footer { border-top: 1px solid var(--line); padding: 42px 0; }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; color: var(--muted); font-size: .85rem; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* Video modal and page transition */
+    .video-dialog {
+      width: min(900px, calc(100% - 30px)); padding: 0; border: 1px solid var(--line);
+      border-radius: 16px; background: #090a0d; color: white;
+    }
+    .video-dialog::backdrop { background: rgba(0,0,0,.82); backdrop-filter: blur(8px); }
+    .video-dialog video { display: block; width: 100%; max-height: 75vh; }
+    .dialog-close { display: block; margin: 10px 12px 12px auto; padding: 8px 14px; border: 1px solid #444; border-radius: 99px; color: white; background: transparent; cursor: pointer; }
+    #page-transition { position: fixed; z-index: 9998; inset: 0; background: var(--accent); transform: scaleY(0); transform-origin: bottom; pointer-events: none; }
+
+    /* Cursor */
+    .cursor-dot, .cursor-ring { position: fixed; z-index: 9997; left: 0; top: 0; border-radius: 50%; pointer-events: none; transform: translate(-50%,-50%); }
+    .cursor-dot { width: 6px; height: 6px; background: var(--accent); }
+    .cursor-ring { width: 32px; height: 32px; border: 1px solid var(--accent); transition: width .2s, height .2s, background .2s; }
+    .cursor-ring.hovering { width: 54px; height: 54px; background: rgba(196,241,105,.12); }
+    .reveal { opacity: 0; transform: translateY(28px); }
+
+    @media (pointer: coarse) { .cursor-dot, .cursor-ring { display: none; } }
+    @media (max-width: 850px) {
+      .nav-links {
+        position: absolute; top: 76px; left: 0; right: 0; display: none; padding: 24px;
+        background: var(--bg); border-bottom: 1px solid var(--line); flex-direction: column; align-items: flex-start;
+      }
+      .nav-links.open { display: flex; }
+      .menu-btn { display: grid; }
+      .nav-actions .nav-cta { display: none; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .split { gap: 36px; }
+    }
+    @media (max-width: 620px) {
+      .wrap { width: min(var(--page-width), calc(100% - 32px)); }
+      .section { padding: 82px 0; }
+      .hero { min-height: 710px; height: 92svh; }
+      .hero::after { background: linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 68%, transparent) 100%); }
+      .hero h1 { font-size: clamp(3.5rem, 17vw, 6rem); }
+      .section-heading { align-items: flex-start; flex-direction: column; }
+      .card-grid, .split { grid-template-columns: 1fr; }
+      .feature-card { min-height: 330px; }
+      .image-frame { min-height: 400px; }
+      .split .image-frame { order: 2; }
+      .showcase-card { height: 390px; }
+      .footer-row { align-items: flex-start; flex-direction: column; }
+      .hero-scroll { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+
+<body class="loading">
+  <div class="loader" id="loader" aria-label="Loading website">
+    <div class="loader-inner">
+      <div class="loader-brand">NOVA<span>®</span></div>
+      <div class="loader-track"><div class="loader-bar" id="loader-bar"></div></div>
+      <div class="loader-note" id="loader-note">Preparing something brilliant…</div>
+    </div>
+  </div>
+
+  <div id="page-transition"></div>
+  <div id="particles-js"></div>
+  <div id="sparkles" aria-hidden="true"></div>
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+
+  <header class="site-header" id="header">
+    <nav class="nav wrap" aria-label="Main navigation">
+      <a class="logo magnetic" href="#home" aria-label="NOVA home">NOVA<span>®</span></a>
+      <div class="nav-links" id="nav-links">
+        <a href="#vision">Our vision</a>
+        <a href="#technology">Technology</a>
+        <a href="#stories">Stories</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="theme-toggle" aria-label="Toggle light and dark mode">☼</button>
+        <a class="btn primary nav-cta magnetic" href="#contact">Let’s talk <span class="arrow">↗</span></a>
+        <button class="icon-btn menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="wrap">
+        <div class="hero-content">
+          <span class="eyebrow reveal">A brighter kind of tomorrow</span>
+          <h1 class="reveal">Future<br />looks <span class="accent">good.</span></h1>
+          <p class="hero-copy reveal">We bring ambitious ideas to life with thoughtful technology, bold design, and a little bit of wonder.</p>
+          <div class="hero-buttons reveal">
+            <a class="btn primary magnetic" href="#vision">Explore the vision <span class="arrow">↗</span></a>
+            <a class="btn magnetic" href="#stories">See what’s possible <span class="arrow">↓</span></a>
+          </div>
+          <div class="hero-meta reveal"><span class="live-dot"></span> Building a more human digital world</div>
+        </div>
+      </div>
+      <div class="hero-scroll">Scroll to explore ↓</div>
+    </section>
+
+    <div class="marquee" aria-label="Ideas in motion">
+      <div class="marquee-track">
+        <div class="marquee-item">HUMAN-CENTERED TECH <b>✳</b> BOLD IDEAS <b>✳</b> BETTER TOMORROWS <b>✳</b> DIGITAL WONDER <b>✳</b></div>
+        <div class="marquee-item">HUMAN-CENTERED TECH <b>✳</b> BOLD IDEAS <b>✳</b> BETTER TOMORROWS <b>✳</b> DIGITAL WONDER <b>✳</b></div>
+      </div>
+    </div>
+
+    <section class="section" id="vision">
+      <div class="wrap">
+        <div class="section-heading reveal">
+          <div>
+            <span class="eyebrow">Ideas into impact</span>
+            <h2>Modern life deserves <span class="accent">better tech.</span></h2>
+            <p class="section-intro">The future isn’t something we wait for. It’s something we make—one useful, delightful, and meaningful idea at a time.</p>
+          </div>
+          <a class="btn magnetic" href="#technology">Discover our approach <span class="arrow">↗</span></a>
+        </div>
+        <div class="card-grid">
+          <article class="feature-card tilt-card reveal">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1000&q=85" alt="Close-up of an electronic circuit board" loading="lazy" />
+            <span class="card-number">01 / THINK</span>
+            <h3>Ideas with purpose</h3>
+            <p>We start with real people and real needs—not technology for technology’s sake.</p>
+          </article>
+          <article class="feature-card tilt-card reveal">
+            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1000&q=85" alt="Team collaborating around a laptop" loading="lazy" />
+            <span class="card-number">02 / CREATE</span>
+            <h3>Design that feels right</h3>
+            <p>Intuitive, inclusive experiences that make complicated things feel simple.</p>
+          </article>
+          <article class="feature-card tilt-card reveal">
+            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=85" alt="Glowing digital globe at night" loading="lazy" />
+            <span class="card-number">03 / GROW</span>
+            <h3>Built for what’s next</h3>
+            <p>Flexible foundations to help good ideas adapt, scale, and keep getting better.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="technology">
+      <div class="wrap split">
+        <div class="image-frame reveal" data-parallax>
+          <img src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1200&q=85" alt="Immersive digital art installation" loading="lazy" />
+          <div class="image-label"><strong>Technology, with a human touch.</strong><span>Curiosity meets craft.</span></div>
+        </div>
+        <div class="reveal">
+          <span class="eyebrow">The NOVA approach</span>
+          <h2>Make room for <span class="accent">what if.</span></h2>
+          <p class="section-intro">We blend emerging technology and thoughtful design to turn “what if?” into something you can experience. The result: digital products that feel less like tools and more like a natural part of life.</p>
+          <div class="stat-grid">
+            <div class="stat"><strong><span data-count="12">0</span>+</strong><span>Years looking ahead</span></div>
+            <div class="stat"><strong><span data-count="48">0</span></strong><span>Ideas brought to life</span></div>
+            <div class="stat"><strong><span data-count="9">0</span></strong><span>Creative disciplines</span></div>
+            <div class="stat"><strong>∞</strong><span>Ways to imagine</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section showcase-section" id="stories">
+      <div class="wrap">
+        <div class="section-heading reveal">
+          <div>
+            <span class="eyebrow">Signals from tomorrow</span>
+            <h2>Explore the <span class="accent">possibilities.</span></h2>
+            <p class="section-intro">A few glimpses of the ideas, experiences, and technologies shaping what comes next.</p>
+          </div>
+          <div class="swiper-controls">
+            <button class="icon-btn swiper-prev" aria-label="Previous story">←</button>
+            <button class="icon-btn swiper-next" aria-label="Next story">→</button>
+          </div>
+        </div>
+
+        <div class="swiper showcase-swiper reveal">
+          <div class="swiper-wrapper">
+            <article class="swiper-slide showcase-card">
+              <img src="https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1200&q=85" alt="Light-filled interactive art installation" loading="lazy" />
+              <button class="play-button" data-video aria-label="Play future of creativity film">▶</button>
+              <div class="showcase-caption"><small>01 / New perspectives</small><h3>The future of creativity</h3></div>
+            </article>
+            <article class="swiper-slide showcase-card">
+              <img src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=85" alt="Misty green mountains at sunrise" loading="lazy" />
+              <button class="play-button" data-video aria-label="Play technology and nature film">▶</button>
+              <div class="showcase-caption"><small>02 / Living systems</small><h3>Technology meets nature</h3></div>
+            </article>
+            <article class="swiper-slide showcase-card">
+              <img src="https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=85" alt="Starry night sky over mountains" loading="lazy" />
+              <button class="play-button" data-video aria-label="Play beyond the horizon film">▶</button>
+              <div class="showcase-caption"><small>03 / Farther horizons</small><h3>Beyond the expected</h3></div>
+            </article>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="quote-box reveal">
+          <span class="eyebrow">A thought for tomorrow</span>
+          <blockquote>“The best technology doesn’t ask for your attention. It gives you more room for what matters.”</blockquote>
+          <cite>Our north star at NOVA</cite>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="wrap">
+        <div class="cta reveal">
+          <h2>Got a big idea? Let’s make it real.</h2>
+          <a class="btn magnetic" href="mailto:hello@example.com">Start a conversation <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <a class="logo" href="#home">NOVA<span>®</span></a>
+      <span>© <span id="year"></span> NOVA Studio. Made for tomorrow.</span>
+      <div class="footer-links"><a href="#vision">Vision</a><a href="#technology">Technology</a><a href="#contact">Contact</a></div>
+    </div>
+  </footer>
+
+  <dialog class="video-dialog" id="video-dialog">
+    <button class="dialog-close" id="dialog-close">Close ✕</button>
+    <video id="modal-video" controls playsinline preload="none">
+      <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4" />
+      Sorry, your browser does not support embedded videos.
+    </video>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+  <script type="module">
+    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Premium preloader
+    const loaderBar = $("#loader-bar");
+    const loaderNote = $("#loader-note");
+    const loadingMessages = ["Preparing something brilliant…", "Tuning the future…", "Almost there…"];
+    let messageIndex = 0;
+    const messageTimer = setInterval(() => {
+      messageIndex = (messageIndex + 1) % loadingMessages.length;
+      loaderNote.textContent = loadingMessages[messageIndex];
+    }, 650);
+
+    window.addEventListener("load", () => {
+      clearInterval(messageTimer);
+      const intro = gsap.timeline({
+        onComplete() {
+          $("#loader").remove();
+          document.body.classList.remove("loading");
+          startIntro();
+        }
+      });
+      intro.to(loaderBar, { width: "100%", duration: .6, ease: "power2.inOut" })
+        .to(".loader-inner", { y: -20, opacity: 0, duration: .35 })
+        .to("#loader", { yPercent: -100, duration: .75, ease: "power4.inOut" });
+    });
+
+    // Smooth scrolling
+    let lenis;
+    if (!reducedMotion && window.Lenis) {
+      lenis = new Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: .9 });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    // Intro and scroll reveals
+    gsap.registerPlugin(ScrollTrigger);
+    function startIntro() {
+      gsap.timeline({ defaults: { ease: "power3.out" } })
+        .from(".hero-content .reveal", { y: 30, opacity: 0, duration: .8, stagger: .13 });
+    }
+    $$(".reveal:not(.hero-content .reveal)").forEach((el) => {
+      gsap.to(el, {
+        scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        y: 0, opacity: 1, duration: .8, ease: "power3.out"
+      });
+    });
+
+    // Sparkles
+    const sparkleLayer = $("#sparkles");
+    for (let i = 0; i < 38; i++) {
+      const spark = document.createElement("i");
+      spark.className = "spark";
+      spark.style.left = `${Math.random() * 100}%`;
+      spark.style.top = `${Math.random() * 100}%`;
+      spark.style.setProperty("--duration", `${2.5 + Math.random() * 5}s`);
+      spark.style.setProperty("--delay", `${Math.random() * 5}s`);
+      sparkleLayer.appendChild(spark);
+    }
+
+    // Subtle particle background
+    if (window.particlesJS) {
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 42, density: { enable: true, value_area: 950 } },
+          color: { value: "#c4f169" },
+          shape: { type: "circle" },
+          opacity: { value: .22, random: true },
+          size: { value: 2, random: true },
+          line_linked: { enable: true, distance: 140, color: "#c4f169", opacity: .12, width: 1 },
+          move: { enable: true, speed: .65, direction: "none", random: true, out_mode: "out" }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: false }, resize: true },
+          modes: { grab: { distance: 140, line_linked: { opacity: .25 } } }
+        },
+        retina_detect: true
+      });
+    }
+
+    // Three.js 3D hero
+    const canvas = $("#hero-canvas");
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, .1, 100);
+    camera.position.z = 8;
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    const orbGroup = new THREE.Group();
+    scene.add(orbGroup);
+
+    const orb = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.55, 2),
+      new THREE.MeshBasicMaterial({ color: 0xc4f169, wireframe: true, transparent: true, opacity: .55 })
+    );
+    orbGroup.add(orb);
+
+    const innerOrb = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.12, 1),
+      new THREE.MeshBasicMaterial({ color: 0xa2d84f, wireframe: true, transparent: true, opacity: .2 })
+    );
+    orbGroup.add(innerOrb);
+
+    const starGeometry = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(500 * 3);
+    for (let i = 0; i < 500; i++) {
+      starPositions[i * 3] = (Math.random() - .5) * 16;
+      starPositions[i * 3 + 1] = (Math.random() - .5) * 10;
+      starPositions[i * 3 + 2] = (Math.random() - .5) * 10;
+    }
+    starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xc4f169, size: .018, transparent: true, opacity: .7 }));
+    scene.add(stars);
+
+    let pointerX = 0, pointerY = 0;
+    window.addEventListener("pointermove", (event) => {
+      pointerX = (event.clientX / innerWidth - .5) * 2;
+      pointerY = (event.clientY / innerHeight - .5) * 2;
+    });
+    function render() {
+      requestAnimationFrame(render);
+      if (!reducedMotion) {
+        orb.rotation.y += .002;
+        orb.rotation.x += .001;
+        innerOrb.rotation.y -= .0015;
+        stars.rotation.y += .00015;
+        orbGroup.rotation.y += (pointerX * .12 - orbGroup.rotation.y) * .025;
+        orbGroup.rotation.x += (-pointerY * .1 - orbGroup.rotation.x) * .025;
+      }
+      const isSmall = innerWidth < 700;
+      orbGroup.position.set(isSmall ? 1.8 : 2.4, .1, 0);
+      orbGroup.scale.setScalar(isSmall ? .72 : 1);
+      renderer.render(scene, camera);
+    }
+    render();
+
+    function resizeScene() {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    }
+    window.addEventListener("resize", resizeScene);
+
+    // Swiper video/story slider
+    const swiper = new Swiper(".showcase-swiper", {
+      slidesPerView: 1.15, spaceBetween: 16, loop: true,
+      pagination: { el: ".swiper-pagination", clickable: true },
+      navigation: { nextEl: ".swiper-next", prevEl: ".swiper-prev" },
+      breakpoints: { 700: { slidesPerView: 2, spaceBetween: 20 }, 1000: { slidesPerView: 2.4, spaceBetween: 22 } }
+    });
+
+    // Modal video
+    const dialog = $("#video-dialog");
+    const modalVideo = $("#modal-video");
+    $$("[data-video]").forEach((button) => button.addEventListener("click", async () => {
+      dialog.showModal();
+      try { await modalVideo.play(); } catch { /* User can press play if autoplay is blocked. */ }
+    }));
+    function closeVideo() {
+      modalVideo.pause();
+      modalVideo.currentTime = 0;
+      dialog.close();
+    }
+    $("#dialog-close").addEventListener("click", closeVideo);
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) closeVideo(); });
+    dialog.addEventListener("close", () => modalVideo.pause());
+
+    // Dark / light mode
+    const themeToggle = $("#theme-toggle");
+    const savedTheme = localStorage.getItem("nova-theme");
+    if (savedTheme === "light") document.body.classList.add("light");
+    themeToggle.textContent = document.body.classList.contains("light") ? "☾" : "☼";
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      const light = document.body.classList.contains("light");
+      themeToggle.textContent = light ? "☾" : "☼";
+      localStorage.setItem("nova-theme", light ? "light" : "dark");
+      document.querySelector('meta[name="theme-color"]').content = light ? "#f4f4ef" : "#090a0d";
+    });
+
+    // Mobile menu
+    const menuButton = $("#menu-btn");
+    const navLinks = $("#nav-links");
+    menuButton.addEventListener("click", () => {
+      const open = navLinks.classList.toggle("open");
+      menuButton.setAttribute("aria-expanded", String(open));
+      menuButton.textContent = open ? "✕" : "☰";
+    });
+    $$("#nav-links a").forEach((link) => link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuButton.setAttribute("aria-expanded", "false");
+      menuButton.textContent = "☰";
+    }));
+
+    // Header, parallax and stats
+    window.addEventListener("scroll", () => $("#header").classList.toggle("scrolled", scrollY > 20), { passive: true });
+    if (!reducedMotion) {
+      $$("[data-parallax]").forEach((el) => {
+        gsap.to(el.querySelector("img"), {
+          yPercent: 10, ease: "none",
+          scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true }
+        });
+      });
+    }
+    $$("[data-count]").forEach((el) => {
+      const target = Number(el.dataset.count);
+      ScrollTrigger.create({
+        trigger: el, start: "top 90%", once: true,
+        onEnter: () => gsap.to({ value: 0 }, {
+          value: target, duration: 1.5, ease: "power2.out",
+          onUpdate() { el.textContent = Math.round(this.targets()[0].value); }
+        })
+      });
+    });
+
+    // 3D tilt cards and magnetic buttons
+    if (matchMedia("(pointer:fine)").matches && !reducedMotion) {
+      $$(".tilt-card").forEach((card) => {
+        card.addEventListener("pointermove", (event) => {
+          const rect = card.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - .5;
+          const y = (event.clientY - rect.top) / rect.height - .5;
+          gsap.to(card, { rotateY: x * 7, rotateX: -y * 7, duration: .3, transformPerspective: 800, transformOrigin: "center" });
+        });
+        card.addEventListener("pointerleave", () => gsap.to(card, { rotateX: 0, rotateY: 0, duration: .5 }));
+      });
+      $$(".magnetic").forEach((button) => {
+        button.addEventListener("pointermove", (event) => {
+          const rect = button.getBoundingClientRect();
+          gsap.to(button, { x: (event.clientX - rect.left - rect.width / 2) * .12, y: (event.clientY - rect.top - rect.height / 2) * .15, duration: .3 });
+        });
+        button.addEventListener("pointerleave", () => gsap.to(button, { x: 0, y: 0, duration: .5, ease: "elastic.out(1,.4)" }));
+      });
+    }
+
+    // Custom cursor
+    if (matchMedia("(pointer:fine)").matches) {
+      const dot = $(".cursor-dot"), ring = $(".cursor-ring");
+      window.addEventListener("pointermove", (event) => {
+        gsap.to(dot, { x: event.clientX, y: event.clientY, duration: .08 });
+        gsap.to(ring, { x: event.clientX, y: event.clientY, duration: .2 });
+      });
+      $$("a, button").forEach((el) => {
+        el.addEventListener("pointerenter", () => ring.classList.add("hovering"));
+        el.addEventListener("pointerleave", () => ring.classList.remove("hovering"));
+      });
+    }
+
+    // Transition overlay for in-page navigation
+    $$('a[href^="#"]').forEach((link) => link.addEventListener("click", (event) => {
+      const target = $(link.getAttribute("href"));
+      if (!target) return;
+      event.preventDefault();
+      gsap.timeline()
+        .to("#page-transition", { scaleY: 1, transformOrigin: "bottom", duration: .25, ease: "power2.in" })
+        .add(() => {
+          target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
+        })
+        .to("#page-transition", { scaleY: 0, transformOrigin: "top", duration: .45, ease: "power3.out", delay: .12 });
+    }));
+
+    $("#year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

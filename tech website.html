@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NOVA — Modern Tech Startup</title>
+<meta name="description" content="NOVA builds AI, cloud and product experiences for the next generation of companies." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<style>
+/* ============ THEME ============ */
+:root{
+  --bg:#05060f; --bg2:#0b0d1f; --card:rgba(255,255,255,.04); --border:rgba(255,255,255,.1);
+  --text:#eef0ff; --muted:#9aa0c7; --a1:#7c5cff; --a2:#00e0ff; --a3:#ff4fd8;
+  --grad:linear-gradient(120deg,var(--a1),var(--a2) 55%,var(--a3));
+  --shadow:0 20px 60px rgba(124,92,255,.25);
+}
+[data-theme="light"]{
+  --bg:#f5f6ff; --bg2:#ffffff; --card:rgba(255,255,255,.7); --border:rgba(20,20,60,.12);
+  --text:#12122b; --muted:#585e85; --a1:#5b3df5; --a2:#0aa8d6; --a3:#e0309f;
+  --shadow:0 20px 60px rgba(91,61,245,.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .5s,color .5s;line-height:1.6}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;line-height:1.1;letter-spacing:-.02em}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.container{width:min(1200px,92%);margin:auto}
+section{position:relative;padding:130px 0;z-index:2}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:shine 6s linear infinite}
+@keyframes shine{to{background-position:200% center}}
+.tag{display:inline-flex;gap:8px;align-items:center;padding:8px 16px;border:1px solid var(--border);border-radius:99px;background:var(--card);backdrop-filter:blur(10px);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--a2);box-shadow:0 0 12px var(--a2);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.3;transform:scale(.7)}}
+.sec-head{max-width:760px;margin-bottom:70px}
+.sec-head h2{font-size:clamp(2.2rem,5vw,4rem);margin:18px 0}
+.sec-head p{color:var(--muted);font-size:1.1rem}
+.center{text-align:center;margin-inline:auto}
+
+/* ============ PRELOADER ============ */
+#preloader{position:fixed;inset:0;z-index:99999;background:#04050c;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;overflow:hidden}
+#preloader canvas{position:absolute;inset:0}
+.loader-orb{position:relative;width:130px;height:130px;z-index:2}
+.loader-orb i{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:#7c5cff;animation:spin 1.2s linear infinite}
+.loader-orb i:nth-child(2){inset:14px;border-top-color:#00e0ff;animation-duration:1.8s;animation-direction:reverse}
+.loader-orb i:nth-child(3){inset:28px;border-top-color:#ff4fd8;animation-duration:2.4s}
+.loader-orb b{position:absolute;inset:44px;border-radius:50%;background:var(--grad);filter:blur(1px);animation:pulse 1.6s infinite;box-shadow:0 0 40px #7c5cff}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{z-index:2;text-align:center;color:#fff}
+.loader-text h1{font-size:2.4rem;letter-spacing:.4em;padding-left:.4em}
+.loader-count{font-family:'Space Grotesk';font-size:4.5rem;font-weight:700;margin-top:6px}
+.loader-bar{z-index:2;width:min(320px,70vw);height:3px;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden}
+.loader-bar span{display:block;height:100%;width:0;background:var(--grad);box-shadow:0 0 14px #00e0ff}
+.loader-panel{position:absolute;left:0;width:100%;height:50%;background:#04050c;z-index:3}
+
+/* ============ PAGE TRANSITION ============ */
+.curtain{position:fixed;inset:0;z-index:9990;pointer-events:none;display:flex}
+.curtain div{flex:1;background:linear-gradient(180deg,var(--a1),var(--a3));transform:scaleY(0);transform-origin:bottom}
+.curtain div:nth-child(even){background:linear-gradient(180deg,var(--a2),var(--a1))}
+
+/* ============ CURSOR ============ */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%)}
+.cursor-dot{width:8px;height:8px;background:var(--a2);box-shadow:0 0 14px var(--a2)}
+.cursor-ring{width:42px;height:42px;border:1.5px solid var(--a1);transition:width .3s,height .3s,background .3s,border-color .3s;mix-blend-mode:normal}
+.cursor-ring.hover{width:84px;height:84px;background:rgba(124,92,255,.18);border-color:var(--a2)}
+.cursor-ring.view::after{content:"DRAG";position:absolute;inset:0;display:grid;place-items:center;font-size:.7rem;font-weight:600;letter-spacing:.1em}
+@media (hover:none),(max-width:900px){.cursor-dot,.cursor-ring{display:none}}
+@media (hover:hover) and (min-width:901px){body,a,button{cursor:none}}
+
+/* ============ BACKGROUND FX ============ */
+#particles-js{position:fixed;inset:0;z-index:0;pointer-events:none}
+.glow{position:fixed;width:520px;height:520px;border-radius:50%;filter:blur(120px);opacity:.28;z-index:0;pointer-events:none}
+.glow.g1{background:var(--a1);top:-120px;left:-120px}
+.glow.g2{background:var(--a3);bottom:-160px;right:-120px;opacity:.18}
+.sparkles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.sparkles span{position:absolute;width:var(--s);height:var(--s);background:radial-gradient(circle,#fff,transparent 70%);border-radius:50%;opacity:0;animation:twinkle var(--d) ease-in-out infinite;animation-delay:var(--dl);box-shadow:0 0 10px var(--a2)}
+.sparkles span::before,.sparkles span::after{content:"";position:absolute;left:50%;top:50%;background:#fff;transform:translate(-50%,-50%)}
+.sparkles span::before{width:300%;height:1px}.sparkles span::after{width:1px;height:300%}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.2) rotate(0)}50%{opacity:1;transform:scale(1) rotate(90deg)}}
+[data-theme="light"] .sparkles span{background:radial-gradient(circle,var(--a1),transparent 70%);box-shadow:0 0 10px var(--a1)}
+[data-theme="light"] .sparkles span::before,[data-theme="light"] .sparkles span::after{background:var(--a1)}
+
+/* ============ NAV ============ */
+header{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:18px 0;transition:.4s}
+header.scrolled{padding:10px 0;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+nav{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:1.5rem;letter-spacing:.08em}
+.logo i{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;box-shadow:0 0 25px var(--a1);font-style:normal;color:#fff;font-size:1.1rem}
+.nav-links{display:flex;gap:34px;list-style:none}
+.nav-links a{position:relative;font-size:.95rem;color:var(--muted);transition:.3s}
+.nav-links a::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:0;background:var(--grad);transition:.3s}
+.nav-links a:hover{color:var(--text)}.nav-links a:hover::after{width:100%}
+.nav-right{display:flex;gap:14px;align-items:center}
+.theme-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.15rem;display:grid;place-items:center;backdrop-filter:blur(10px);transition:.3s}
+.theme-btn:hover{box-shadow:0 0 20px var(--a1);transform:rotate(25deg)}
+.burger{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.2rem}
+
+/* ============ BUTTONS ============ */
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:99px;border:0;font-weight:600;font-size:1rem;color:#fff;background:var(--grad);background-size:200% auto;overflow:hidden;box-shadow:var(--shadow);transition:background-position .5s,box-shadow .3s;font-family:inherit}
+.btn:hover{background-position:right center;box-shadow:0 0 40px var(--a1)}
+.btn::before{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:sweep 3.2s infinite}
+@keyframes sweep{to{left:160%}}
+.btn.ghost{background:var(--card);border:1px solid var(--border);color:var(--text);box-shadow:none;backdrop-filter:blur(10px)}
+.btn.ghost:hover{border-color:var(--a2);box-shadow:0 0 28px rgba(0,224,255,.35)}
+.btn.sm{padding:11px 22px;font-size:.9rem}
+
+/* ============ HERO ============ */
+.hero{min-height:100vh;display:flex;align-items:center;padding:140px 0 80px;overflow:hidden}
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.hero-content{position:relative;z-index:3;max-width:760px;pointer-events:none}
+.hero-content>*{pointer-events:auto}
+.hero h1{font-size:clamp(3rem,8vw,6.6rem);margin:26px 0}
+.hero h1 .line{display:block;overflow:hidden}
+.hero h1 .line span{display:inline-block}
+.hero p.lead{font-size:1.2rem;color:var(--muted);max-width:560px}
+.hero-actions{display:flex;gap:16px;margin:38px 0;flex-wrap:wrap}
+.hero-stats{display:flex;gap:44px;flex-wrap:wrap}
+.hero-stats h3{font-size:2rem}.hero-stats p{color:var(--muted);font-size:.9rem}
+.scroll-ind{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.72rem;letter-spacing:.25em;color:var(--muted)}
+.scroll-ind span{width:22px;height:36px;border:2px solid var(--muted);border-radius:12px;position:relative}
+.scroll-ind span::after{content:"";position:absolute;left:50%;top:6px;width:4px;height:8px;border-radius:3px;background:var(--a2);transform:translateX(-50%);animation:wheel 1.6s infinite}
+@keyframes wheel{to{transform:translate(-50%,14px);opacity:0}}
+
+/* ============ MARQUEE ============ */
+.marquee{padding:34px 0;border-block:1px solid var(--border);background:var(--card);backdrop-filter:blur(10px);overflow:hidden;z-index:2;position:relative}
+.marquee-track{display:flex;gap:70px;width:max-content;animation:marq 28s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee-track span{font-family:'Space Grotesk';font-size:1.7rem;font-weight:700;color:var(--muted);white-space:nowrap;transition:.3s}
+.marquee-track span:hover{color:var(--a2);text-shadow:0 0 20px var(--a2)}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* ============ ABOUT ============ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.about-img{position:relative;border-radius:28px;overflow:hidden;aspect-ratio:4/5;border:1px solid var(--border)}
+.about-img img{width:100%;height:120%;object-fit:cover;transition:transform .8s}
+.about-img:hover img{transform:scale(1.07)}
+.about-img::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(124,92,255,.35),transparent 55%)}
+.floating-chip{position:absolute;z-index:3;padding:14px 20px;border-radius:16px;background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--border);font-weight:600;box-shadow:var(--shadow);animation:float 5s ease-in-out infinite}
+.floating-chip.c1{top:8%;right:-28px}.floating-chip.c2{bottom:10%;left:-28px;animation-delay:-2.5s}
+@keyframes float{50%{transform:translateY(-16px)}}
+.about-wrap{position:relative}
+.about-text h2{font-size:clamp(2.2rem,4.5vw,3.6rem);margin:18px 0 24px}
+.about-text p{color:var(--muted);margin-bottom:18px;font-size:1.05rem}
+.checks{list-style:none;margin:26px 0 36px;display:grid;gap:14px}
+.checks li{display:flex;gap:12px;align-items:center}
+.checks li::before{content:"✦";color:var(--a2);text-shadow:0 0 12px var(--a2)}
+
+/* ============ STATS ============ */
+.stats{padding:70px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.stat{padding:38px 24px;text-align:center;border-radius:24px;border:1px solid var(--border);background:var(--card);backdrop-filter:blur(14px)}
+.stat h3{font-size:3.2rem}.stat p{color:var(--muted)}
+
+/* ============ SERVICES (3D TILT) ============ */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;perspective:1200px}
+.tilt{position:relative;border-radius:26px;overflow:hidden;background:var(--card);border:1px solid var(--border);backdrop-filter:blur(14px);transform-style:preserve-3d;will-change:transform;transition:box-shadow .3s,border-color .3s}
+.tilt:hover{box-shadow:var(--shadow);border-color:var(--a1)}
+.tilt .glare{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.22),transparent 55%);opacity:0;transition:opacity .3s;z-index:4}
+.tilt:hover .glare{opacity:1}
+.card-img{height:210px;overflow:hidden;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.tilt:hover .card-img img{transform:scale(1.15) rotate(1.5deg)}
+.card-img::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--bg2),transparent 70%)}
+.card-body{padding:28px;transform:translateZ(50px)}
+.card-body .ico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;background:var(--grad);margin:-56px 0 18px;position:relative;z-index:2;box-shadow:0 10px 30px rgba(124,92,255,.5)}
+.card-body h3{font-size:1.5rem;margin-bottom:10px}
+.card-body p{color:var(--muted);font-size:.97rem}
+.card-body a{display:inline-block;margin-top:18px;font-weight:600;color:var(--a2)}
+.card-body a:hover{letter-spacing:.06em}
+.card-body a{transition:.3s}
+
+/* ============ SHOWCASE (PARALLAX) ============ */
+.showcase{padding:0;overflow:hidden}
+.showcase-inner{position:relative;height:90vh;min-height:560px;display:grid;place-items:center;text-align:center}
+.showcase-bg{position:absolute;inset:-15% 0;background-size:cover;background-position:center}
+.showcase-inner::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,var(--bg),rgba(5,6,15,.55) 30%,rgba(5,6,15,.55) 70%,var(--bg))}
+[data-theme="light"] .showcase-inner::before{background:linear-gradient(180deg,var(--bg),rgba(20,20,70,.55) 30%,rgba(20,20,70,.55) 70%,var(--bg))}
+.showcase-text{position:relative;z-index:3;max-width:900px;color:#fff;padding:0 20px}
+.showcase-text h2{font-size:clamp(2.4rem,6vw,5.2rem);margin-bottom:22px}
+.showcase-text p{color:#d7daf5;font-size:1.15rem;margin-bottom:34px}
+.float-img{position:absolute;z-index:2;width:clamp(120px,16vw,230px);border-radius:20px;border:1px solid rgba(255,255,255,.2);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.float-img.f1{left:6%;top:14%}.float-img.f2{right:7%;bottom:12%}.float-img.f3{right:14%;top:10%;width:clamp(90px,10vw,150px)}
+
+/* ============ PROCESS ============ */
+.process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;position:relative}
+.process-grid::before{content:"";position:absolute;top:44px;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--a1),var(--a2),transparent);opacity:.5}
+.step{text-align:center;padding:0 10px}
+.step .num{width:88px;height:88px;margin:0 auto 24px;border-radius:50%;display:grid;place-items:center;font-family:'Space Grotesk';font-size:1.8rem;font-weight:700;background:var(--bg2);border:2px solid var(--a1);position:relative;z-index:2;transition:.4s;box-shadow:0 0 0 8px var(--bg)}
+.step:hover .num{background:var(--grad);color:#fff;box-shadow:0 0 0 8px var(--bg),0 0 40px var(--a1);transform:scale(1.1) rotate(8deg)}
+.step h3{margin-bottom:10px;font-size:1.3rem}.step p{color:var(--muted);font-size:.95rem}
+
+/* ============ VIDEO SLIDER ============ */
+.video-swiper{padding:30px 0 70px!important;overflow:visible!important}
+.video-swiper .swiper-slide{width:min(760px,80vw);border-radius:28px;overflow:hidden;position:relative;aspect-ratio:16/9;border:1px solid var(--border);transition:.5s;filter:brightness(.45) saturate(.7);transform:scale(.9)}
+.video-swiper .swiper-slide-active{filter:none;transform:scale(1);box-shadow:var(--shadow)}
+.video-swiper video{width:100%;height:100%;object-fit:cover}
+.v-info{position:absolute;left:0;bottom:0;right:0;padding:34px;color:#fff;background:linear-gradient(0deg,rgba(0,0,0,.8),transparent)}
+.v-info h3{font-size:1.6rem}.v-info p{color:#cdd0f0;font-size:.95rem}
+.v-play{position:absolute;top:50%;left:50%;width:84px;height:84px;margin:-42px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.4);color:#fff;font-size:1.6rem;display:grid;place-items:center;transition:.3s;z-index:3}
+.v-play::before{content:"";position:absolute;inset:-10px;border-radius:50%;border:1px solid rgba(255,255,255,.4);animation:ripple 2s infinite}
+@keyframes ripple{to{transform:scale(1.5);opacity:0}}
+.swiper-slide:hover .v-play{background:var(--a1);transform:scale(1.12)}
+.swiper-pagination-bullet{background:var(--muted)!important}.swiper-pagination-bullet-active{background:var(--a2)!important;width:26px!important;border-radius:6px!important}
+.sw-nav{display:flex;gap:14px;justify-content:center;margin-top:10px}
+.sw-nav button{width:54px;height:54px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.2rem;transition:.3s;backdrop-filter:blur(10px)}
+.sw-nav button:hover{background:var(--grad);color:#fff;box-shadow:0 0 24px var(--a1)}
+
+/* ============ PRODUCTS / FEATURES ============ */
+.feat-row{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-bottom:110px}
+.feat-row:last-child{margin-bottom:0}
+.feat-row.rev .feat-media{order:2}
+.feat-media{position:relative;border-radius:28px;overflow:hidden;border:1px solid var(--border);aspect-ratio:4/3;box-shadow:var(--shadow)}
+.feat-media img{width:100%;height:100%;object-fit:cover;transition:transform 1s}
+.feat-media:hover img{transform:scale(1.1)}
+.feat-media::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,92,255,.3),transparent 60%,rgba(0,224,255,.25));mix-blend-mode:overlay}
+.feat-media::before{content:"";position:absolute;top:0;left:-120%;width:50%;height:100%;z-index:3;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);transition:left .9s}
+.feat-media:hover::before{left:160%}
+.feat-text h3{font-size:clamp(1.8rem,3.5vw,2.8rem);margin:16px 0}
+.feat-text p{color:var(--muted);margin-bottom:22px}
+
+/* ============ TEAM ============ */
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
+.member{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:3/4;border:1px solid var(--border)}
+.member img{width:100%;height:100%;object-fit:cover;filter:grayscale(1);transition:.7s}
+.member:hover img{filter:none;transform:scale(1.1)}
+.member .info{position:absolute;left:0;right:0;bottom:0;padding:24px;background:linear-gradient(0deg,rgba(5,6,15,.95),transparent);color:#fff;transform:translateY(46px);transition:.5s}
+.member:hover .info{transform:none}
+.member h4{font-size:1.25rem}.member span{color:var(--a2);font-size:.9rem}
+.member .soc{display:flex;gap:10px;margin-top:12px;opacity:0;transition:.5s .1s}
+.member:hover .soc{opacity:1}
+.soc a{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.14);font-size:.8rem;transition:.3s}
+.soc a:hover{background:var(--a1)}
+
+/* ============ TESTIMONIALS ============ */
+.t-swiper{padding:20px 6px 70px!important}
+.t-card{padding:38px;border-radius:26px;background:var(--card);border:1px solid var(--border);backdrop-filter:blur(14px);height:auto;transition:.4s}
+.t-card:hover{border-color:var(--a2);box-shadow:0 0 40px rgba(0,224,255,.2);transform:translateY(-6px)}
+.stars{color:#ffc857;letter-spacing:4px;margin-bottom:16px;text-shadow:0 0 14px rgba(255,200,87,.6)}
+.t-card p{color:var(--muted);margin-bottom:26px;font-size:1.02rem}
+.t-user{display:flex;gap:14px;align-items:center}
+.t-user img{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid var(--a1)}
+.t-user h4{font-size:1.05rem}.t-user span{font-size:.85rem;color:var(--muted)}
+
+/* ============ PRICING ============ */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:stretch}
+.price{padding:44px 36px;border-radius:28px;background:var(--card);border:1px solid var(--border);backdrop-filter:blur(14px);position:relative;overflow:hidden;transition:.4s}
+.price:hover{transform:translateY(-12px);box-shadow:var(--shadow);border-color:var(--a1)}
+.price.pop{border-color:var(--a1);background:linear-gradient(180deg,rgba(124,92,255,.18),var(--card))}
+.price .badge{position:absolute;top:20px;right:-34px;transform:rotate(40deg);background:var(--grad);color:#fff;padding:5px 42px;font-size:.72rem;font-weight:700;letter-spacing:.1em}
+.price h3{font-size:1.4rem;color:var(--muted)}
+.price .amt{font-family:'Space Grotesk';font-size:3.6rem;font-weight:700;margin:14px 0 24px}
+.price .amt small{font-size:1rem;color:var(--muted);font-weight:400}
+.price ul{list-style:none;display:grid;gap:14px;margin-bottom:34px;color:var(--muted)}
+.price li::before{content:"✓";color:var(--a2);margin-right:10px;font-weight:700}
+.price .btn{width:100%;justify-content:center}
+
+/* ============ CTA ============ */
+.cta-box{position:relative;border-radius:38px;padding:100px 40px;text-align:center;overflow:hidden;background:linear-gradient(130deg,rgba(124,92,255,.35),rgba(0,224,255,.18),rgba(255,79,216,.28));border:1px solid var(--border)}
+.cta-box h2{font-size:clamp(2.4rem,6vw,4.8rem);margin-bottom:20px;position:relative;z-index:2}
+.cta-box p{color:var(--muted);max-width:560px;margin:0 auto 36px;font-size:1.1rem;position:relative;z-index:2}
+.cta-box .btn{position:relative;z-index:2}
+
+/* ============ CONTACT ============ */
+.contact-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:70px}
+.c-info h2{font-size:clamp(2.2rem,4.5vw,3.5rem);margin:18px 0 22px}
+.c-info p{color:var(--muted);margin-bottom:34px}
+.c-item{display:flex;gap:16px;align-items:center;margin-bottom:22px}
+.c-item i{font-style:normal;width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:var(--card);border:1px solid var(--border);font-size:1.2rem;transition:.3s}
+.c-item:hover i{background:var(--grad);transform:rotate(-8deg) scale(1.08)}
+form{padding:44px;border-radius:28px;background:var(--card);border:1px solid var(--border);backdrop-filter:blur(16px);display:grid;gap:18px}
+.field{position:relative}
+.field input,.field textarea{width:100%;padding:20px 18px 10px;border-radius:14px;border:1px solid var(--border);background:transparent;color:var(--text);font:inherit;outline:none;transition:.3s}
+.field textarea{min-height:130px;resize:vertical}
+.field label{position:absolute;left:18px;top:16px;color:var(--muted);transition:.3s;pointer-events:none}
+.field input:focus,.field textarea:focus{border-color:var(--a2);box-shadow:0 0 0 4px rgba(0,224,255,.12)}
+.field input:focus+label,.field input:not(:placeholder-shown)+label,.field textarea:focus+label,.field textarea:not(:placeholder-shown)+label{top:5px;font-size:.72rem;color:var(--a2)}
+
+/* ============ FOOTER ============ */
+footer{position:relative;z-index:2;border-top:1px solid var(--border);padding:90px 0 30px;background:color-mix(in srgb,var(--bg2) 80%,transparent);backdrop-filter:blur(12px)}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.3fr;gap:50px;margin-bottom:60px}
+.foot-grid p{color:var(--muted);margin:18px 0}
+.foot-grid h4{margin-bottom:20px}
+.foot-grid ul{list-style:none;display:grid;gap:12px}
+.foot-grid ul a{color:var(--muted);transition:.3s}.foot-grid ul a:hover{color:var(--a2);padding-left:8px}
+.news{display:flex;border:1px solid var(--border);border-radius:99px;overflow:hidden;background:var(--card)}
+.news input{flex:1;padding:14px 20px;background:transparent;border:0;color:var(--text);outline:none;font:inherit;min-width:0}
+.news button{border:0;padding:0 22px;background:var(--grad);color:#fff;font-weight:600}
+.copy{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:28px;border-top:1px solid var(--border);color:var(--muted);font-size:.9rem}
+.big-word{font-family:'Space Grotesk';font-weight:700;font-size:clamp(5rem,20vw,19rem);text-align:center;line-height:.8;letter-spacing:-.04em;opacity:.07;margin-bottom:30px;user-select:none}
+
+.progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--grad);z-index:2000;box-shadow:0 0 14px var(--a2)}
+.to-top{position:fixed;right:26px;bottom:26px;z-index:900;width:52px;height:52px;border-radius:50%;border:0;background:var(--grad);color:#fff;font-size:1.2rem;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s}
+.to-top.show{opacity:1;pointer-events:auto}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:1000px){
+  .nav-links{position:fixed;inset:0 0 0 auto;width:min(320px,80%);background:var(--bg2);flex-direction:column;justify-content:center;align-items:center;gap:30px;transform:translateX(100%);transition:.5s;border-left:1px solid var(--border);z-index:1100}
+  .nav-links.open{transform:none}
+  .burger{display:block}.nav-right .btn{display:none}
+  .about-grid,.feat-row,.contact-grid{grid-template-columns:1fr;gap:50px}
+  .feat-row.rev .feat-media{order:0}
+  .cards,.price-grid{grid-template-columns:1fr 1fr}
+  .stats-grid,.team-grid,.process-grid{grid-template-columns:1fr 1fr}
+  .process-grid::before{display:none}.process-grid{row-gap:50px}
+  .foot-grid{grid-template-columns:1fr 1fr}
+  .floating-chip.c1{right:10px}.floating-chip.c2{left:10px}
+}
+@media(max-width:640px){
+  section{padding:90px 0}
+  .cards,.price-grid,.team-grid,.stats-grid,.process-grid,.foot-grid{grid-template-columns:1fr}
+  .float-img{display:none}form{padding:26px}.hero-stats{gap:26px}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+
+<body>
+
+<!-- ============ PRELOADER ============ -->
+<div id="preloader">
+  <canvas id="pre-canvas"></canvas>
+  <div class="loader-panel" style="top:0"></div>
+  <div class="loader-panel" style="bottom:0"></div>
+  <div class="loader-orb"><i></i><i></i><i></i><b></b></div>
+  <div class="loader-text">
+    <h1>NOVA</h1>
+    <div class="loader-count"><span id="count">0</span>%</div>
+  </div>
+  <div class="loader-bar"><span id="bar"></span></div>
+</div>
+
+<div class="curtain" id="curtain"><div></div><div></div><div></div><div></div><div></div></div>
+<div class="progress" id="progress"></div>
+<div class="cursor-dot"></div><div class="cursor-ring"></div>
+<div id="particles-js"></div>
+<div class="glow g1"></div><div class="glow g2"></div>
+
+<!-- ============ HEADER ============ -->
+<header id="header">
+  <div class="container">
+    <nav>
+      <a href="#home" class="logo magnetic" data-hover><i>N</i>NOVA</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" data-hover>Home</a></li>
+        <li><a href="#about" data-hover>About</a></li>
+        <li><a href="#services" data-hover>Services</a></li>
+        <li><a href="#work" data-hover>Work</a></li>
+        <li><a href="#team" data-hover>Team</a></li>
+        <li><a href="#pricing" data-hover>Pricing</a></li>
+        <li><a href="#contact" data-hover>Contact</a></li>
+      </ul>
+      <div class="nav-right">
+        <button class="theme-btn magnetic" id="themeBtn" aria-label="Toggle theme" data-hover>🌙</button>
+        <a href="#contact" class="btn sm magnetic" data-hover>Get Started</a>
+        <button class="burger" id="burger" aria-label="Menu">☰</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <canvas id="hero-canvas"></canvas>
+  <div class="sparkles" id="heroSparkles"></div>
+  <div class="container">
+    <div class="hero-content">
+      <span class="tag hero-anim">Next-Gen Tech Startup</span>
+      <h1>
+        <span class="line"><span>We Build the</span></span>
+        <span class="line"><span class="grad-text">Future of Tech</span></span>
+        <span class="line"><span>Today.</span></span>
+      </h1>
+      <p class="lead hero-anim">NOVA is a modern startup crafting AI, cloud and product experiences that help ambitious companies launch faster, scale smarter and shine brighter.</p>
+      <div class="hero-actions hero-anim">
+        <a href="#contact" class="btn magnetic" data-hover>Start Your Project →</a>
+        <a href="#work" class="btn ghost magnetic" data-hover>▶ Watch Showreel</a>
+      </div>
+      <div class="hero-stats hero-anim">
+        <div><h3 class="grad-text">250+</h3><p>Products Launched</p></div>
+        <div><h3 class="grad-text">98%</h3><p>Client Retention</p></div>
+        <div><h3 class="grad-text">40+</h3><p>Global Awards</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-ind"><span></span>SCROLL</div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>✦ ARTIFICIAL INTELLIGENCE</span><span>✦ CLOUD NATIVE</span><span>✦ FINTECH</span><span>✦ WEB3</span><span>✦ CYBERSECURITY</span><span>✦ SAAS</span><span>✦ ROBOTICS</span><span>✦ DATA SCIENCE</span>
+    <span>✦ ARTIFICIAL INTELLIGENCE</span><span>✦ CLOUD NATIVE</span><span>✦ FINTECH</span><span>✦ WEB3</span><span>✦ CYBERSECURITY</span><span>✦ SAAS</span><span>✦ ROBOTICS</span><span>✦ DATA SCIENCE</span>
+  </div>
+</div>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="container about-grid">
+    <div class="about-wrap reveal-left">
+      <div class="about-img">
+        <img class="parallax-img" data-src="photo-1522071820081-009f0129c71c" alt="Team collaborating" />
+      </div>
+      <div class="floating-chip c1">🚀 10x Faster Launch</div>
+      <div class="floating-chip c2">🤖 AI Powered</div>
+    </div>
+    <div class="about-text">
+      <span class="tag reveal">About NOVA</span>
+      <h2 class="split">Where bold ideas meet brilliant engineering.</h2>
+      <p class="reveal">Founded by designers, engineers and dreamers, NOVA turns complex technology into effortless products. We partner with startups and enterprises to build, launch and scale.</p>
+      <p class="reveal">Our product-first mindset, lightning-fast iteration and obsession with detail make every release feel like magic.</p>
+      <ul class="checks reveal">
+        <li>Design-led product engineering</li>
+        <li>AI &amp; machine learning integrations</li>
+        <li>Scalable cloud infrastructure</li>
+      </ul>
+      <a href="#team" class="btn magnetic reveal" data-hover>Meet The Team</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="stats">
+  <div class="container stats-grid">
+    <div class="stat reveal"><h3 class="grad-text"><span class="counter" data-to="250">0</span>+</h3><p>Projects Delivered</p></div>
+    <div class="stat reveal"><h3 class="grad-text"><span class="counter" data-to="120">0</span>+</h3><p>Happy Clients</p></div>
+    <div class="stat reveal"><h3 class="grad-text"><span class="counter" data-to="35">0</span>M</h3><p>Users Reached</p></div>
+    <div class="stat reveal"><h3 class="grad-text"><span class="counter" data-to="12">0</span></h3><p>Countries Served</p></div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section id="services">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">What We Do</span>
+      <h2 class="split">Services that <span class="grad-text">power growth</span></h2>
+      <p class="reveal">End-to-end solutions built on modern technology, crafted to perform and designed to impress.</p>
+    </div>
+    <div class="cards">
+      <article class="tilt reveal"><div class="glare"></div>
+        <div class="card-img"><img data-src="photo-1677442136019-21780ecad995" alt="AI" /></div>
+        <div class="card-body"><div class="ico">🤖</div><h3>AI &amp; Automation</h3><p>Custom machine learning models, chatbots and intelligent workflows that save time and unlock insights.</p><a href="#contact" data-hover>Learn more →</a></div>
+      </article>
+      <article class="tilt reveal"><div class="glare"></div>
+        <div class="card-img"><img data-src="photo-1451187580459-43490279c0fa" alt="Cloud" /></div>
+        <div class="card-body"><div class="ico">☁️</div><h3>Cloud Platforms</h3><p>Secure, elastic infrastructure on AWS, GCP and Azure with CI/CD, observability and zero downtime.</p><a href="#contact" data-hover>Learn more →</a></div>
+      </article>
+      <article class="tilt reveal"><div class="glare"></div>
+        <div class="card-img"><img data-src="photo-1551434678-e076c223a692" alt="Dev" /></div>
+        <div class="card-body"><div class="ico">💻</div><h3>Web &amp; App Dev</h3><p>Blazing-fast websites, SaaS dashboards and mobile apps with pixel-perfect interfaces.</p><a href="#contact" data-hover>Learn more →</a></div>
+      </article>
+      <article class="tilt reveal"><div class="glare"></div>
+        <div class="card-img"><img data-src="photo-1561070791-2526d30994b5" alt="Design" /></div>
+        <div class="card-body"><div class="ico">🎨</div><h3>UI/UX Design</h3><p>Research-driven design systems and delightful interactions that convert visitors into loyal users.</p><a href="#contact" data-hover>Learn more →</a></div>
+      </article>
+      <article class="tilt reveal"><div class="glare"></div>
+        <div class="card-img"><img data-src="photo-1550751827-4bd374c3f58b" alt="Security" /></div>
+        <div class="card-body"><div class="ico">🛡️</div><h3>Cybersecurity</h3><p>Threat modelling, audits and zero-trust architecture to keep your product and customers safe.</p><a href="#contact" data-hover>Learn more →</a></div>
+      </article>
+      <article class="tilt reveal"><div class="glare"></div>
+        <div class="card-img"><img data-src="photo-1460925895917-afdab827c52f" alt="Analytics" /></div>
+        <div class="card-body"><div class="ico">📊</div><h3>Data &amp; Analytics</h3><p>Real-time dashboards, pipelines and predictive analytics that turn raw data into decisions.</p><a href="#contact" data-hover>Learn more →</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PARALLAX SHOWCASE ============ -->
+<section class="showcase">
+  <div class="showcase-inner">
+    <div class="showcase-bg" data-bg="photo-1518770660439-4636190af475"></div>
+    <img class="float-img f1 parallax-float" data-speed="-80" data-src="photo-1531297484001-80022131f5a1" alt="" />
+    <img class="float-img f2 parallax-float" data-speed="90" data-src="photo-1555949963-ff9fe0c870eb" alt="" />
+    <img class="float-img f3 parallax-float" data-speed="-140" data-src="photo-1581091226825-a6a2a5aee158" alt="" />
+    <div class="showcase-text">
+      <h2 class="split">Innovation never sleeps.</h2>
+      <p class="reveal">From first sketch to global scale — we obsess over every pixel, every millisecond and every user.</p>
+      <a href="#work" class="btn magnetic reveal" data-hover>Explore Our Work</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESS ============ -->
+<section id="process">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">How We Work</span>
+      <h2 class="split">From idea to <span class="grad-text">launch</span> in four steps</h2>
+    </div>
+    <div class="process-grid">
+      <div class="step reveal"><div class="num">01</div><h3>Discover</h3><p>We dive into your vision, users and market to define a sharp strategy.</p></div>
+      <div class="step reveal"><div class="num">02</div><h3>Design</h3><p>Wireframes, prototypes and a stunning visual language you'll love.</p></div>
+      <div class="step reveal"><div class="num">03</div><h3>Develop</h3><p>Clean, scalable code shipped in rapid sprints with constant feedback.</p></div>
+      <div class="step reveal"><div class="num">04</div><h3>Deploy</h3><p>Launch, monitor and iterate — we grow with you after day one.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VIDEO SLIDER ============ -->
+<section id="work">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">Showreel</span>
+      <h2 class="split">Work in <span class="grad-text">motion</span></h2>
+      <p class="reveal">Drag, swipe or use the arrows — hover a slide to preview the video.</p>
+    </div>
+  </div>
+  <div class="swiper video-swiper" data-view>
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <video muted loop playsinline preload="metadata" poster="" data-vsrc="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></video>
+        <div class="v-play">▶</div>
+        <div class="v-info"><h3>Bloom — AI Wellness App</h3><p>Mobile · AI · 2026</p></div>
+      </div>
+      <div class="swiper-slide">
+        <video muted loop playsinline preload="metadata" data-vsrc="https://www.w3schools.com/html/mov_bbb.mp4"></video>
+        <div class="v-play">▶</div>
+        <div class="v-info"><h3>Orbit — Cloud Dashboard</h3><p>SaaS · Cloud · 2026</p></div>
+      </div>
+      <div class="swiper-slide">
+        <video muted loop playsinline preload="metadata" data-vsrc="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></video>
+        <div class="v-play">▶</div>
+        <div class="v-info"><h3>Pulse — Fintech Platform</h3><p>Fintech · Web · 2025</p></div>
+      </div>
+      <div class="swiper-slide">
+        <video muted loop playsinline preload="metadata" data-vsrc="https://www.w3schools.com/html/mov_bbb.mp4"></video>
+        <div class="v-play">▶</div>
+        <div class="v-info"><h3>Zenith — Smart Home Hub</h3><p>IoT · Product · 2025</p></div>
+      </div>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+  <div class="sw-nav"><button id="vPrev" data-hover aria-label="Previous">←</button><button id="vNext" data-hover aria-label="Next">→</button></div>
+</section>
+
+<!-- ============ FEATURES / PRODUCTS ============ -->
+<section id="products">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">Our Products</span>
+      <h2 class="split">Built to <span class="grad-text">dazzle</span></h2>
+    </div>
+
+    <div class="feat-row">
+      <div class="feat-media reveal-left"><img data-src="photo-1551288049-bebda4e38f71" alt="Analytics dashboard" /></div>
+      <div class="feat-text">
+        <span class="tag reveal">NOVA Insight</span>
+        <h3 class="split">Real-time analytics that feel alive.</h3>
+        <p class="reveal">Stream millions of events, visualise trends instantly and let AI surface what matters — all in one beautiful dashboard.</p>
+        <a href="#contact" class="btn magnetic reveal" data-hover>Request Demo</a>
+      </div>
+    </div>
+
+    <div class="feat-row rev">
+      <div class="feat-media reveal-right"><img data-src="photo-1558494949-ef010cbdcc31" alt="Cloud servers" /></div>
+      <div class="feat-text">
+        <span class="tag reveal">NOVA Cloud</span>
+        <h3 class="split">Deploy globally in a single click.</h3>
+        <p class="reveal">Edge-ready infrastructure with auto-scaling, built-in security and 99.99% uptime — so your team ships, not babysits servers.</p>
+        <a href="#contact" class="btn magnetic reveal" data-hover>Start Free Trial</a>
+      </div>
+    </div>
+
+    <div class="feat-row">
+      <div class="feat-media reveal-left"><img data-src="photo-1485827404703-89b55fcc595e" alt="Robotics" /></div>
+      <div class="feat-text">
+        <span class="tag reveal">NOVA Labs</span>
+        <h3 class="split">Experiments shaping tomorrow.</h3>
+        <p class="reveal">Our research lab explores robotics, generative AI and spatial computing — turning moonshots into products.</p>
+        <a href="#contact" class="btn magnetic reveal" data-hover>Join the Waitlist</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEAM ============ -->
+<section id="team">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">The Team</span>
+      <h2 class="split">Minds behind the <span class="grad-text">magic</span></h2>
+    </div>
+    <div class="team-grid">
+      <div class="member reveal"><img data-src="photo-1573496359142-b8d87734a5a2" alt="" /><div class="info"><h4>Sara Mitchell</h4><span>CEO &amp; Founder</span><div class="soc"><a href="#" data-hover>in</a><a href="#" data-hover>𝕏</a><a href="#" data-hover>gh</a></div></div></div>
+      <div class="member reveal"><img data-src="photo-1507003211169-0a1dd7228f2d" alt="" /><div class="info"><h4>Daniel Park</h4><span>CTO</span><div class="soc"><a href="#" data-hover>in</a><a href="#" data-hover>𝕏</a><a href="#" data-hover>gh</a></div></div></div>
+      <div class="member reveal"><img data-src="photo-1580489944761-15a19d654956" alt="" /><div class="info"><h4>Aria Sharma</h4><span>Head of Design</span><div class="soc"><a href="#" data-hover>in</a><a href="#" data-hover>𝕏</a><a href="#" data-hover>gh</a></div></div></div>
+      <div class="member reveal"><img data-src="photo-1472099645785-5658abf4ff4e" alt="" /><div class="info"><h4>Liam Carter</h4><span>AI Lead</span><div class="soc"><a href="#" data-hover>in</a><a href="#" data-hover>𝕏</a><a href="#" data-hover>gh</a></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section id="reviews">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">Testimonials</span>
+      <h2 class="split">Loved by <span class="grad-text">founders</span></h2>
+    </div>
+    <div class="swiper t-swiper" data-view>
+      <div class="swiper-wrapper">
+        <div class="swiper-slide"><div class="t-card"><div class="stars">★★★★★</div><p>NOVA rebuilt our entire platform in eight weeks. The result is faster, prettier and our conversion jumped 3x.</p><div class="t-user"><img data-src="photo-1500648767791-00dcc994a43e" alt=""><div><h4>Michael Ross</h4><span>CEO, FinFlow</span></div></div></div></div>
+        <div class="swiper-slide"><div class="t-card"><div class="stars">★★★★★</div><p>Their AI team understood our problem better than we did. The automation saves us 40 hours every single week.</p><div class="t-user"><img data-src="photo-1494790108377-be9c29b29330" alt=""><div><h4>Priya Nair</h4><span>COO, Medora</span></div></div></div></div>
+        <div class="swiper-slide"><div class="t-card"><div class="stars">★★★★★</div><p>Design quality is unreal. Every animation, every micro-interaction — our users literally comment on it.</p><div class="t-user"><img data-src="photo-1506794778202-cad84cf45f1d" alt=""><div><h4>James Wu</h4><span>Founder, Pixelhive</span></div></div></div></div>
+        <div class="swiper-slide"><div class="t-card"><div class="stars">★★★★★</div><p>Reliable, transparent and insanely fast. NOVA feels like an extension of our own team.</p><div class="t-user"><img data-src="photo-1438761681033-6461ffad8d80" alt=""><div><h4>Elena Costa</h4><span>CPO, Skyline</span></div></div></div></div>
+        <div class="swiper-slide"><div class="t-card"><div class="stars">★★★★★</div><p>From MVP to Series A, they scaled with us every step. Highly recommended for any ambitious startup.</p><div class="t-user"><img data-src="photo-1519085360753-af0119f7cbe7" alt=""><div><h4>Omar Khalid</h4><span>CTO, Veritas</span></div></div></div></div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section id="pricing">
+  <div class="container">
+    <div class="sec-head center">
+      <span class="tag">Pricing</span>
+      <h2 class="split">Simple plans, <span class="grad-text">stellar results</span></h2>
+    </div>
+    <div class="price-grid">
+      <div class="price reveal"><h3>Starter</h3><div class="amt">$29<small>/mo</small></div><ul><li>1 Project</li><li>Basic analytics</li><li>Community support</li><li>5 GB storage</li></ul><a href="#contact" class="btn ghost magnetic" data-hover>Choose Plan</a></div>
+      <div class="price pop reveal"><span class="badge">POPULAR</span><h3>Growth</h3><div class="amt grad-text">$99<small>/mo</small></div><ul><li>10 Projects</li><li>Advanced AI analytics</li><li>Priority support</li><li>100 GB storage</li></ul><a href="#contact" class="btn magnetic" data-hover>Choose Plan</a></div>
+      <div class="price reveal"><h3>Enterprise</h3><div class="amt">Custom</div><ul><li>Unlimited projects</li><li>Dedicated engineers</li><li>24/7 premium support</li><li>Custom integrations</li></ul><a href="#contact" class="btn ghost magnetic" data-hover>Contact Sales</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section style="padding-top:40px">
+  <div class="container">
+    <div class="cta-box reveal">
+      <div class="sparkles" id="ctaSparkles"></div>
+      <h2 class="split">Ready to build something <span class="grad-text">extraordinary?</span></h2>
+      <p>Join 120+ ambitious teams who launched with NOVA. Let's turn your idea into the next big thing.</p>
+      <a href="#contact" class="btn magnetic" data-hover>Let's Talk →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <div class="container contact-grid">
+    <div class="c-info">
+      <span class="tag reveal">Contact</span>
+      <h2 class="split">Let's start a conversation.</h2>
+      <p class="reveal">Tell us about your project and we'll reply within 24 hours.</p>
+      <div class="c-item reveal"><i>📧</i><div><b>Email</b><br><span style="color:var(--muted)">hello@nova.tech</span></div></div>
+      <div class="c-item reveal"><i>📞</i><div><b>Phone</b><br><span style="color:var(--muted)">+1 (555) 123-4567</span></div></div>
+      <div class="c-item reveal"><i>📍</i><div><b>Office</b><br><span style="color:var(--muted)">12 Innovation Way, San Francisco</span></div></div>
+    </div>
+    <form id="contactForm" class="reveal-right">
+      <div class="field"><input type="text" id="n" placeholder=" " required /><label for="n">Your Name</label></div>
+      <div class="field"><input type="email" id="e" placeholder=" " required /><label for="e">Email Address</label></div>
+      <div class="field"><input type="text" id="s" placeholder=" " /><label for="s">Subject</label></div>
+      <div class="field"><textarea id="m" placeholder=" " required></textarea><label for="m">Tell us about your project</label></div>
+      <button type="submit" class="btn magnetic" data-hover id="sendBtn">Send Message ✦</button>
+    </form>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="big-word">NOVA</div>
+    <div class="foot-grid">
+      <div><a href="#home" class="logo"><i>N</i>NOVA</a><p>Crafting the future of technology with design, AI and relentless innovation.</p></div>
+      <div><h4>Company</h4><ul><li><a href="#about">About</a></li><li><a href="#team">Team</a></li><li><a href="#work">Work</a></li><li><a href="#contact">Careers</a></li></ul></div>
+      <div><h4>Services</h4><ul><li><a href="#services">AI Solutions</a></li><li><a href="#services">Cloud</a></li><li><a href="#services">Web Dev</a></li><li><a href="#services">Design</a></li></ul></div>
+      <div><h4>Newsletter</h4><p>Get monthly tech insights.</p><div class="news"><input type="email" placeholder="Your email" /><button data-hover>Join</button></div></div>
+    </div>
+    <div class="copy"><span>© 2026 NOVA Technologies. All rights reserved.</span><span>Made with ✦ &amp; code</span></div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+<!-- ============ LIBRARIES ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+
+<script>
+/* ================================================================
+   NOVA — Main Script
+   ================================================================ */
+gsap.registerPlugin(ScrollTrigger);
+const $  = (s, c = document) => c.querySelector(s);
+const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+const isTouch = matchMedia('(hover:none)').matches;
+const root = document.documentElement;
+
+/* ---------- Image loader (Unsplash + fallback) ---------- */
+const U = id => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1000&q=75`;
+$$('img[data-src]').forEach(img => {
+  img.loading = 'lazy';
+  img.src = U(img.dataset.src);
+  img.onerror = () => { img.onerror = null; img.src = `https://picsum.photos/seed/${img.dataset.src}/900/700`; };
+});
+$$('[data-bg]').forEach(el => {
+  el.style.backgroundImage = `url(${U(el.dataset.bg).replace('w=1000','w=1800')})`;
+});
+
+/* ---------- Lenis smooth scroll ---------- */
+const lenis = new Lenis({ duration: 1.25, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+lenis.stop();
+
+/* ---------- Sparkles generator ---------- */
+function makeSparkles(el, n = 40) {
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--s:${2+Math.random()*4}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*5}s`;
+    el.appendChild(s);
+  }
+}
+makeSparkles($('#heroSparkles'), 60);
+makeSparkles($('#ctaSparkles'), 40);
+
+/* ---------- Particles.js ---------- */
+function initParticles() {
+  const light = root.dataset.theme === 'light';
+  const c = light ? '#5b3df5' : '#8e7cff';
+  if (window.pJSDom && pJSDom.length) { pJSDom[0].pJS.fn.vendors.destroy(); pJSDom.length = 0; }
+  particlesJS('particles-js', {
+    particles: {
+      number: { value: isTouch ? 35 : 80, density: { enable: true, value_area: 900 } },
+      color: { value: [c, '#00e0ff', '#ff4fd8'] },
+      shape: { type: ['circle', 'star'] },
+      opacity: { value: .6, random: true, anim: { enable: true, speed: 1, opacity_min: .1 } },
+      size: { value: 3, random: true, anim: { enable: true, speed: 2, size_min: .3 } },
+      line_linked: { enable: true, distance: 140, color: c, opacity: .18, width: 1 },
+      move: { enable: true, speed: 1.2, random: true, out_mode: 'out' }
+    },
+    interactivity: {
+      detect_on: 'window',
+      events: { onhover: { enable: !isTouch, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
+      modes: { grab: { distance: 160, line_linked: { opacity: .5 } }, push: { particles_nb: 3 } }
+    },
+    retina_detect: true
+  });
+}
+initParticles();
+
+/* ---------- Preloader canvas (starfield) ---------- */
+(function preStars() {
+  const cv = $('#pre-canvas'), ctx = cv.getContext('2d');
+  let w, h, stars = [], raf;
+  const resize = () => { w = cv.width = innerWidth; h = cv.height = innerHeight; };
+  resize(); addEventListener('resize', resize);
+  for (let i = 0; i < 160; i++) stars.push({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() });
+  (function draw() {
+    ctx.fillStyle = 'rgba(4,5,12,.35)'; ctx.fillRect(0, 0, w, h);
+    stars.forEach(s => {
+      s.z -= .006; if (s.z <= 0) { s.x = Math.random()*2-1; s.y = Math.random()*2-1; s.z = 1; }
+      const px = w/2 + s.x / s.z * w/2, py = h/2 + s.y / s.z * h/2, r = (1 - s.z) * 2.4;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, 7);
+      ctx.fillStyle = `hsl(${220 + s.z*120},100%,${70}%)`; ctx.shadowBlur = 10; ctx.shadowColor = '#7c5cff'; ctx.fill();
+    });
+    if ($('#preloader')) raf = requestAnimationFrame(draw);
+  })();
+})();
+
+/* ---------- Preloader logic ---------- */
+const counter = { v: 0 };
+const countEl = $('#count'), barEl = $('#bar');
+let pageReady = false;
+addEventListener('load', () => pageReady = true);
+setTimeout(() => pageReady = true, 5000); // safety
+
+gsap.to(counter, {
+  v: 100, duration: 2.8, ease: 'power2.inOut',
+  onUpdate() {
+    let v = Math.round(counter.v);
+    if (!pageReady && v > 92) { v = 92; }
+    countEl.textContent = v; barEl.style.width = v + '%';
+  },
+  onComplete() {
+    const check = setInterval(() => { if (pageReady) { clearInterval(check); finishLoader(); } }, 100);
+  }
+});
+
+function finishLoader() {
+  countEl.textContent = 100; barEl.style.width = '100%';
+  const tl = gsap.timeline({ onComplete: () => { $('#preloader').remove(); lenis.start(); initScrollAnimations(); } });
+  tl.to('.loader-orb', { scale: 6, opacity: 0, duration: .9, ease: 'power3.in' })
+    .to('.loader-text,.loader-bar', { opacity: 0, y: -30, duration: .5 }, '<')
+    .to('#pre-canvas', { opacity: 0, duration: .4 }, '<.3')
+    .to('.loader-panel:first-of-type', { yPercent: -100, duration: 1, ease: 'power4.inOut' }, '-=.1')
+    .to('.loader-panel:nth-of-type(2)', { yPercent: 100, duration: 1, ease: 'power4.inOut' }, '<')
+    .add(heroIntro, '-=.6');
+}
+
+function heroIntro() {
+  gsap.from('.hero h1 .line span', { yPercent: 120, rotate: 6, duration: 1.2, stagger: .15, ease: 'power4.out' });
+  gsap.from('.hero-anim', { y: 40, opacity: 0, duration: 1, stagger: .15, delay: .5, ease: 'power3.out' });
+  gsap.from('.hero-stats > div', { y: 30, opacity: 0, stagger: .12, delay: 1, duration: .8 });
+  gsap.from('header', { y: -100, opacity: 0, duration: 1, delay: .4, ease: 'power3.out' });
+}
+
+/* ---------- Three.js 3D Hero ---------- */
+(function hero3D() {
+  const canvas = $('#hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, 1, .1, 100);
+  camera.position.z = 8;
+
+  const group = new THREE.Group(); scene.add(group);
+
+  const geo = new THREE.IcosahedronGeometry(2.1, 3);
+  const base = geo.attributes.position.array.slice();
+  const mat = new THREE.MeshStandardMaterial({ color: 0x7c5cff, metalness: .8, roughness: .2, emissive: 0x2a1a88, emissiveIntensity: .6, flatShading: true });
+  const orb = new THREE.Mesh(geo, mat); group.add(orb);
+
+  const wire = new THREE.Mesh(new THREE.IcosahedronGeometry(2.55, 1), new THREE.MeshBasicMaterial({ color: 0x00e0ff, wireframe: true, transparent: true, opacity: .35 }));
+  group.add(wire);
+
+  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(3.4, .025, 16, 200), new THREE.MeshBasicMaterial({ color: 0xff4fd8 }));
+  ring1.rotation.x = 1.2; group.add(ring1);
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(3.9, .02, 16, 200), new THREE.MeshBasicMaterial({ color: 0x00e0ff }));
+  ring2.rotation.y = 1.1; group.add(ring2);
+
+  // star points
+  const pGeo = new THREE.BufferGeometry(), N = 900, pos = new Float32Array(N * 3);
+  for (let i = 0; i < N * 3; i++) pos[i] = (Math.random() - .5) * 26;
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const pts = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xffffff, size: .045, transparent: true, opacity: .8 }));
+  scene.add(pts);
+
+  scene.add(new THREE.AmbientLight(0xffffff, .5));
+  const l1 = new THREE.PointLight(0x00e0ff, 3, 30); l1.position.set(5, 4, 6); scene.add(l1);
+  const l2 = new THREE.PointLight(0xff4fd8, 3, 30); l2.position.set(-6, -3, 4); scene.add(l2);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    group.position.x = w > 1000 ? 3.2 : 0;
+    group.position.y = w > 1000 ? 0 : -1.6;
+    group.scale.setScalar(w > 1000 ? 1 : .75);
+  }
+  resize(); addEventListener('resize', resize);
+
+  const mouse = { x: 0, y: 0 };
+  addEventListener('mousemove', e => { mouse.x = e.clientX / innerWidth - .5; mouse.y = e.clientY / innerHeight - .5; });
+
+  let visible = true;
+  new IntersectionObserver(e => visible = e[0].isIntersecting).observe(canvas);
+  const clock = new THREE.Clock();
+
+  window.setHeroTheme = light => {
+    mat.color.set(light ? 0x5b3df5 : 0x7c5cff);
+    mat.emissive.set(light ? 0x8e7cff : 0x2a1a88);
+    pts.material.color.set(light ? 0x5b3df5 : 0xffffff);
+  };
+
+  (function loop() {
+    requestAnimationFrame(loop);
+    if (!visible) return;
+    const t = clock.getElapsedTime();
+    const p = geo.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = base[i*3], y = base[i*3+1], z = base[i*3+2];
+      const n = 1 + .12 * Math.sin(x * 1.6 + t * 1.3) * Math.cos(y * 1.6 + t) * Math.sin(z * 1.6 + t * .8);
+      p.setXYZ(i, x * n, y * n, z * n);
+    }
+    p.needsUpdate = true; geo.computeVertexNormals();
+    orb.rotation.y = t * .25; wire.rotation.y = -t * .15; wire.rotation.x = t * .1;
+    ring1.rotation.z = t * .3; ring2.rotation.x = t * .25;
+    pts.rotation.y = t * .02;
+    group.rotation.y += (mouse.x * 1.1 - group.rotation.y) * .05;
+    group.rotation.x += (mouse.y * .8 - group.rotation.x) * .05;
+    renderer.render(scene, camera);
+  })();
+})();
+
+/* ---------- Custom cursor ---------- */
+if (!isTouch) {
+  const dot = $('.cursor-dot'), ring = $('.cursor-ring');
+  const dx = gsap.quickTo(dot, 'x', { duration: .1 }), dy = gsap.quickTo(dot, 'y', { duration: .1 });
+  const rx = gsap.quickTo(ring, 'x', { duration: .45, ease: 'power3' }), ry = gsap.quickTo(ring, 'y', { duration: .45, ease: 'power3' });
+  addEventListener('mousemove', e => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest('a,button,[data-hover],.tilt,.member,.price')) ring.classList.add('hover');
+    ring.classList.toggle('view', !!e.target.closest('.video-swiper .swiper-slide'));
+  });
+  document.addEventListener('mouseout', e => { if (e.target.closest('a,button,[data-hover],.tilt,.member,.price')) ring.classList.remove('hover'); });
+}
+
+/* ---------- Magnetic buttons ---------- */
+if (!isTouch) $$('.magnetic').forEach(el => {
+  const xTo = gsap.quickTo(el, 'x', { duration: .5, ease: 'elastic.out(1,.4)' });
+  const yTo = gsap.quickTo(el, 'y', { duration: .5, ease: 'elastic.out(1,.4)' });
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    xTo((e.clientX - r.left - r.width / 2) * .35);
+    yTo((e.clientY - r.top - r.height / 2) * .35);
+  });
+  el.addEventListener('mouseleave', () => { xTo(0); yTo(0); });
+});
+
+/* ---------- 3D tilt cards ---------- */
+$$('.tilt').forEach(card => {
+  const rx = gsap.quickTo(card, 'rotationX', { duration: .4, ease: 'power2' });
+  const ry = gsap.quickTo(card, 'rotationY', { duration: .4, ease: 'power2' });
+  gsap.set(card, { transformPerspective: 900 });
+  card.addEventListener('mousemove', e => {
+    if (isTouch) return;
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    ry((px - .5) * 18); rx(-(py - .5) * 18);
+    card.style.setProperty('--gx', px * 100 + '%'); card.style.setProperty('--gy', py * 100 + '%');
+  });
+  card.addEventListener('mouseleave', () => { rx(0); ry(0); });
+});
+
+/* ---------- Text splitting ---------- */
+$$('.split').forEach(el => {
+  const walk = node => {
+    [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(w => {
+          if (/^\s+$/.test(w)) { frag.appendChild(document.createTextNode(' ')); return; }
+          if (!w) return;
+          const wrap = document.createElement('span');
+          wrap.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:top';
+          const inner = document.createElement('span');
+          inner.className = 'w'; inner.style.display = 'inline-block'; inner.textContent = w;
+          wrap.appendChild(inner); frag.appendChild(wrap);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1) walk(n);
+    });
+  };
+  walk(el);
+});
+
+/* ---------- Scroll animations ---------- */
+function initScrollAnimations() {
+  // animated headings
+  $$('.split').forEach(el => {
+    gsap.from($$('.w', el), {
+      yPercent: 115, rotate: 5, opacity: 0, duration: 1, stagger: .06, ease: 'power4.out',
+      scrollTrigger: { trigger: el, start: 'top 88%' }
+    });
+  });
+  // reveals
+  $$('.reveal').forEach(el => gsap.from(el, { y: 60, opacity: 0, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%' } }));
+  $$('.reveal-left').forEach(el => gsap.from(el, { x: -100, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } }));
+  $$('.reveal-right').forEach(el => gsap.from(el, { x: 100, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } }));
+
+  // stagger groups
+  ['.cards', '.team-grid', '.price-grid', '.process-grid', '.stats-grid'].forEach(sel => {
+    const g = $(sel); if (!g) return;
+    gsap.from(g.children, { y: 80, opacity: 0, scale: .94, duration: 1, stagger: .12, ease: 'power3.out', scrollTrigger: { trigger: g, start: 'top 85%' } });
+  });
+
+  // parallax
+  $$('.parallax-img').forEach(img => gsap.to(img, { yPercent: -16, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } }));
+  gsap.to('.showcase-bg', { yPercent: 18, ease: 'none', scrollTrigger: { trigger: '.showcase', start: 'top bottom', end: 'bottom top', scrub: true } });
+  $$('.parallax-float').forEach(el => gsap.to(el, { y: +el.dataset.speed, ease: 'none', scrollTrigger: { trigger: '.showcase', start: 'top bottom', end: 'bottom top', scrub: 1 } }));
+  gsap.to('.glow.g1', { y: 600, ease: 'none', scrollTrigger: { scrub: 1, start: 0, end: 'max' } });
+  gsap.to('.glow.g2', { y: -600, ease: 'none', scrollTrigger: { scrub: 1, start: 0, end: 'max' } });
+  gsap.to('.hero-content', { y: 120, opacity: .2, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
+  gsap.to('.big-word', { y: -40, ease: 'none', scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+
+  // counters
+  $$('.counter').forEach(c => {
+    const o = { v: 0 };
+    ScrollTrigger.create({ trigger: c, start: 'top 90%', once: true, onEnter: () =>
+      gsap.to(o, { v: +c.dataset.to, duration: 2.2, ease: 'power2.out', onUpdate: () => c.textContent = Math.round(o.v) }) });
+  });
+
+  // process line pulse
+  gsap.from('.step .num', { scale: 0, rotate: -180, duration: 1, stagger: .2, ease: 'back.out(1.7)', scrollTrigger: { trigger: '.process-grid', start: 'top 80%' } });
+  ScrollTrigger.refresh();
+}
+
+/* ---------- Swipers ---------- */
+const vSwiper = new Swiper('.video-swiper', {
+  effect: 'coverflow', grabCursor: true, centeredSlides: true, slidesPerView: 'auto', loop: true, speed: 800,
+  coverflowEffect: { rotate: 22, stretch: 0, depth: 220, modifier: 1, slideShadows: false },
+  pagination: { el: '.video-swiper .swiper-pagination', clickable: true },
+  navigation: { nextEl: '#vNext', prevEl: '#vPrev' },
+  on: { slideChangeTransitionEnd: playActiveVideo, init: () => setTimeout(playActiveVideo, 300) }
+});
+function loadVideo(v) { if (!v.src && v.dataset.vsrc) v.src = v.dataset.vsrc; }
+function playActiveVideo() {
+  $$('.video-swiper video').forEach(v => v.pause());
+  const v = $('.video-swiper .swiper-slide-active video');
+  if (v) { loadVideo(v); v.play().catch(() => {}); }
+}
+$$('.video-swiper video').forEach(v => { loadVideo(v); });
+$$('.video-swiper .swiper-slide').forEach(s => {
+  s.addEventListener('mouseenter', () => { const v = $('video', s); loadVideo(v); v.play().catch(() => {}); });
+  s.addEventListener('click', () => { const v = $('video', s); if (v.paused) v.play(); else v.pause(); s.querySelector('.v-play').style.opacity = v.paused ? 1 : 0; });
+});
+
+new Swiper('.t-swiper', {
+  slidesPerView: 1, spaceBetween: 26, grabCursor: true, loop: true,
+  autoplay: { delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true },
+  pagination: { el: '.t-swiper .swiper-pagination', clickable: true },
+  breakpoints: { 700: { slidesPerView: 2 }, 1100: { slidesPerView: 3 } }
+});
+
+/* ---------- Dark / Light mode ---------- */
+const themeBtn = $('#themeBtn');
+const saved = localStorage.getItem('nova-theme');
+if (saved) applyTheme(saved, false);
+else if (matchMedia('(prefers-color-scheme: light)').matches) applyTheme('light', false);
+
+function applyTheme(t, animate = true) {
+  root.dataset.theme = t;
+  themeBtn.textContent = t === 'light' ? '☀️' : '🌙';
+  localStorage.setItem('nova-theme', t);
+  if (window.setHeroTheme) setHeroTheme(t === 'light');
+  if (animate) initParticles();
+}
+themeBtn.addEventListener('click', () => {
+  const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  gsap.fromTo(document.body, { opacity: .6 }, { opacity: 1, duration: .6 });
+  applyTheme(next);
+});
+// apply once Three is ready
+setTimeout(() => window.setHeroTheme && setHeroTheme(root.dataset.theme === 'light'), 100);
+
+/* ---------- Page transitions + smooth anchor links ---------- */
+const bars = $$('#curtain div');
+let transitioning = false;
+function goTo(target) {
+  if (transitioning) return;
+  transitioning = true;
+  $('#navLinks').classList.remove('open');
+  gsap.timeline({ onComplete: () => transitioning = false })
+    .set(bars, { transformOrigin: 'bottom' })
+    .to(bars, { scaleY: 1, duration: .55, stagger: .06, ease: 'power3.inOut' })
+    .add(() => lenis.scrollTo(target, { immediate: true, offset: 0 }))
+    .set(bars, { transformOrigin: 'top' })
+    .to(bars, { scaleY: 0, duration: .6, stagger: .06, ease: 'power3.inOut' }, '+=.1')
+    .add(() => ScrollTrigger.refresh());
+}
+$$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
+  const id = a.getAttribute('href');
+  if (id.length < 2) return;
+  const t = $(id); if (!t) return;
+  e.preventDefault(); goTo(t);
+}));
+$('#toTop').addEventListener('click', () => lenis.scrollTo(0, { duration: 1.8 }));
+
+/* ---------- Header, progress, burger ---------- */
+lenis.on('scroll', ({ scroll, limit }) => {
+  $('#header').classList.toggle('scrolled', scroll > 60);
+  $('#progress').style.width = (scroll / limit * 100) + '%';
+  $('#toTop').classList.toggle('show', scroll > 800);
+});
+$('#burger').addEventListener('click', () => $('#navLinks').classList.toggle('open'));
+
+/* ---------- Form ---------- */
+$('#contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const b = $('#sendBtn'); b.textContent = 'Sending…';
+  setTimeout(() => {
+    b.textContent = '✓ Message Sent!';
+    gsap.fromTo(b, { scale: .9 }, { scale: 1, duration: .6, ease: 'elastic.out(1,.4)' });
+    e.target.reset();
+    setTimeout(() => b.textContent = 'Send Message ✦', 3000);
+  }, 1200);
+});
+
+/* ---------- Click sparkle burst ---------- */
+document.addEventListener('click', e => {
+  for (let i = 0; i < 10; i++) {
+    const s = document.createElement('span');
+    s.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:9998;background:hsl(${Math.random()*360},100%,65%);box-shadow:0 0 10px currentColor`;
+    document.body.appendChild(s);
+    gsap.to(s, { x: (Math.random()-.5)*160, y: (Math.random()-.5)*160, opacity: 0, scale: 0, duration: .9, ease: 'power2.out', onComplete: () => s.remove() });
+  }
+});
+</script>
+</body>
+</html>
